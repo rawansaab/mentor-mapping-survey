@@ -1,0 +1,115 @@
+{% extends "supervisors_layout.html" %}
+{% block content %}
+
+<a class="admin-mini-btn" href="/admin"><span>ניהול מדריכים</span> ⚙️</a>
+
+<div class="container">
+  <header class="hero">
+    <h1>{{ cfg.form_title }}</h1>
+    <p class="sub">{{ cfg.form_subtitle }}</p>
+  </header>
+
+  <form method="post" action="/" class="card">
+    
+    <!-- הלולאה הזו קוראת את סדר הסעיפים שהמרצים קבעו בפאנל הניהול! -->
+    {% for section in cfg.section_order %}
+    
+      {% if section == "personal" %}
+      <section id="sec-personal">
+        <h2>👤 פרטים אישיים</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <label class="required"><span>שם פרטי</span><input type="text" name="first_name" required></label>
+            <label class="required"><span>שם משפחה</span><input type="text" name="last_name" required></label>
+        </div>
+        <label class="required" style="margin-top: 15px;">
+          <span>סטטוס מדריך</span>
+          <select name="mentor_status" required>
+            <option value="">בחר/י מהרשימה</option>
+            {% for s in cfg.mentor_statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+          </select>
+        </label>
+      </section>
+
+      {% elif section == "institution" %}
+      <section id="sec-institution">
+        <h2>🏢 פרטי מוסד ההכשרה</h2>
+        <label class="required"><span>שם המוסד המלא</span><input type="text" name="institute" required></label>
+        <label class="required">
+          <span>תחום התמחות מוביל</span>
+          <select name="specialization" required>
+            <option value="">בחר/י מהרשימה</option>
+            {% for s in cfg.specializations %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+          </select>
+        </label>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-top: 15px;">
+            <label><span>כתובת מלאה (רחוב ועיר)</span><input type="text" name="full_address" placeholder="לדוגמה: רחוב סמרה, תמרה"></label>
+            <label><span>מיקוד</span><input type="text" name="postal_code"></label>
+        </div>
+      </section>
+
+      {% elif section == "capacity" %}
+      <section id="sec-capacity">
+        <h2>👥 קליטת סטודנטים וימי הדרכה</h2>
+        <label class="required">
+          <span>מספר סטודנטים שניתן לקלוט השנה</span>
+          <select name="num_students" required>
+            <option value="1">1 סטודנט/ית</option>
+            <option value="2">2 סטודנטים/ות</option>
+          </select>
+        </label>
+        
+        <label style="margin-top: 20px;"><span>ימי הדרכה אפשריים (סמן/י את הימים הרלוונטיים)</span></label>
+        <div class="checkbox-grid">
+            {% for day in cfg.training_days %}
+            <label class="check-item"><input type="checkbox" name="training_days" value="{{ day }}"> יום {{ day }}</label>
+            {% endfor %}
+        </div>
+
+        <label class="required" style="margin-top: 20px;">
+          <span>האם יש כוונה להמשיך בהדרכה לשנה נוספת?</span>
+          <div class="radio-group">
+            <label class="radio-option"><input type="radio" name="continue_mentoring" value="כן" required> כן</label>
+            <label class="radio-option"><input type="radio" name="continue_mentoring" value="לא" required> לא</label>
+          </div>
+        </label>
+
+        <label style="margin-top: 20px;">
+            <span>בקשות או אילוצים מיוחדים (שעות, ימים, נגישות)</span>
+            <textarea name="special_requests" rows="3" placeholder="כתוב/י כאן כל דבר שנרצה לקחת בחשבון..."></textarea>
+        </label>
+      </section>
+
+      {% elif section == "feedback" %}
+      <section id="sec-feedback">
+        <h2>⭐ חוות דעת עצמית על ההדרכה</h2>
+        <label><span>נקודות לציון (ניתן לסמן כמה)</span></label>
+        <div class="checkbox-grid">
+            {% for pt in cfg.feedback_points %}
+            <label class="check-item"><input type="checkbox" name="mentor_feedback_points" value="{{ pt }}"> {{ pt }}</label>
+            {% endfor %}
+        </div>
+        <label style="margin-top: 15px;">
+          <span>הערות נוספות (טקסט חופשי)</span>
+          <textarea name="mentor_feedback_text" rows="3"></textarea>
+        </label>
+      </section>
+
+      {% elif section == "contact" %}
+      <section id="sec-contact">
+        <h2>📞 פרטי התקשרות</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <label class="required"><span>מספר טלפון נייד</span><input type="tel" name="phone" placeholder="0501234567" required></label>
+            <label class="required"><span>כתובת אימייל</span><input type="email" name="email" placeholder="name@domain.com" required></label>
+        </div>
+      </section>
+      {% endif %}
+
+    {% endfor %}
+
+    <div style="text-align: center; margin-top: 30px;">
+      <button type="submit" class="btn">📨 שליחת טופס המדריך</button>
+    </div>
+
+  </form>
+</div>
+{% endblock %}

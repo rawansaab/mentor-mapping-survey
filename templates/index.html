@@ -1,282 +1,115 @@
-<!doctype html>
-<html lang="he" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <title>מיפוי מדריכים לשיבוץ סטודנטים - שנת הכשרה תשפ"ו</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+{% extends "supervisors_layout.html" %}
+{% block content %}
+
+<a class="admin-mini-btn" href="/admin"><span>ניהול מדריכים</span> ⚙️</a>
 
 <div class="container">
-
-  <!-- HEADER -->
   <header class="hero">
-    <h1>📋 מיפוי מדריכים לשיבוץ סטודנטים - שנת הכשרה תשפ"ו</h1>
-    <p class="sub">
-      שלום רב, מטרת טופס זה היא לאסוף מידע עדכני על מדריכים ומוסדות לקראת שיבוץ הסטודנטים לשנה הקרובה.
-      אנא מלא/י את כל השדות בצורה מדויקת. המידע ישמש לצורך תכנון השיבוץ בלבד.
-    </p>
+    <h1>{{ cfg.form_title }}</h1>
+    <p class="sub">{{ cfg.form_subtitle }}</p>
   </header>
 
-  <!-- FLASH -->
-  <div class="messages">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, msg in messages %}
-          <div class="msg msg-{{ category }}">{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-  </div>
-
-  <!-- FORM -->
-  <main>
-    <form method="post" class="card">
-
-      <!-- פרטים אישיים -->
-      <section>
-        <h2>פרטים אישיים</h2>
-
-        <label class="required">
-          <span class="label-text">שם פרטי</span>
-          <input type="text" name="first_name" required>
-        </label>
-
-        <label class="required">
-          <span class="label-text">שם משפחה</span>
-          <input type="text" name="last_name" required>
-        </label>
-
-        <label class="required">
-          <span class="label-text">סטטוס מדריך</span>
+  <form method="post" action="/" class="card">
+    
+    <!-- הלולאה הזו קוראת את סדר הסעיפים שהמרצים קבעו בפאנל הניהול! -->
+    {% for section in cfg.section_order %}
+    
+      {% if section == "personal" %}
+      <section id="sec-personal">
+        <h2>👤 פרטים אישיים</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <label class="required"><span>שם פרטי</span><input type="text" name="first_name" required></label>
+            <label class="required"><span>שם משפחה</span><input type="text" name="last_name" required></label>
+        </div>
+        <label class="required" style="margin-top: 15px;">
+          <span>סטטוס מדריך</span>
           <select name="mentor_status" required>
-            <option value="">בחר/י</option>
-            <option value="מדריך חדש (נדרש קורס)">מדריך חדש (נדרש קורס)</option>
-            <option value="מדריך ותיק">מדריך ותיק</option>
-            <option value="רכז/ת">רכז/ת</option>
+            <option value="">בחר/י מהרשימה</option>
+            {% for s in cfg.mentor_statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
           </select>
         </label>
       </section>
 
-      <!-- מוסד ההכשרה -->
-      <section>
-        <h2>מוסד ההכשרה</h2>
-
+      {% elif section == "institution" %}
+      <section id="sec-institution">
+        <h2>🏢 פרטי מוסד ההכשרה</h2>
+        <label class="required"><span>שם המוסד המלא</span><input type="text" name="institute" required></label>
         <label class="required">
-          <span class="label-text">שם המוסד</span>
-          <input type="text" name="institute" required>
-        </label>
-
-        <label class="required">
-          <span class="label-text">תחום התמחות</span>
+          <span>תחום התמחות מוביל</span>
           <select name="specialization" required>
-            <option value="">בחר/י</option>
-            {% for s in specializations %}
-              <option value="{{ s }}">{{ s }}</option>
-            {% endfor %}
+            <option value="">בחר/י מהרשימה</option>
+            {% for s in cfg.specializations %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
           </select>
         </label>
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px; margin-top: 15px;">
+            <label><span>כתובת מלאה (רחוב ועיר)</span><input type="text" name="full_address" placeholder="לדוגמה: רחוב סמרה, תמרה"></label>
+            <label><span>מיקוד</span><input type="text" name="postal_code"></label>
+        </div>
       </section>
 
-      <!-- כתובת המוסד -->
-      <section>
-        <h2>כתובת המוסד</h2>
-
+      {% elif section == "capacity" %}
+      <section id="sec-capacity">
+        <h2>👥 קליטת סטודנטים וימי הדרכה</h2>
         <label class="required">
-          <span class="label-text">רחוב</span>
-          <input type="text" name="street" required>
-        </label>
-
-        <label class="required">
-          <span class="label-text">עיר</span>
-          <input type="text" name="city" required>
-        </label>
-
-        <label class="required">
-          <span class="label-text">מיקוד</span>
-          <input type="text" name="postal_code" required>
-        </label>
-      </section>
-
-      <!-- קליטת סטודנטים -->
-      <section>
-        <h2>קליטת סטודנטים</h2>
-
-        <label class="required">
-          <span class="label-text">מספר סטודנטים שניתן לקלוט (1 או 2)</span>
+          <span>מספר סטודנטים שניתן לקלוט השנה</span>
           <select name="num_students" required>
-            <option value="">בחר/י</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
+            <option value="1">1 סטודנט/ית</option>
+            <option value="2">2 סטודנטים/ות</option>
           </select>
         </label>
-      </section>
+        
+        <label style="margin-top: 20px;"><span>ימי הדרכה אפשריים (סמן/י את הימים הרלוונטיים)</span></label>
+        <div class="checkbox-grid">
+            {% for day in cfg.training_days %}
+            <label class="check-item"><input type="checkbox" name="training_days" value="{{ day }}"> יום {{ day }}</label>
+            {% endfor %}
+        </div>
 
-      <!-- המשכיות הדרכה -->
-      <section>
-        <h2>המשכיות ההדרכה</h2>
-        <label class="required">
-          <span class="label-text">האם יש כוונה להמשיך בהדרכה לשנה נוספת?</span>
+        <label class="required" style="margin-top: 20px;">
+          <span>האם יש כוונה להמשיך בהדרכה לשנה נוספת?</span>
           <div class="radio-group">
-            <label class="radio-option">
-              <span>כן</span>
-              <input type="radio" name="continue_mentoring" value="כן" required>
-            </label>
-            <label class="radio-option">
-              <span>לא</span>
-              <input type="radio" name="continue_mentoring" value="לא" required>
-            </label>
+            <label class="radio-option"><input type="radio" name="continue_mentoring" value="כן" required> כן</label>
+            <label class="radio-option"><input type="radio" name="continue_mentoring" value="לא" required> לא</label>
           </div>
         </label>
-      </section>
 
-      <!-- בקשות מיוחדות -->
-      <section>
-        <h2>בקשות מיוחדות</h2>
-        <label>
-          <span class="label-text">
-            בקשות מיוחדות (לדוגמה: ימי הדרכה, שעות, נגישות, אילוצים)
-          </span>
-          <textarea name="special_requests" rows="3"
-                    placeholder="כתוב/י כאן כל בקשה שנרצה לקחת בחשבון בשיבוץ"></textarea>
+        <label style="margin-top: 20px;">
+            <span>בקשות או אילוצים מיוחדים (שעות, ימים, נגישות)</span>
+            <textarea name="special_requests" rows="3" placeholder="כתוב/י כאן כל דבר שנרצה לקחת בחשבון..."></textarea>
         </label>
       </section>
 
-<section>
-  <h2>חוות דעת על המדריך</h2>
-  <label class="required">
-    <span class="label-text">חוות דעת על המדריך (נקודות)</span>
-  </label>
-  <div class="tag-ms">
-    <div class="control">
-      <div class="chips" data-ms-chips></div>
-      <div class="placeholder">בחר/י</div>
-      <div class="caret">▼</div>
+      {% elif section == "feedback" %}
+      <section id="sec-feedback">
+        <h2>⭐ חוות דעת עצמית על ההדרכה</h2>
+        <label><span>נקודות לציון (ניתן לסמן כמה)</span></label>
+        <div class="checkbox-grid">
+            {% for pt in cfg.feedback_points %}
+            <label class="check-item"><input type="checkbox" name="mentor_feedback_points" value="{{ pt }}"> {{ pt }}</label>
+            {% endfor %}
+        </div>
+        <label style="margin-top: 15px;">
+          <span>הערות נוספות (טקסט חופשי)</span>
+          <textarea name="mentor_feedback_text" rows="3"></textarea>
+        </label>
+      </section>
+
+      {% elif section == "contact" %}
+      <section id="sec-contact">
+        <h2>📞 פרטי התקשרות</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <label class="required"><span>מספר טלפון נייד</span><input type="tel" name="phone" placeholder="0501234567" required></label>
+            <label class="required"><span>כתובת אימייל</span><input type="email" name="email" placeholder="name@domain.com" required></label>
+        </div>
+      </section>
+      {% endif %}
+
+    {% endfor %}
+
+    <div style="text-align: center; margin-top: 30px;">
+      <button type="submit" class="btn">📨 שליחת טופס המדריך</button>
     </div>
 
-    <div class="menu">
-      <div class="item" data-value="זמינות גבוהה"><span>זמינות גבוהה</span><span class="check">✓</span></div>
-      <div class="item" data-value="ליווי מקצועי משמעותי"><span>ליווי מקצועי משמעותי</span><span class="check">✓</span></div>
-      <div class="item" data-value="שיתוף פעולה עם המוסד"><span>שיתוף פעולה עם המוסד</span><span class="check">✓</span></div>
-      <div class="item" data-value="צורך בחיזוק בליווי"><span>צורך בחיזוק בליווי</span><span class="check">✓</span></div>
-    </div>
-
-    <!-- ה-select החבוי יישלח לשרת -->
-    <select name="mentor_feedback_points" multiple hidden>
-      <option value="זמינות גבוהה"></option>
-      <option value="ליווי מקצועי משמעותי"></option>
-      <option value="שיתוף פעולה עם המוסד"></option>
-      <option value="צורך בחיזוק בליווי"></option>
-    </select>
-  </div>
-
-  <label>
-    <span class="label-text">כתיבה חופשית (פירוט נוסף)</span>
-    <textarea name="mentor_feedback_text" rows="3" placeholder="כתוב/י כאן חוות דעת חופשית..."></textarea>
-  </label>
-</section>
-
-
-      <!-- פרטי התקשרות -->
-      <section>
-        <h2>פרטי התקשרות</h2>
-
-        <label class="required">
-          <span class="label-text">מספר טלפון</span>
-          <input type="tel" name="phone" required placeholder="0501234567">
-        </label>
-
-        <label class="required">
-          <span class="label-text">כתובת דוא״ל</span>
-          <input type="email" name="email" required placeholder="name@example.com">
-        </label>
-      </section>
-
-      <!-- כפתור שליחה -->
-      <div class="submit-wrap">
-        <button type="submit">
-          <span>📨</span>
-          שליחת הטופס
-        </button>
-      </div>
-
-    </form>
-  </main>
+  </form>
 </div>
-
-<!-- SCRIPT: tag-ms (רב־בחירה עם צ'יפים) -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-
-  function initTagMS(ms) {
-    const control      = ms.querySelector('.control');
-    const menu         = ms.querySelector('.menu');
-    const chipsBox     = ms.querySelector('[data-ms-chips]');
-    const placeholder  = ms.querySelector('.placeholder');
-    const hiddenSelect = ms.querySelector('select[multiple][hidden]');
-
-    function updatePlaceholder() {
-      const hasSelected = hiddenSelect.selectedOptions.length > 0;
-      placeholder.style.display = hasSelected ? 'none' : 'block';
-    }
-
-    function renderChips() {
-      chipsBox.innerHTML = '';
-      Array.from(hiddenSelect.selectedOptions).forEach(opt => {
-        const chip = document.createElement('div');
-        chip.className = 'chip';
-        chip.dataset.value = opt.value;
-        chip.innerHTML = `<span>${opt.value}</span><button type="button">&times;</button>`;
-        chip.querySelector('button').addEventListener('click', function (e) {
-          e.stopPropagation();
-          setSelected(opt.value, false);
-        });
-        chipsBox.appendChild(chip);
-      });
-      updatePlaceholder();
-    }
-
-    function syncMenu() {
-      const selected = new Set(Array.from(hiddenSelect.selectedOptions).map(o => o.value));
-      menu.querySelectorAll('.item').forEach(item => {
-        const val = item.dataset.value;
-        item.classList.toggle('active', selected.has(val));
-      });
-    }
-
-    function setSelected(value, on) {
-      const opt = Array.from(hiddenSelect.options).find(o => o.value === value);
-      if (!opt) return;
-      opt.selected = !!on;
-      renderChips();
-      syncMenu();
-    }
-
-    control.addEventListener('click', function () {
-      ms.classList.toggle('open');
-    });
-
-    menu.querySelectorAll('.item').forEach(item => {
-      item.addEventListener('click', function (e) {
-        e.stopPropagation();
-        const value = item.dataset.value;
-        const opt = Array.from(hiddenSelect.options).find(o => o.value === value);
-        const shouldSelect = !(opt && opt.selected);
-        setSelected(value, shouldSelect);
-      });
-    });
-
-    document.addEventListener('click', function (e) {
-      if (!ms.contains(e.target)) ms.classList.remove('open');
-    });
-
-    // הפעלה ראשונית
-    renderChips();
-    syncMenu();
-  }
-
-  document.querySelectorAll('.tag-ms').forEach(initTagMS);
-});
-</script>
-
+{% endblock %}

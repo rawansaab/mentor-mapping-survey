@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block title %}התחברות הנהלה{% endblock %}
+
+{% block content %}
+<header class="hero">
+  <h1>⚙️ כניסת הנהלה</h1>
+  <p class="sub">אנא הזן סיסמה כדי לגשת לפאנל המרצים</p>
+</header>
+<main>
+  <form method="post" class="card" style="max-width: 400px; margin: 0 auto;">
+    <section>
+      <label>
+        <span class="label-text">סיסמת מערכת</span>
+        <input type="password" name="password" required>
+      </label>
+      <div class="submit-wrap">
+        <button type="submit" name="login">הכנס לפאנל</button>
+      </div>
+    </section>
+  </form>
+</main>
+{% endblock %}

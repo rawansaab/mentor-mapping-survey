@@ -4,14 +4,15 @@ import gspread
 from google.oauth2.service_account import Credentials
 
 def get_worksheet():
-    # קבלת המילון כטקסט והמרתו למילון פייתון תקני ללא שימוש ב-import json
-    creds_str = os.environ.get("GOOGLE_SERVICE_ACCOUNT_DICT")
+    creds_str = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
     sheet_id = os.environ.get("SPREADSHEET_ID")
     
     if not creds_str or not sheet_id:
         raise RuntimeError("Missing Google Sheets environment variables.")
         
-    creds_dict = ast.literal_eval(creds_str) # ממיר מחרוזת מילון לאובייקט מילון
+    # המרה בטוחה של מחרוזת למילון ללא שימוש בספריית json
+    creds_str = creds_str.replace('true', 'True').replace('false', 'False').replace('null', 'None')
+    creds_dict = ast.literal_eval(creds_str) 
     
     scopes = ["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"]
     creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)

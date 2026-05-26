@@ -2,7 +2,6 @@
 {% block title %}מיפוי מדריכים לשיבוץ סטודנטים{% endblock %}
 
 {% block content %}
-  <!-- כפתור כניסת מרצים (מיושר לשמאל) -->
   <div style="text-align: left; padding-top: 15px;">
     <a href="{{ url_for('admin_login') }}" style="display: inline-block; background: #ffffff; color: var(--primary); border: 2px solid var(--primary); padding: 8px 20px; border-radius: 999px; text-decoration: none; font-weight: bold; font-size: 16px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(181,125,142,.15);">
       ⚙️ כניסת הנהלה
@@ -10,11 +9,8 @@
   </div>
 
   <header class="hero">
-    <h1>📋 מיפוי מדריכים לשיבוץ סטודנטים - שנת הכשרה תשפ"ו</h1>
-    <p class="sub">
-      שלום רב, מטרת טופס זה היא לאסוף מידע עדכני על מדריכים ומוסדות לקראת שיבוץ הסטודנטים לשנה הקרובה.
-      אנא מלא/י את כל השדות בצורה מדויקת. המידע ישמש לצורך תכנון השיבוץ בלבד.
-    </p>
+    <h1>📋 {{ settings.form_title }}</h1>
+    <p class="sub">{{ settings.form_subtitle }}</p>
   </header>
 
   <main>
@@ -37,9 +33,9 @@
             <span class="label-text">סטטוס מדריך</span>
             <select name="mentor_status" required>
               <option value="">בחר/י</option>
-              <option value="מדריך חדש (נדרש קורס)">מדריך חדש (נדרש קורס)</option>
-              <option value="מדריך ותיק">מדריך ותיק</option>
-              <option value="רכז/ת">רכז/ת</option>
+              {% for s in mentor_statuses %}
+                <option value="{{ s }}">{{ s }}</option>
+              {% endfor %}
             </select>
           </label>
         </section>
@@ -54,7 +50,7 @@
             <select name="specialization" required id="specialization-select">
               <option value="">בחר/י</option>
               {% for s in specializations %}
-                <option value="{{ s|trim }}">{{ s|trim }}</option>
+                <option value="{{ s }}">{{ s }}</option>
               {% endfor %}
             </select>
           </label>
@@ -117,16 +113,14 @@
               <div class="caret">▼</div>
             </div>
             <div class="menu">
-              <div class="item" data-value="זמינות גבוהה"><span>זמינות גבוהה</span><span class="check">✓</span></div>
-              <div class="item" data-value="ליווי מקצועי משמעותי"><span>ליווי מקצועי משמעותי</span><span class="check">✓</span></div>
-              <div class="item" data-value="שיתוף פעולה עם המוסד"><span>שיתוף פעולה עם המוסד</span><span class="check">✓</span></div>
-              <div class="item" data-value="צורך בחיזוק בליווי"><span>צורך בחיזוק בליווי</span><span class="check">✓</span></div>
+              {% for f in feedback_points %}
+              <div class="item" data-value="{{ f }}"><span>{{ f }}</span><span class="check">✓</span></div>
+              {% endfor %}
             </div>
             <select name="mentor_feedback_points" multiple hidden required id="feedback-select">
-              <option value="זמינות גבוהה"></option>
-              <option value="ליווי מקצועי משמעותי"></option>
-              <option value="שיתוף פעולה עם המוסד"></option>
-              <option value="צורך בחיזוק בליווי"></option>
+              {% for f in feedback_points %}
+              <option value="{{ f }}"></option>
+              {% endfor %}
             </select>
           </div>
           <label>
@@ -211,7 +205,6 @@ document.addEventListener('DOMContentLoaded', function () {
   }
   document.querySelectorAll('.tag-ms').forEach(initTagMS);
 
-  // ולידציה חכמה מזמן אמת
   const form = document.getElementById('mentor-form');
   const errorBox = document.getElementById('validation-error-box');
   const errorText = document.getElementById('error-text');

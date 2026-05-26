@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+{% block title %}פאנל מרצים - ניהול{% endblock %}
+
+{% block content %}
+<header class="hero">
+  <h1>⚙️ פאנל ניהול מרצים</h1>
+</header>
+<main>
+  {% if not session.admin_logged_in %}
+  <form method="post" class="card" style="max-width: 400px; margin: 0 auto;">
+    <section>
+      <h2>התחברות מאובטחת</h2>
+      <label>
+        <span class="label-text">סיסמת מערכת</span>
+        <input type="password" name="password" required>
+      </label>
+      <div class="submit-wrap">
+        <button type="submit" name="login">הכנס לפאנל</button>
+      </div>
+    </section>
+  </form>
+  {% else %}
+  <div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>עריכת הגדרות הטופס</h2>
+        <a href="{{ url_for('logout') }}" style="color:var(--primary); text-decoration:none; font-weight:bold;">התנתקות המערכת 🚪</a>
+    </div>
+    
+    <form method="post">
+      <section>
+        <label>
+          <span class="label-text">עריכת תחומי התמחות (מופרדים בפסיק)</span>
+          <textarea name="specializations_text" rows="4">{{ settings.specializations }}</textarea>
+        </label>
+        <div class="submit-wrap" style="justify-content: flex-start;">
+          <button type="submit" name="update_specs">💾 שמירת שינויים</button>
+        </div>
+      </section>
+    </form>
+  </div>
+  {% endif %}
+</main>
+{% endblock %}

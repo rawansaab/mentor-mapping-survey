@@ -9,13 +9,16 @@ BACKUP_FILE = "submissions_backup.csv"
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
+    
     # טבלת הגדרות כלליות ורשימות
     c.execute('''CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)''')
+    
     # טבלת שדות מותאמים אישית שהמרצים יכולים להוסיף
     c.execute('''CREATE TABLE IF NOT EXISTS custom_fields (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT, label TEXT, field_type TEXT, is_required INTEGER
     )''')
+    
     # טבלת סדר תצוגת חלקי הטופס
     c.execute('''CREATE TABLE IF NOT EXISTS form_order (
         section_id TEXT PRIMARY KEY, sort_order INTEGER

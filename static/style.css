@@ -226,21 +226,25 @@ select:not([multiple]):focus {
 .radio-group {
   display:flex;
   flex-direction:row;
-  justify-content: space-between; /* מפזר את שתי האופציות לקצוות, כמו דוגמת המין */
+  justify-content: space-between; 
   align-items:center;
   gap:40px;
 }
 
 .radio-option {
   display:inline-flex;
-  flex-direction: row-reverse;    /* הופך את הסדר: קודם העיגול ואז הטקסט */
+  flex-direction: row;    
   align-items:center;
-  gap:10px;
+  gap:8px;
   cursor:pointer;
   user-select:none;
   color:#111827;
   margin:0;
+  text-align: right;
 }
+
+.radio-option span { order: 1; }              
+.radio-option input[type="radio"] { order: 2; } 
 
 .radio-option input[type="radio"] {
   appearance:none;
@@ -355,9 +359,10 @@ button[type="submit"]:active {
   padding: 10px 14px;
   cursor: pointer;
   transition: all 0.25s ease;
+  justify-content: flex-end;
+  text-align: right;
 }
 
-/* אותו אפקט כמו אינפוטים */
 .tag-ms .control:hover,
 .tag-ms.open .control,
 .tag-ms .control:focus-within {
@@ -375,6 +380,8 @@ button[type="submit"]:active {
   flex-wrap: wrap;
   gap: 6px;
   flex: 1 1 auto;
+  direction: rtl;
+  text-align: right;
 }
 
 .tag-ms .placeholder{
@@ -382,6 +389,7 @@ button[type="submit"]:active {
   font-size: 15px;
   color: #9ca3af;
   margin-inline-start: 0;
+  text-align: right;
 }
 .tag-ms .chips{
   order: 2;
@@ -394,6 +402,9 @@ button[type="submit"]:active {
   font-size: 14px;
   color: var(--primary);
   margin-right: auto;
+  order: 2;             
+  left: auto;
+  right: 10px;
 }
 
 .tag-ms .chip {
@@ -428,22 +439,13 @@ button[type="submit"]:active {
   z-index: 10;
   direction: rtl;
 }
-/* ===== סידור יישור בתפריט הבחירה (הרשימה) ===== */
+
 .tag-ms .menu .item {
   direction: rtl;
   text-align: right;
-  justify-content: flex-start; /* מצמיד את הטקסט לצד ימין */
+  justify-content: flex-end; 
   padding-right: 18px;
   padding-left: 12px;
-}
-
-/* ===== החץ למטה בצד שמאל ===== */
-.tag-ms .caret {
-  order: 2;              /* מזיז את החץ לסוף האלמנטים בשורה */
-  margin-right: auto;    /* דוחף אותו לשמאל */
-  margin-left: 0;
-  color: var(--primary);
-  font-size: 16px;
 }
 
 .tag-ms.open .menu {
@@ -478,7 +480,7 @@ button[type="submit"]:active {
   color: #22c55e;
   font-size: 16px;
   opacity: 0;
-  margin-right: auto;  /* הסימון הירוק בצד שמאל */
+  margin-right: auto; 
 }
 
 .tag-ms .item.active .check {
@@ -523,68 +525,10 @@ input[type="tel"] {
   text-align: right;
   font-family: "David","Assistant","Noto Sans Hebrew","Segoe UI",system-ui,Arial;
 }
-/* ===== יישור מימין לשמאל לאזור הצ'יפים ===== */
-.tag-ms {
-  direction: rtl;
-  text-align: right;
-}
 
-.tag-ms .control {
-  justify-content: flex-end;
-  text-align: right;
-}
-
-.tag-ms .chips {
-  direction: rtl;
-  text-align: right;
-}
-
-.tag-ms .placeholder {
-  text-align: right;
-}
-
-/* סידור מחדש של החץ */
-.tag-ms .caret {
-  left: auto;
-  right: 10px;
-}
-
-/* אם את רוצה גם שהטקסט של האופציות ברשימה יהיה מימין */
-.tag-ms .menu .item {
-  direction: rtl;
-  text-align: right;
-  justify-content: flex-end;
-}
-/* ===== יישור מימין לשאלות רדיו (כמו "האם יש כוונה להמשיך...") ===== */
 label.required {
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* כדי שהכוכבית והטקסט יישארו מימין */
+  align-items: flex-start; 
   text-align: right;
 }
-
-/* ברירת מחדל לשדות רדיו "כמו מין" */
-.radio-group {
-  display: flex;
-  justify-content: space-between; /* פריסה לקצוות */
-  gap: 60px;
-  width: 100%;
-}
-
-/* טקסט ואז העיגול (כמו בשדה מין) */
-.radio-option {
-  display: inline-flex;
-  flex-direction: row; /* חשוב: לא row-reverse */
-  align-items: center;
-  gap: 8px;
-  text-align: right;
-}
-
-/* לוודא סדר נכון בתוך כל אופציה */
-.radio-option span { order: 1; }              /* הטקסט */
-.radio-option input[type="radio"] { order: 2; } /* העיגול */
-
-
-
-
-

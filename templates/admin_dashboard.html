@@ -1,28 +1,219 @@
 {% extends "layout.html" %}
-{% block title %}פאנל מרצים - ניהול{% endblock %}
+{% block title %}פאנל מרצים - ניהול מתקדם{% endblock %}
 
 {% block content %}
-<header class="hero">
-  <h1>⚙️ פאנל ניהול מרצים</h1>
-</header>
-<main>
-  <div class="card">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px;">
-        <h2 style="margin: 0;">עריכת הגדרות הטופס</h2>
-        <a href="{{ url_for('logout') }}" style="color:var(--primary); text-decoration:none; font-weight:bold;">התנתקות המערכת 🚪</a>
-    </div>
+<style>
+  body { background: #fdfafb; }
+  .back-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #f0ecf4;
+    color: #4b3e99;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  .header-area { text-align: center; margin: 40px 0; }
+  .header-area h1 { font-size: 36px; margin-bottom: 10px; }
+  
+  .top-actions { display: flex; justify-content: center; gap: 15px; margin-bottom: 30px; }
+  .action-btn {
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  .btn-purple { background: linear-gradient(90deg, #df549f, #9b51e0); color: white; }
+  .btn-light { background: #f4f5f7; color: #333; }
+  
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    margin-bottom: 80px;
+  }
+  
+  .admin-card {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+  }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #f4f5f7;
+    padding-bottom: 10px;
+  }
+  .card-header h3 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 8px; }
+  .add-btn {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .dynamic-list { list-style: none; padding: 0; margin: 0; max-height: 250px; overflow-y: auto; }
+  .dynamic-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #e2e8f0;
+  }
+  .dynamic-list li .text { font-weight: bold; color: #1e293b; }
+  .del-btn {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 8px;
+    cursor: pointer;
+  }
+  
+  .floating-save {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+    z-index: 1000;
+  }
+  .floating-save:hover { transform: translateY(-2px); }
+  
+  .logout-wrap { text-align: center; margin-top: 40px; }
+  .logout-btn { color: #ef4444; text-decoration: none; font-weight: bold; background: #fee2e2; padding: 10px 20px; border-radius: 8px; display: inline-block;}
+</style>
+
+<a href="{{ url_for('index') }}" class="back-btn">⬅️ חזרה לשאלון</a>
+
+<div class="header-area">
+  <h1>⚙️ פאנל ניהול מתקדם</h1>
+  <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות.</p>
+</div>
+
+<div class="top-actions">
+  <button class="action-btn btn-purple">✏️ עריכת השאלון</button>
+  <button class="action-btn btn-light">📊 תשובות סטודנטים</button>
+</div>
+
+<form method="post" id="adminForm" onsubmit="prepareData()">
+  <div class="dashboard-grid">
     
-    <form method="post">
-      <section>
-        <label>
-          <span class="label-text">עריכת תחומי התמחות (מופרדים בפסיק, ללא רווחים מיותרים)</span>
-          <textarea name="specializations_text" rows="4">{{ settings.specializations }}</textarea>
-        </label>
-        <div class="submit-wrap" style="justify-content: flex-start;">
-          <button type="submit" name="update_specs">💾 שמירת שינויים</button>
+    <div class="admin-card" style="grid-column: 1 / -1;">
+      <div class="card-header">
+        <h3>📝 הגדרות טקסט של הטופס</h3>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:15px;">
+        <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px; border-radius:8px;">
+          <strong style="min-width:120px;">כותרת ראשית:</strong>
+          <input type="text" name="form_title" value="{{ settings.form_title }}" style="flex:1; border:none; background:transparent; font-weight:bold;">
         </div>
-      </section>
-    </form>
+        <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px; border-radius:8px;">
+          <strong style="min-width:120px;">טקסט משנה:</strong>
+          <textarea name="form_subtitle" rows="2" style="flex:1; border:none; background:transparent; resize:none;">{{ settings.form_subtitle }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div class="card-header">
+        <h3>🎓 תחומי התמחות</h3>
+        <button type="button" class="add-btn" onclick="addItem('list-specs')">+ הוסף תחום</button>
+      </div>
+      <ul class="dynamic-list" id="list-specs">
+        {% for item in settings.specializations.split(',') if item.strip() %}
+        <li>
+          <button type="button" class="del-btn" onclick="this.parentElement.remove()">🗑️</button>
+          <span class="text">{{ item.strip() }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <input type="hidden" name="specializations" id="hidden-specs">
+    </div>
+
+    <div class="admin-card">
+      <div class="card-header">
+        <h3>👤 סטטוס מדריך</h3>
+        <button type="button" class="add-btn" onclick="addItem('list-statuses')">+ הוסף סטטוס</button>
+      </div>
+      <ul class="dynamic-list" id="list-statuses">
+        {% for item in settings.mentor_statuses.split(',') if item.strip() %}
+        <li>
+          <button type="button" class="del-btn" onclick="this.parentElement.remove()">🗑️</button>
+          <span class="text">{{ item.strip() }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <input type="hidden" name="mentor_statuses" id="hidden-statuses">
+    </div>
+
+    <div class="admin-card">
+      <div class="card-header">
+        <h3>⭐ נקודות לחוות דעת</h3>
+        <button type="button" class="add-btn" onclick="addItem('list-feedback')">+ הוסף נקודה</button>
+      </div>
+      <ul class="dynamic-list" id="list-feedback">
+        {% for item in settings.feedback_points.split(',') if item.strip() %}
+        <li>
+          <button type="button" class="del-btn" onclick="this.parentElement.remove()">🗑️</button>
+          <span class="text">{{ item.strip() }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <input type="hidden" name="feedback_points" id="hidden-feedback">
+    </div>
+
   </div>
-</main>
+
+  <button type="submit" class="floating-save">✅ שמור שינויים</button>
+</form>
+
+<div class="logout-wrap">
+  <a href="{{ url_for('logout') }}" class="logout-btn">🚪 התנתקות מהמערכת</a>
+</div>
+
+<script>
+function addItem(listId) {
+    let val = prompt("הכנס ערך חדש:");
+    if(val && val.trim() !== "") {
+        let ul = document.getElementById(listId);
+        let li = document.createElement('li');
+        li.innerHTML = `<button type="button" class="del-btn" onclick="this.parentElement.remove()">🗑️</button><span class="text">${val.trim()}</span>`;
+        ul.appendChild(li);
+    }
+}
+
+function prepareData() {
+    let specs = Array.from(document.getElementById('list-specs').children).map(li => li.querySelector('.text').innerText).join(',');
+    document.getElementById('hidden-specs').value = specs;
+
+    let statuses = Array.from(document.getElementById('list-statuses').children).map(li => li.querySelector('.text').innerText).join(',');
+    document.getElementById('hidden-statuses').value = statuses;
+
+    let feedback = Array.from(document.getElementById('list-feedback').children).map(li => li.querySelector('.text').innerText).join(',');
+    document.getElementById('hidden-feedback').value = feedback;
+}
+</script>
 {% endblock %}

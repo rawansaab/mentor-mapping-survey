@@ -1,46 +1,66 @@
+# app.py
 # -*- coding: utf-8 -*-
-import os, json, re, smtplib
-from io import BytesIO
-from pathlib import Path
+import os
+import re
+import json
 from datetime import datetime
-from email.message import EmailMessage
+
+from flask import Flask, render_template, request, redirect, url_for, flash
+from markupsafe import Markup
 import pytz
-import pandas as pd
-from flask import Flask, render_template, request, redirect, url_for, flash, session, send_file
-from dotenv import load_dotenv
 import gspread
 from google.oauth2.service_account import Credentials
 
-load_dotenv()
+# ===== יצירת האפליקציה =====
 app = Flask(__name__)
-app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET", "dev-secret-change-me")
+app.config["SECRET_KEY"] = os.environ.get("FLASK_SECRET", "dev-secret-change-me")
 
-DATA_DIR = Path("data")
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-CONFIG_FILE = DATA_DIR / "supervisors_config.json"
-CSV_FILE = DATA_DIR / "supervisors_data.csv"
+# ------------ Maintenance (אופציונלי) ------------
+@app.before_request
+def maintenance_mode():
+    if os.getenv("MAINTENANCE_MODE", "0") == "1":
+        html = """
+        <html lang="he" dir="rtl">
+        <head>
+          <meta charset="utf-8">
+          <title>האתר סגור</title>
+          <style>
+            body{
+              font-family:system-ui,-apple-system,Segoe UI,Heebo,Arial;
+              background:#f8fafc;
+              direction:rtl;
+              text-align:center;
+              margin:0;
+              padding-top:120px;
+              color:#111827;
+            }
+            .box{
+              display:inline-block;
+              padding:32px 40px;
+              border-radius:18px;
+              background:#ffffff;
+              box-shadow:0 10px 30px rgba(15,23,42,.08);
+              border:1px solid #e5e7eb;
+            }
+            h1{margin:0 0 12px;font-size:26px;}
+            p{margin:0;color:#6b7280;}
+          </style>
+        </head>
+        <body>
+          <div class="box">
+            <h1>⚙️ האתר סגור כרגע</h1>
+            <p>הגישה לטופס סטודנטים הוגבלה זמנית.</p>
+          </div>
+        </body>
+        </html>
+        """
+        return Markup(html), 503
 
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "rawan_0304")
-LECTURER_SECRET = os.getenv("LECTURER_SECRET", "secret_2026")
-SYSTEM_EMAIL = os.getenv("ADMIN_EMAIL", "") 
-SYSTEM_EMAIL_PWD = os.getenv("MAIL_PASSWORD", "") 
-
-DEFAULT_CONFIG = {
-    "form_title": "מיפוי מדריכים לשיבוץ סטודנטים - שנת הכשרה תשפ\"ו",
-    "mentor_statuses": ["מדריך חדש (נדרש קורס)", "מדריך ותיק", "רכז/ת"],
-    "specializations": ["רווחה", "מוגבלות", "זקנה", "ילדים ונוער", "בריאות הנפש", "שיקום", "משפחה", "נשים", "בריאות", "קהילה"],
-    "feedback_options": ["זמינות גבוהה", "ליווי מקצועי משמעותי", "שיתוף פעולה עם המוסד", "צורך בחיזוק בליווי"],
-    "team_emails": []
-}
-
-def load_config():
-    if CONFIG_FILE.exists():
-        try: return json.loads(CONFIG_FILE.read_text(encoding="utf-8"))
-        except: return DEFAULT_CONFIG
-    return DEFAULT_CONFIG
-
-def save_config(cfg):
-    CONFIG_FILE.write_text(json.dumps(cfg, ensure_ascii=False, indent=2), encoding="utf-8")
+# ===== קונפיגורציה כללית =====
+SPECIALIZATIONS = [
+    "רווחה", "מוגבלות", "זקנה", "ילדים ונוער", "בריאות הנפש",
+    "שיקום", "משפחה", "נשים", "בריאות", "קהילה"
+]
 
 COLUMNS_ORDER = [
     "תאריך שליחה", "שם פרטי", "שם משפחה", "סטטוס מדריך", "מוסד", "תחום התמחות",
@@ -49,59 +69,110 @@ COLUMNS_ORDER = [
     "חוות דעת - טקסט חופשי", "טלפון", "אימייל"
 ]
 
+# ===== חיבור ל-Google Sheets =====
 def get_worksheet():
-    gc_info_env = os.getenv("GOOGLE_CREDENTIALS")
-    if not gc_info_env: return None
-    creds = Credentials.from_service_account_info(json.loads(gc_info_env), scopes=["https://www.googleapis.com/auth/spreadsheets", "https://www.googleapis.com/auth/drive"])
+    """
+    מצפה ל:
+    - GOOGLE_SERVICE_ACCOUNT_JSON : תוכן מלא של קובץ ה-JSON
+    - SPREADSHEET_ID              : ה-ID של הגיליון (לא ה-URL)
+    """
+    creds_json = os.environ.get("GOOGLE_SERVICE_ACCOUNT_JSON")
+    if not creds_json:
+        raise RuntimeError("GOOGLE_SERVICE_ACCOUNT_JSON env var is missing")
+
+    sheet_id = os.environ.get("SPREADSHEET_ID")
+    if not sheet_id:
+        raise RuntimeError("SPREADSHEET_ID env var is missing")
+
+    # JSON מה־env
+    try:
+        creds_dict = json.loads(creds_json)
+    except json.JSONDecodeError as e:
+        raise RuntimeError(f"Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON: {e}")
+
+    scopes = [
+        "https://www.googleapis.com/auth/spreadsheets",
+        "https://www.googleapis.com/auth/drive"
+    ]
+    creds = Credentials.from_service_account_info(creds_dict, scopes=scopes)
     gc = gspread.authorize(creds)
-    sh = gc.open_by_key(os.getenv("SUPERVISORS_SPREADSHEET_ID"))
+
+    try:
+        sh = gc.open_by_key(sheet_id)
+    except Exception as e:
+        raise RuntimeError(f"Failed to open spreadsheet by key: {e}")
+
     return sh.sheet1
 
-def send_team_notification(mentor_name, institute, cfg):
-    if not SYSTEM_EMAIL or not SYSTEM_EMAIL_PWD or not cfg.get("team_emails"): return
-    try:
-        msg = EmailMessage()
-        msg.set_content(f"שלום לצוות,\n\nהמדריך/ה {mentor_name} ממוסד '{institute}' מילא/ה עכשיו את טופס המדריכים.\n\nבברכה,\nמערכת שיבוץ")
-        msg['Subject'] = f'📌 טופס מדריכים חדש התקבל: {mentor_name}'
-        msg['From'] = SYSTEM_EMAIL
-        msg['To'] = ", ".join(cfg["team_emails"])
-        with smtplib.SMTP_SSL('smtp.gmail.com', 465) as server:
-            server.login(SYSTEM_EMAIL, SYSTEM_EMAIL_PWD)
-            server.send_message(msg)
-    except Exception as e: print("Email error:", e)
 
+def ensure_header(ws):
+    existing = ws.get_all_values()
+    if not existing or existing[0] != COLUMNS_ORDER:
+        ws.clear()
+        ws.append_row(COLUMNS_ORDER)
+
+# ===== ראוט ראשי =====
 @app.route("/", methods=["GET", "POST"])
 def index():
-    cfg = load_config()
     if request.method == "POST":
         f = request.form
         errors = []
 
-        phone = f.get("phone", "").replace("-", "").replace(" ", "")
-        email = f.get("email", "").strip()
+        # ולידציה
+        if not f.get("first_name"):
+            errors.append("יש למלא שם פרטי.")
+        if not f.get("last_name"):
+            errors.append("יש למלא שם משפחה.")
+        if f.get("mentor_status", "") == "":
+            errors.append("יש לבחור סטטוס מדריך.")
+        if not f.get("institute"):
+            errors.append("יש למלא שם מוסד.")
+        if f.get("specialization") in ("", "בחר/י מהרשימה"):
+            errors.append("יש לבחור תחום התמחות.")
+        if not f.get("street"):
+            errors.append("יש למלא רחוב.")
+        if not f.get("city"):
+            errors.append("יש למלא עיר.")
+        if not f.get("postal_code"):
+            errors.append("יש למלא מיקוד.")
 
-        if not f.get("first_name"): errors.append("יש למלא שם פרטי.")
-        if not f.get("institute"): errors.append("יש למלא שם מוסד.")
-        if not re.match(r"^(0?5\d{8})$", phone): errors.append("מספר טלפון לא תקין.")
-        if not re.match(r"^[^@]+@[^@]+\.[^@]+$", email): errors.append("כתובת דוא\"ל לא תקינה.")
+        # טלפון
+        phone_raw = f.get("phone", "")
+        phone = phone_raw.replace("-", "").replace(" ", "")
+        if not re.match(r"^(0?5\d{8})$", phone):
+            errors.append("מספר טלפון לא תקין (דוגמה: 0501234567).")
+
+        # מייל
+        email = f.get("email", "").strip()
+        if not re.match(r"^[^@]+@[^@]+\.[^@]+$", email):
+            errors.append("כתובת דוא\"ל לא תקינה.")
+
+        # מספר סטודנטים
+        num_students_raw = f.get("num_students", "1").strip()
+        if num_students_raw not in ("1", "2"):
+            errors.append("יש לבחור מספר סטודנטים 1 או 2.")
+        else:
+            num_students = int(num_students_raw)
 
         if errors:
-            for e in errors: flash(e, "error")
+            for e in errors:
+                flash(e, "error")
             return redirect(url_for("index"))
 
+        # בניית רשומה
         tz = pytz.timezone("Asia/Jerusalem")
         record = {
             "תאריך שליחה": datetime.now(tz).strftime("%Y-%m-%d %H:%M:%S"),
             "שם פרטי": f.get("first_name", "").strip(),
             "שם משפחה": f.get("last_name", "").strip(),
-            "סטטוס מדריך": f.get("mentor_status", ""),
+            "סטטוס מדריך": f.get("mentor_status", "").strip(),
             "מוסד": f.get("institute", "").strip(),
-            "תחום התמחות": f.get("specialization", ""),
+            "תחום התמחות": f.get("specialization", "").strip(),
             "רחוב": f.get("street", "").strip(),
             "עיר": f.get("city", "").strip(),
             "מיקוד": f.get("postal_code", "").strip(),
-            "מספר סטודנטים שניתן לקלוט (1 או 2)": f.get("num_students", "1"),
-            "מעוניין להמשיך": f.get("continue_mentoring", ""),
+            "מספר סטודנטים שניתן לקלוט (1 או 2)": num_students,
+            "מעוניין להמשיך": f.get("continue_mentoring", "").strip(),
             "בקשות מיוחדות": f.get("special_requests", "").strip(),
             "חוות דעת - נקודות": "; ".join(f.getlist("mentor_feedback_points")),
             "חוות דעת - טקסט חופשי": f.get("mentor_feedback_text", "").strip(),
@@ -109,61 +180,24 @@ def index():
             "אימייל": email
         }
 
-        # שמירה לגוגל שיטס
-        ws = get_worksheet()
-        if ws:
-            ws.append_row([record.get(col, "") for col in COLUMNS_ORDER], value_input_option="USER_ENTERED")
-        
-        # שמירה מקבילה ל-CSV המקומי
-        df_new = pd.DataFrame([record])
-        if CSV_FILE.exists():
-            df_master = pd.read_csv(CSV_FILE, encoding="utf-8-sig")
-            df_master = pd.concat([df_master, df_new], ignore_index=True)
-        else:
-            df_master = df_new
-        df_master.to_csv(CSV_FILE, index=False, encoding="utf-8-sig")
+        # שמירה ל-Google Sheets
+        try:
+            ws = get_worksheet()
+            ensure_header(ws)
+            ws.append_row([record[col] for col in COLUMNS_ORDER])
+            flash("✅ הטופס נשלח ונשמר בהצלחה! תודה 🌟", "success")
 
-        send_team_notification(f"{record['שם פרטי']} {record['שם משפחה']}", record['מוסד'], cfg)
-        flash("✅ הטופס נשלח ונשמר בהצלחה! תודה 🌟", "success")
+        except Exception as e:
+            import traceback
+            print("Google Sheets append error:", e)
+            traceback.print_exc()  # ידפיס את כל פרטי השגיאה בלוגים של Render
+            flash(f"❌ שגיאה בשמירה לגיליון: {e}", "error")
+
         return redirect(url_for("index"))
 
-    return render_template("index.html", cfg=cfg)
+    # GET
+    return render_template("index.html", specializations=SPECIALIZATIONS)
 
-@app.route("/admin", methods=["GET", "POST"])
-def admin():
-    cfg = load_config()
-    if request.method == "POST" and not session.get("admin_ok"):
-        if request.form.get("pwd") == ADMIN_PASSWORD and request.form.get("secret") == LECTURER_SECRET:
-            session["admin_ok"] = True
-            return redirect(url_for("admin"))
-        flash("פרטים שגויים", "error")
-
-    if not session.get("admin_ok"): return render_template("supervisors_admin.html", need_login=True, cfg=cfg)
-    mentors_data = pd.read_csv(CSV_FILE, encoding="utf-8-sig").to_dict("records") if CSV_FILE.exists() else []
-    return render_template("supervisors_admin.html", need_login=False, cfg=cfg, mentors=mentors_data)
-
-@app.post("/admin/update-config")
-def admin_update_config():
-    if not session.get("admin_ok"): return {"status": "error"}, 401
-    save_config(request.json)
-    return {"status": "success"}
-
-@app.get("/admin/logout")
-def admin_logout():
-    session.pop("admin_ok", None)
-    return redirect(url_for("admin"))
-
-@app.get("/download/master")
-def download_master():
-    if not session.get("admin_ok"): return redirect(url_for("admin"))
-    if CSV_FILE.exists():
-        df = pd.read_csv(CSV_FILE, encoding="utf-8-sig")
-        data = BytesIO()
-        with pd.ExcelWriter(data, engine="xlsxwriter") as w: df.to_excel(w, index=False)
-        data.seek(0)
-        return send_file(data, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", as_attachment=True, download_name="נתוני_מדריכים.xlsx")
-    flash("אין נתונים להורדה", "error")
-    return redirect(url_for("admin"))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

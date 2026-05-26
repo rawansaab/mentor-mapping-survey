@@ -109,16 +109,18 @@ def index():
             "אימייל": email
         }
 
+        # שמירה לגוגל שיטס
         ws = get_worksheet()
         if ws:
-            ws.append_row([record[col] for col in COLUMNS_ORDER], value_input_option="USER_ENTERED")
+            ws.append_row([record.get(col, "") for col in COLUMNS_ORDER], value_input_option="USER_ENTERED")
         
-        # שמירה מקבילה ל-CSV המקומי עבור פאנל המרצים
+        # שמירה מקבילה ל-CSV המקומי
         df_new = pd.DataFrame([record])
         if CSV_FILE.exists():
             df_master = pd.read_csv(CSV_FILE, encoding="utf-8-sig")
             df_master = pd.concat([df_master, df_new], ignore_index=True)
-        else: df_master = df_new
+        else:
+            df_master = df_new
         df_master.to_csv(CSV_FILE, index=False, encoding="utf-8-sig")
 
         send_team_notification(f"{record['שם פרטי']} {record['שם משפחה']}", record['מוסד'], cfg)
@@ -160,7 +162,7 @@ def download_master():
         with pd.ExcelWriter(data, engine="xlsxwriter") as w: df.to_excel(w, index=False)
         data.seek(0)
         return send_file(data, mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", as_attachment=True, download_name="נתוני_מדריכים.xlsx")
-    flash("אין נתונים", "error")
+    flash("אין נתונים להורדה", "error")
     return redirect(url_for("admin"))
 
 if __name__ == "__main__":

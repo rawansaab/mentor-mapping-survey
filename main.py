@@ -66,31 +66,39 @@ def index():
             
             flash("✅ הטופס נשלח ונשמר בהצלחה! תודה 🌟", "success")
         except Exception as e:
+            import traceback
+            print("Error saving:", e)
+            traceback.print_exc()
             flash(f"❌ שגיאה בשמירה לגיליון: {e}", "error")
 
         return redirect(url_for("index"))
 
     return render_template("mentor_form.html", specializations=specializations, settings=settings)
 
-@app.route("/admin", methods=["GET", "POST"])
-def admin_dashboard():
+@app.route("/admin_login", methods=["GET", "POST"])
+def admin_login():
     settings = get_settings()
     if request.method == "POST":
-        if 'login' in request.form:
-            if request.form.get('password') == settings.get('admin_password'):
-                session['admin_logged_in'] = True
-                flash("התחברת בהצלחה לפאנל המרצים.", "success")
-            else:
-                flash("סיסמה שגויה.", "error")
+        if request.form.get('password') == settings.get('admin_password'):
+            session['admin_logged_in'] = True
+            flash("התחברת בהצלחה לפאנל המרצים.", "success")
             return redirect(url_for('admin_dashboard'))
+        else:
+            flash("סיסמה שגויה, נסה שוב.", "error")
             
-        if not session.get('admin_logged_in'):
-            return redirect(url_for('admin_dashboard'))
+    return render_template("admin_login.html")
 
-        # עדכון הגדרות פאנל
+@app.route("/admin", methods=["GET", "POST"])
+def admin_dashboard():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+        
+    settings = get_settings()
+    
+    if request.method == "POST":
         if 'update_specs' in request.form:
             update_setting('specializations', request.form.get('specializations_text', ''))
-            flash("תחומי ההתמחות עודכנו.", "success")
+            flash("✅ תחומי ההתמחות עודכנו בהצלחה.", "success")
             
         return redirect(url_for('admin_dashboard'))
 
@@ -99,6 +107,7 @@ def admin_dashboard():
 @app.route("/logout")
 def logout():
     session.pop('admin_logged_in', None)
+    flash("התנתקת מהמערכת.", "success")
     return redirect(url_for('index'))
 
 if __name__ == "__main__":

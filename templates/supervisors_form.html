@@ -1,12 +1,5 @@
-<!doctype html>
-<html lang="he" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <title>מיפוי מדריכים לשיבוץ סטודנטים - שנת הכשרה תשפ"ו</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-</head>
-<body>
+{% extends "supervisors_layout.html" %}
+{% block content %}
 
 <div class="container">
 
@@ -17,16 +10,6 @@
       אנא מלא/י את כל השדות בצורה מדויקת. המידע ישמש לצורך תכנון השיבוץ בלבד.
     </p>
   </header>
-
-  <div class="messages">
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, msg in messages %}
-          <div class="msg msg-{{ category }}">{{ msg }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-  </div>
 
   <main>
     <form method="post" class="card">
@@ -144,8 +127,7 @@
             {% endfor %}
           </select>
         </div>
-
-        <label style="margin-top: 15px;">
+        <label style="margin-top:15px;">
           <span class="label-text">כתיבה חופשית (פירוט נוסף)</span>
           <textarea name="mentor_feedback_text" rows="3" placeholder="כתוב/י כאן חוות דעת חופשית..."></textarea>
         </label>
@@ -237,5 +219,4 @@ document.addEventListener('DOMContentLoaded', function () {
   document.querySelectorAll('.tag-ms').forEach(initTagMS);
 });
 </script>
-</body>
-</html>
+{% endblock %}

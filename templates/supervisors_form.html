@@ -2,89 +2,240 @@
 <html lang="he" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <title>{{ cfg.form_title }}</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <title>מיפוי מדריכים לשיבוץ סטודנטים - שנת הכשרה תשפ"ו</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
 
-<a class="admin-mini-btn" href="/admin">ניהול מדריכים ⚙️</a>
-
 <div class="container">
+
   <header class="hero">
-    <h1>{{ cfg.form_title }}</h1>
-    <p class="sub">שלום רב, מטרת טופס זה היא לאסוף מידע עדכני על מדריכים ומוסדות. אנא מלא/י את כל השדות בדיוק.</p>
+    <h1>📋 מיפוי מדריכים לשיבוץ סטודנטים - שנת הכשרה תשפ"ו</h1>
+    <p class="sub">
+      שלום רב, מטרת טופס זה היא לאסוף מידע עדכני על מדריכים ומוסדות לקראת שיבוץ הסטודנטים לשנה הקרובה.
+      אנא מלא/י את כל השדות בצורה מדויקת. המידע ישמש לצורך תכנון השיבוץ בלבד.
+    </p>
   </header>
 
-  <form method="post" class="card">
-    {% for section in cfg.section_order %}
-      
-      {% if section == "personal" %}
+  <div class="messages">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="msg msg-{{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+  </div>
+
+  <main>
+    <form method="post" class="card">
+
       <section>
         <h2>👤 פרטים אישיים</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <label class="required"><span>שם פרטי</span><input type="text" name="first_name" required></label>
-            <label class="required"><span>שם משפחה</span><input type="text" name="last_name" required></label>
-        </div>
-        <label class="required"><span>סטטוס מדריך</span>
+        <label class="required">
+          <span class="label-text">שם פרטי</span>
+          <input type="text" name="first_name" required>
+        </label>
+        <label class="required">
+          <span class="label-text">שם משפחה</span>
+          <input type="text" name="last_name" required>
+        </label>
+        <label class="required">
+          <span class="label-text">סטטוס מדריך</span>
           <select name="mentor_status" required>
-            <option value="">בחר/י מהרשימה</option>
-            {% for s in cfg.mentor_statuses %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+            <option value="">בחר/י</option>
+            {% for status in cfg.mentor_statuses %}
+            <option value="{{ status }}">{{ status }}</option>
+            {% endfor %}
           </select>
         </label>
       </section>
 
-      {% elif section == "institution" %}
       <section>
-        <h2>🏢 פרטי מוסד ההכשרה</h2>
-        <label class="required"><span>שם המוסד המלא</span><input type="text" name="institute" required></label>
-        <label class="required"><span>תחום התמחות מוביל</span>
+        <h2>🏢 מוסד ההכשרה</h2>
+        <label class="required">
+          <span class="label-text">שם המוסד</span>
+          <input type="text" name="institute" required>
+        </label>
+        <label class="required">
+          <span class="label-text">תחום התמחות</span>
           <select name="specialization" required>
-            <option value="">בחר/י מהרשימה</option>
-            {% for s in cfg.specializations %}<option value="{{ s }}">{{ s }}</option>{% endfor %}
+            <option value="">בחר/י</option>
+            {% for s in cfg.specializations %}
+              <option value="{{ s }}">{{ s }}</option>
+            {% endfor %}
           </select>
         </label>
-        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 15px;">
-            <label><span>כתובת מלאה (רחוב ועיר)</span><input type="text" name="full_address"></label>
-            <label><span>מיקוד</span><input type="text" name="postal_code"></label>
-        </div>
       </section>
 
-      {% elif section == "capacity" %}
       <section>
-        <h2>👥 קליטת סטודנטים וימי הדרכה</h2>
-        <label class="required"><span>מספר סטודנטים שניתן לקלוט השנה</span>
-          <select name="num_students" required>
-            <option value="1">1 סטודנט/ית</option>
-            <option value="2">2 סטודנטים/ות</option>
-          </select>
+        <h2>📍 כתובת המוסד</h2>
+        <label class="required">
+          <span class="label-text">רחוב</span>
+          <input type="text" name="street" required>
         </label>
-        <label><span>ימי הדרכה אפשריים:</span></label>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          {% for day in cfg.training_days %}
-          <label style="flex-direction: row-reverse; justify-content: flex-end; gap: 10px; font-weight: normal; background: #f9fafb; padding: 10px; border-radius: 10px;">
-            <span>יום {{ day }}</span><input type="checkbox" name="training_days" value="{{ day }}" style="width: 20px; height: 20px;">
-          </label>
-          {% endfor %}
-        </div>
+        <label class="required">
+          <span class="label-text">עיר</span>
+          <input type="text" name="city" required>
+        </label>
+        <label class="required">
+          <span class="label-text">מיקוד</span>
+          <input type="text" name="postal_code" required>
+        </label>
       </section>
 
-      {% elif section == "contact" %}
+      <section>
+        <h2>👥 קליטת סטודנטים</h2>
+        <label class="required">
+          <span class="label-text">מספר סטודנטים שניתן לקלוט (1 או 2)</span>
+          <select name="num_students" required>
+            <option value="">בחר/י</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+          </select>
+        </label>
+      </section>
+
+      <section>
+        <h2>🔄 המשכיות ההדרכה</h2>
+        <label class="required">
+          <span class="label-text">האם יש כוונה להמשיך בהדרכה לשנה נוספת?</span>
+          <div class="radio-group">
+            <label class="radio-option">
+              <span>כן</span>
+              <input type="radio" name="continue_mentoring" value="כן" required>
+            </label>
+            <label class="radio-option">
+              <span>לא</span>
+              <input type="radio" name="continue_mentoring" value="לא" required>
+            </label>
+          </div>
+        </label>
+      </section>
+
+      <section>
+        <h2>📝 בקשות מיוחדות</h2>
+        <label>
+          <span class="label-text">בקשות מיוחדות (לדוגמה: ימי הדרכה, שעות, נגישות, אילוצים)</span>
+          <textarea name="special_requests" rows="3" placeholder="כתוב/י כאן כל בקשה שנרצה לקחת בחשבון בשיבוץ"></textarea>
+        </label>
+      </section>
+
+      <section>
+        <h2>⭐ חוות דעת על המדריך</h2>
+        <label class="required">
+          <span class="label-text">חוות דעת על המדריך (נקודות)</span>
+        </label>
+        <div class="tag-ms">
+          <div class="control">
+            <div class="chips" data-ms-chips></div>
+            <div class="placeholder">בחר/י</div>
+            <div class="caret">▼</div>
+          </div>
+          <div class="menu">
+            {% for point in cfg.feedback_options %}
+            <div class="item" data-value="{{ point }}"><span>{{ point }}</span><span class="check">✓</span></div>
+            {% endfor %}
+          </div>
+          <select name="mentor_feedback_points" multiple hidden>
+            {% for point in cfg.feedback_options %}
+            <option value="{{ point }}"></option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <label style="margin-top: 15px;">
+          <span class="label-text">כתיבה חופשית (פירוט נוסף)</span>
+          <textarea name="mentor_feedback_text" rows="3" placeholder="כתוב/י כאן חוות דעת חופשית..."></textarea>
+        </label>
+      </section>
+
       <section>
         <h2>📞 פרטי התקשרות</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <label class="required"><span>מספר טלפון</span><input type="tel" name="phone" required></label>
-            <label class="required"><span>כתובת אימייל</span><input type="email" name="email" required></label>
-        </div>
+        <label class="required">
+          <span class="label-text">מספר טלפון</span>
+          <input type="tel" name="phone" required placeholder="0501234567">
+        </label>
+        <label class="required">
+          <span class="label-text">כתובת דוא״ל</span>
+          <input type="email" name="email" required placeholder="name@example.com">
+        </label>
       </section>
-      {% endif %}
 
-    {% endfor %}
+      <div class="submit-wrap">
+        <button type="submit">
+          <span>📨</span> שליחת הטופס
+        </button>
+      </div>
 
-    <div style="text-align: center; margin-top: 20px;">
-      <button type="submit" class="btn">📨 שליחת הטופס</button>
-    </div>
-  </form>
+    </form>
+  </main>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function initTagMS(ms) {
+    const control      = ms.querySelector('.control');
+    const menu         = ms.querySelector('.menu');
+    const chipsBox     = ms.querySelector('[data-ms-chips]');
+    const placeholder  = ms.querySelector('.placeholder');
+    const hiddenSelect = ms.querySelector('select[multiple][hidden]');
+
+    function updatePlaceholder() {
+      placeholder.style.display = hiddenSelect.selectedOptions.length > 0 ? 'none' : 'block';
+    }
+
+    function renderChips() {
+      chipsBox.innerHTML = '';
+      Array.from(hiddenSelect.selectedOptions).forEach(opt => {
+        const chip = document.createElement('div');
+        chip.className = 'chip';
+        chip.innerHTML = `<span>${opt.value}</span><button type="button">&times;</button>`;
+        chip.querySelector('button').addEventListener('click', function (e) {
+          e.stopPropagation();
+          setSelected(opt.value, false);
+        });
+        chipsBox.appendChild(chip);
+      });
+      updatePlaceholder();
+    }
+
+    function syncMenu() {
+      const selected = new Set(Array.from(hiddenSelect.selectedOptions).map(o => o.value));
+      menu.querySelectorAll('.item').forEach(item => {
+        item.classList.toggle('active', selected.has(item.dataset.value));
+      });
+    }
+
+    function setSelected(value, on) {
+      const opt = Array.from(hiddenSelect.options).find(o => o.value === value);
+      if (!opt) return;
+      opt.selected = !!on;
+      renderChips();
+      syncMenu();
+    }
+
+    control.addEventListener('click', () => ms.classList.toggle('open'));
+
+    menu.querySelectorAll('.item').forEach(item => {
+      item.addEventListener('click', function (e) {
+        e.stopPropagation();
+        const val = item.dataset.value;
+        const opt = Array.from(hiddenSelect.options).find(o => o.value === val);
+        setSelected(val, !(opt && opt.selected));
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!ms.contains(e.target)) ms.classList.remove('open');
+    });
+
+    renderChips();
+    syncMenu();
+  }
+  document.querySelectorAll('.tag-ms').forEach(initTagMS);
+});
+</script>
 </body>
 </html>

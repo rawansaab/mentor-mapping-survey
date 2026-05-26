@@ -1,4 +1,4 @@
-{% extends "layout.html" %}
+{% extends "supervisors_layout.html" %}
 {% block title %}ניהול מערכת המדריכים{% endblock %}
 
 {% block content %}
@@ -30,7 +30,7 @@
         <section class="admin-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2 style="margin: 0; font-size: 22px;">🎓 תחומי התמחות</h2>
-                <button class="btn-add" onclick="addSingleItem('specializationsList', 'תחום חדש')">+ הוסף תחום</button>
+                <button class="btn-add" onclick="addSingleItem('specializationsList', 'תחום חדש')">+ הוסף</button>
             </div>
             <div id="specializationsList" class="edit-list">
                 {% for s in cfg.specializations %}
@@ -45,7 +45,7 @@
         <section class="admin-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h2 style="margin: 0; font-size: 22px;">👤 סטטוס מדריך</h2>
-                <button class="btn-add" onclick="addSingleItem('statusesList', 'סטטוס חדש')">+ הוסף סטטוס</button>
+                <button class="btn-add" onclick="addSingleItem('statusesList', 'סטטוס חדש')">+ הוסף</button>
             </div>
             <div id="statusesList" class="edit-list">
                 {% for s in cfg.mentor_statuses %}
@@ -59,8 +59,8 @@
 
         <section class="admin-section" style="grid-column: 1 / -1;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                <h2 style="margin: 0; font-size: 22px;">📧 התראות מייל לצוות (כוחי, אביטל וכו')</h2>
-                <button class="btn-add" onclick="addSingleItem('emailsList', 'example@gmail.com')">+ הוסף מייל</button>
+                <h2 style="margin: 0; font-size: 22px;">📧 התראות מייל לצוות (כוחי, אביטל)</h2>
+                <button class="btn-add" onclick="addSingleItem('emailsList', 'example@gmail.com')">+ הוסף</button>
             </div>
             <div id="emailsList" class="edit-list">
                 {% for email in cfg.team_emails %}
@@ -76,7 +76,7 @@
     <div class="card" style="margin-top: 30px; overflow-x: auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h2 style="margin: 0; font-size: 24px;">📊 הגשות מהמדריכים בשטח</h2>
-            <a href="/download/master" class="btn" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); text-decoration: none; padding: 10px 20px; font-size: 16px;">📥 הורד קובץ Excel</a>
+            <a href="/download/master" class="btn" style="background: #10b981; text-decoration: none; padding: 10px 20px; font-size: 16px; color:#fff;">📥 הורד קובץ Excel</a>
         </div>
         {% if mentors|length > 0 %}
         <table style="width: 100%; border-collapse: collapse; font-size: 16px; white-space: nowrap;">
@@ -102,7 +102,7 @@
             </tbody>
         </table>
         {% else %}
-        <p style="text-align: center; color: #6b7280; padding: 20px;">טרם התקבלו הגשות ממדריכים בשטח.</p>
+        <p style="text-align: center; color: #6b7280; padding: 20px;">טרם התקבלו הגשות ממדריכים.</p>
         {% endif %}
     </div>
 
@@ -134,18 +134,14 @@ function saveAllToConfig() {
             specializations: specs,
             mentor_statuses: statuses,
             team_emails: emails,
-            feedback_options: APP_CFG ? APP_CFG.feedback_options : ["זמינות גבוהה", "ליווי מקצועי משמעותי", "שיתוף פעולה עם המוסד", "צורך בחיזוק בליווי"]
+            feedback_options: ["זמינות גבוהה", "ליווי מקצועי משמעותי", "שיתוף פעולה עם המוסד", "צורך בחיזוק בליווי"]
         })
     }).then(res => {
         if(res.ok) {
-            alert("כל השינויים נשמרו בהצלחה! השאלון עודכן. ✅");
+            alert("השינויים נשמרו בהצלחה! ✅");
             window.location.reload();
-        } else {
-            alert("שגיאה בשמירת השינויים.");
-        }
+        } else { alert("שגיאה בשמירה."); }
     });
 }
-// הגדרת משתנה גלובלי זמני למניעת שגיאת JS קטנה
-const APP_CFG = { feedback_options: ["זמינות גבוהה", "ליווי מקצועי משמעותי", "שיתוף פעולה עם המוסד", "צורך בחיזוק בליווי"] };
 </script>
 {% endblock %}

@@ -1,22 +1,108 @@
 {% extends "layout.html" %}
-{% block title %}התחברות הנהלה{% endblock %}
+{% block title %}כניסה למרצים{% endblock %}
 
 {% block content %}
-<header class="hero">
-  <h1>⚙️ כניסת הנהלה</h1>
-  <p class="sub">אנא הזן סיסמה כדי לגשת לפאנל המרצים</p>
-</header>
-<main>
-  <form method="post" class="card" style="max-width: 400px; margin: 0 auto;">
-    <section>
-      <label>
-        <span class="label-text">סיסמת מערכת</span>
-        <input type="password" name="password" required>
-      </label>
-      <div class="submit-wrap">
-        <button type="submit" name="login">הכנס לפאנל</button>
-      </div>
-    </section>
-  </form>
-</main>
+<style>
+  body { background: #fdfafb; }
+  .login-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    max-width: 450px;
+    margin: 40px auto;
+    box-shadow: 0 10px 40px rgba(181, 125, 142, 0.1);
+    text-align: center;
+  }
+  .login-card h2 {
+    font-size: 28px;
+    margin-bottom: 30px;
+    color: #111;
+  }
+  .login-card label {
+    text-align: right;
+    display: block;
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 8px;
+    color: #000;
+  }
+  .login-card input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    margin-bottom: 20px;
+    background: #ffffff;
+    box-shadow: 0 2px 10px rgba(210,106,194,0.1);
+  }
+  .login-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(90deg, #df549f, #9b51e0);
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(223, 84, 159, 0.4);
+    transition: transform 0.2s;
+  }
+  .login-btn:hover { transform: translateY(-2px); }
+  .forgot-link {
+    display: block;
+    margin-top: 15px;
+    color: #7b61ff;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  .header-icon {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .header-icon h1 {
+    font-size: 36px;
+    margin: 0;
+  }
+  .header-icon p {
+    color: #666;
+    margin-top: 10px;
+  }
+  /* כפתור חזרה ימני עליון */
+  .back-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #f0ecf4;
+    color: #4b3e99;
+    padding: 8px 16px;
+    border-radius: 20px;
+    text-decoration: none;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+</style>
+
+<a href="{{ url_for('index') }}" class="back-btn">⬅️ חזרה לשאלון</a>
+
+<div class="header-icon">
+  <h1>⚙️ פאנל ניהול מתקדם</h1>
+  <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות הסטודנטים.</p>
+</div>
+
+<form method="post" class="login-card">
+  <h2>כניסה למרצים</h2>
+  
+  <label>סיסמת מנהל:</label>
+  <input type="password" name="password" required>
+  
+  <label>קוד סודי:</label>
+  <input type="password" name="secret_code" required>
+  
+  <button type="submit" class="login-btn">כניסה למערכת</button>
+  
+  <a href="#" class="forgot-link">שכחת את הקוד הסודי? שלח למייל 📧</a>
+</form>
 {% endblock %}

@@ -1,186 +1,131 @@
-{% extends "supervisors_layout.html" %}
-{% block title %}ניהול מיפוי מדריכים{% endblock %}
+{% extends "layout.html" %}
+{% block title %}ניהול מערכת המדריכים{% endblock %}
 
 {% block content %}
-<style>
-    .admin-container { max-width: 1100px; margin: 0 auto; }
-    .tabs { display: flex; gap: 15px; margin-bottom: 30px; justify-content: center; }
-    .tab { background: #e5e7eb; padding: 12px 25px; border-radius: 20px; font-weight: bold; cursor: pointer; transition: 0.2s; }
-    .tab.active { background: #10b981; color: white; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-    
-    .panel-box { background: white; padding: 25px; border-radius: 16px; border: 1px solid #e5e7eb; margin-bottom: 25px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);}
-    .panel-box h3 { margin-top: 0; color: #1f2937; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; }
-    
-    .item-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 15px; }
-    .item-row { display: flex; gap: 10px; align-items: center; }
-    .item-row input { padding: 8px; font-size: 16px; flex: 1; }
-    .btn-red { background: #fee2e2; color: #ef4444; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; font-weight: bold;}
-    .btn-green { background: #dcfce7; color: #166534; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer; font-weight: bold;}
-    
-    /* עיצוב גרירה (Drag & Drop) */
-    .sortable-list { list-style: none; padding: 0; margin: 0; }
-    .sortable-item { background: #f8fafc; border: 2px dashed #cbd5e1; padding: 15px; margin-bottom: 10px; border-radius: 10px; font-weight: bold; cursor: grab; display: flex; align-items: center; gap: 15px;}
-    .sortable-item:active { cursor: grabbing; background: #e0f2fe; }
-    .drag-handle { font-size: 24px; color: #94a3b8; }
+<div class="admin-wrapper" dir="rtl">
 
-    table { width: 100%; border-collapse: collapse; font-size: 16px; }
-    th, td { border-bottom: 1px solid #e5e7eb; padding: 12px; text-align: right; }
-    th { background: #f3f4f6; }
-</style>
-
-<div class="admin-container">
-    <div style="text-align: center; margin-bottom: 20px;">
-        <h1 style="font-size: 40px; margin: 0;">⚙️ פאנל ניהול מדריכים</h1>
-        <a href="/" style="color: #6b7280; text-decoration: none; font-weight: bold;">חזרה לטופס</a>
+    <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+        <a href="/" class="btn ghost" style="text-decoration: none; font-weight: bold; padding: 10px 20px;">🔙 חזרה לטופס</a>
+        {% if not need_login %}<a href="/admin/logout" class="btn ghost" style="color: #ef4444; font-weight: bold;">🚪 התנתקות</a>{% endif %}
     </div>
 
+    <header class="admin-header">
+        <h1>⚙️ פאנל ניהול מדריכים</h1>
+    </header>
+
     {% if need_login %}
-    <div class="panel-box" style="max-width: 400px; margin: 50px auto;">
-        <h3>כניסה לצוות ניהול</h3>
+    <div class="card" style="max-width: 450px; margin: 0 auto; padding: 30px;">
         <form method="post" action="/admin">
+            <h3 style="text-align: center; margin-bottom: 20px;">כניסה למרצים</h3>
             <label>סיסמת מנהל: <input type="password" name="pwd" required></label>
             <label>קוד סודי: <input type="password" name="secret" required></label>
-            <button type="submit" class="btn" style="width: 100%; margin-top: 15px;">התחברות</button>
+            <button type="submit" class="btn primary" style="width: 100%; margin-top: 20px;">כניסה</button>
         </form>
     </div>
     {% else %}
 
-    <button onclick="saveAll()" class="btn" style="position: fixed; bottom: 30px; left: 30px; z-index: 100;">שמירת כל השינויים ✅</button>
+    <button id="saveAllBtn" onclick="saveAllToConfig()" class="btn-save-floating">שמור שינויים ✅</button>
 
-    <div class="tabs">
-        <div class="tab active" onclick="switchTab('edit')">✏️ עריכת שדות בטופס</div>
-        <div class="tab" onclick="switchTab('order')">🔃 סידור סעיפים</div>
-        <div class="tab" onclick="switchTab('emails')">📧 התראות מייל לצוות</div>
-        <div class="tab" onclick="switchTab('results')">📊 נתונים שהוגשו</div>
-    </div>
-
-    <!-- TAB 1: עריכת שדות -->
-    <div id="tab-edit" class="tab-content active">
-        <div class="panel-box">
-            <h3>תחומי התמחות <button class="btn-green" style="float:left" onclick="addItem('specList')">+ הוסף</button></h3>
-            <div id="specList" class="item-list">
+    <div class="admin-grid">
+        <section class="admin-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 22px;">🎓 תחומי התמחות</h2>
+                <button class="btn-add" onclick="addSingleItem('specializationsList', 'תחום חדש')">+ הוסף תחום</button>
+            </div>
+            <div id="specializationsList" class="edit-list">
                 {% for s in cfg.specializations %}
-                <div class="item-row"><input type="text" class="val-input" value="{{ s }}"><button class="btn-red" onclick="this.parentElement.remove()">X</button></div>
+                <div class="edit-item">
+                    <input type="text" value="{{ s }}" class="edit-input single-val">
+                    <button class="btn-del" onclick="this.parentElement.remove()">🗑️</button>
+                </div>
                 {% endfor %}
             </div>
-        </div>
+        </section>
 
-        <div class="panel-box">
-            <h3>סטטוס מדריך <button class="btn-green" style="float:left" onclick="addItem('statusList')">+ הוסף</button></h3>
-            <div id="statusList" class="item-list">
+        <section class="admin-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 22px;">👤 סטטוס מדריך</h2>
+                <button class="btn-add" onclick="addSingleItem('statusesList', 'סטטוס חדש')">+ הוסף סטטוס</button>
+            </div>
+            <div id="statusesList" class="edit-list">
                 {% for s in cfg.mentor_statuses %}
-                <div class="item-row"><input type="text" class="val-input" value="{{ s }}"><button class="btn-red" onclick="this.parentElement.remove()">X</button></div>
+                <div class="edit-item">
+                    <input type="text" value="{{ s }}" class="edit-input single-val">
+                    <button class="btn-del" onclick="this.parentElement.remove()">🗑️</button>
+                </div>
                 {% endfor %}
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- TAB 2: סידור סעיפים (Drag and Drop) -->
-    <div id="tab-order" class="tab-content">
-        <div class="panel-box">
-            <h3>סידור הסעיפים בטופס (גרור ושחרר כדי לשנות סדר)</h3>
-            <p style="color: #6b7280; font-size: 18px;">סדר את קוביות הטופס כפי שיוצגו למדריכים.</p>
-            <ul class="sortable-list" id="sectionsOrder">
-                {% set names = {'personal': '👤 פרטים אישיים', 'institution': '🏢 פרטי מוסד ההכשרה', 'capacity': '👥 קליטת סטודנטים וימי הדרכה', 'feedback': '⭐ חוות דעת', 'contact': '📞 פרטי התקשרות'} %}
-                {% for sec in cfg.section_order %}
-                <li class="sortable-item" draggable="true" data-id="{{ sec }}">
-                    <span class="drag-handle">☰</span> {{ names[sec] }}
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
-
-    <!-- TAB 3: מיילים לצוות -->
-    <div id="tab-emails" class="tab-content">
-        <div class="panel-box">
-            <h3>נמענים לקבלת התראה על מילוי טופס <button class="btn-green" style="float:left" onclick="addItem('emailsList', 'example@gmail.com')">+ הוסף אימייל</button></h3>
-            <p style="color: #6b7280; font-size: 18px;">ברגע שמדריך יסיים למלא את הטופס, המערכת תשלח אימייל אוטומטי לכתובות המופיעות כאן.</p>
-            <div id="emailsList" class="item-list">
+        <section class="admin-section" style="grid-column: 1 / -1;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h2 style="margin: 0; font-size: 22px;">📧 התראות מייל לצוות (כוחי, אביטל וכו')</h2>
+                <button class="btn-add" onclick="addSingleItem('emailsList', 'example@gmail.com')">+ הוסף מייל</button>
+            </div>
+            <div id="emailsList" class="edit-list">
                 {% for email in cfg.team_emails %}
-                <div class="item-row"><input type="email" class="val-input" value="{{ email }}"><button class="btn-red" onclick="this.parentElement.remove()">X</button></div>
+                <div class="edit-item">
+                    <input type="email" value="{{ email }}" class="edit-input single-val">
+                    <button class="btn-del" onclick="this.parentElement.remove()">🗑️</button>
+                </div>
                 {% endfor %}
             </div>
-        </div>
+        </section>
     </div>
 
-    <!-- TAB 4: נתונים -->
-    <div id="tab-results" class="tab-content">
-        <div class="panel-box" style="overflow-x: auto;">
-            <h3>הגשות אחרונות <a href="/download/master" class="btn-green" style="float:left; text-decoration:none;">📥 הורד קובץ מלא</a></h3>
-            {% if mentors|length > 0 %}
-            <table>
-                <tr><th>תאריך</th><th>שם המדריך</th><th>סטטוס</th><th>מוסד</th><th>תחום</th><th>מס' סטודנטים</th></tr>
-                {% for row in mentors %}
-                <tr>
-                    <td dir="ltr">{{ row.get('תאריך שליחה', '') }}</td>
-                    <td>{{ row.get('שם פרטי', '') }} {{ row.get('שם משפחה', '') }}</td>
-                    <td>{{ row.get('סטטוס מדריך', '') }}</td>
-                    <td>{{ row.get('שם המוסד', '') }}</td>
-                    <td>{{ row.get('תחום התמחות', '') }}</td>
-                    <td>{{ row.get('מספר סטודנטים לקליטה', '') }}</td>
+    <div class="card" style="margin-top: 30px; overflow-x: auto;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0; font-size: 24px;">📊 הגשות מהמדריכים בשטח</h2>
+            <a href="/download/master" class="btn" style="background: linear-gradient(90deg, #10b981 0%, #059669 100%); text-decoration: none; padding: 10px 20px; font-size: 16px;">📥 הורד קובץ Excel</a>
+        </div>
+        {% if mentors|length > 0 %}
+        <table style="width: 100%; border-collapse: collapse; font-size: 16px; white-space: nowrap;">
+            <thead>
+                <tr style="background: #f3f4f6;">
+                    <th style="padding: 12px; text-align: right;">תאריך</th>
+                    <th style="padding: 12px; text-align: right;">שם המדריך/ה</th>
+                    <th style="padding: 12px; text-align: right;">מוסד</th>
+                    <th style="padding: 12px; text-align: right;">תחום התמחות</th>
+                    <th style="padding: 12px; text-align: right;">טלפון</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in mentors %}
+                <tr style="border-bottom: 1px solid #e5e7eb;">
+                    <td style="padding: 12px;">{{ m.get('תאריך שליחה', '') }}</td>
+                    <td style="padding: 12px;">{{ m.get('שם פרטי', '') }} {{ m.get('שם משפחה', '') }}</td>
+                    <td style="padding: 12px;">{{ m.get('מוסד', '') }}</td>
+                    <td style="padding: 12px;"><strong>{{ m.get('תחום התמחות', '') }}</strong></td>
+                    <td style="padding: 12px;">{{ m.get('טלפון', '') }}</td>
                 </tr>
                 {% endfor %}
-            </table>
-            {% else %}
-            <p style="text-align: center;">טרם התקבלו נתונים ממדריכים.</p>
-            {% endif %}
-        </div>
+            </tbody>
+        </table>
+        {% else %}
+        <p style="text-align: center; color: #6b7280; padding: 20px;">טרם התקבלו הגשות ממדריכים בשטח.</p>
+        {% endif %}
     </div>
 
     {% endif %}
 </div>
 
 <script>
-function switchTab(tab) {
-    document.querySelectorAll('.tab-content').forEach(e => e.classList.remove('active'));
-    document.querySelectorAll('.tab').forEach(e => e.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
-    event.currentTarget.classList.add('active');
-}
-
-function addItem(containerId, placeholder='ערך חדש') {
+function addSingleItem(containerId, placeholder) {
+    const container = document.getElementById(containerId);
     const div = document.createElement('div');
-    div.className = 'item-row';
-    div.innerHTML = `<input type="text" class="val-input" value="${placeholder}"><button class="btn-red" onclick="this.parentElement.remove()">X</button>`;
-    document.getElementById(containerId).appendChild(div);
+    div.className = 'edit-item';
+    div.innerHTML = `<input type="text" value="${placeholder}" class="edit-input single-val"><button class="btn-del" onclick="this.parentElement.remove()">🗑️</button>`;
+    container.appendChild(div);
 }
 
-// מנגנון Drag & Drop לסידור סעיפים!
-const sortableList = document.getElementById("sectionsOrder");
-let draggedItem = null;
-
-if(sortableList) {
-    sortableList.addEventListener("dragstart", (e) => { draggedItem = e.target; setTimeout(() => e.target.style.opacity = "0.5", 0); });
-    sortableList.addEventListener("dragend", (e) => { setTimeout(() => { e.target.style.opacity = "1"; draggedItem = null; }, 0); });
-    sortableList.addEventListener("dragover", (e) => {
-        e.preventDefault();
-        const afterElement = getDragAfterElement(sortableList, e.clientY);
-        if (afterElement == null) { sortableList.appendChild(draggedItem); } 
-        else { sortableList.insertBefore(draggedItem, afterElement); }
-    });
-}
-function getDragAfterElement(container, y) {
-    const draggableElements = [...container.querySelectorAll('.sortable-item:not(.dragging)')];
-    return draggableElements.reduce((closest, child) => {
-        const box = child.getBoundingClientRect();
-        const offset = y - box.top - box.height / 2;
-        if (offset < 0 && offset > closest.offset) { return { offset: offset, element: child }; } 
-        else { return closest; }
-    }, { offset: Number.NEGATIVE_INFINITY }).element;
+function getValues(containerId) {
+    return Array.from(document.querySelectorAll(`#${containerId} .single-val`)).map(i => i.value.trim()).filter(v => v !== "");
 }
 
-function getVals(id) {
-    return Array.from(document.querySelectorAll(`#${id} .val-input`)).map(i => i.value.trim()).filter(v => v !== "");
-}
-
-function saveAll() {
-    const specs = getVals('specList');
-    const statuses = getVals('statusList');
-    const emails = getVals('emailsList');
-    const newOrder = Array.from(document.querySelectorAll('#sectionsOrder .sortable-item')).map(li => li.dataset.id);
+function saveAllToConfig() {
+    const specs = getValues('specializationsList');
+    const statuses = getValues('statusesList');
+    const emails = getValues('emailsList');
 
     fetch('/admin/update-config', {
         method: 'POST',
@@ -189,12 +134,18 @@ function saveAll() {
             specializations: specs,
             mentor_statuses: statuses,
             team_emails: emails,
-            section_order: newOrder
+            feedback_options: APP_CFG ? APP_CFG.feedback_options : ["זמינות גבוהה", "ליווי מקצועי משמעותי", "שיתוף פעולה עם המוסד", "צורך בחיזוק בליווי"]
         })
     }).then(res => {
-        if(res.ok) { alert("כל השינויים נשמרו בהצלחה! ✅\nסדר הטופס, רשימות המייל וההגדרות עודכנו."); window.location.reload(); }
-        else alert("שגיאה בשמירה.");
+        if(res.ok) {
+            alert("כל השינויים נשמרו בהצלחה! השאלון עודכן. ✅");
+            window.location.reload();
+        } else {
+            alert("שגיאה בשמירת השינויים.");
+        }
     });
 }
+// הגדרת משתנה גלובלי זמני למניעת שגיאת JS קטנה
+const APP_CFG = { feedback_options: ["זמינות גבוהה", "ליווי מקצועי משמעותי", "שיתוף פעולה עם המוסד", "צורך בחיזוק בליווי"] };
 </script>
 {% endblock %}

@@ -9,24 +9,27 @@ BACKUP_FILE = "submissions_backup.csv"
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
-    
-    # טבלת הגדרות כלליות ורשימות
     c.execute('''CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)''')
-    
-    # טבלת שדות מותאמים אישית שהמרצים יכולים להוסיף
     c.execute('''CREATE TABLE IF NOT EXISTS custom_fields (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT, label TEXT, field_type TEXT, is_required INTEGER
     )''')
-    
-    # טבלת סדר תצוגת חלקי הטופס
     c.execute('''CREATE TABLE IF NOT EXISTS form_order (
         section_id TEXT PRIMARY KEY, sort_order INTEGER
     )''')
     
-    # הזנת נתוני ברירת מחדל אם המסד ריק
+    # סיסמאות מנהל
     c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('admin_password', '1234')")
+    c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('secret_code', '0000')")
+    
+    # טקסטים של הטופס
+    c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('form_title', 'מיפוי מדריכים לשיבוץ סטודנטים - שנת הכשרה תשפ\"ו')")
+    c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('form_subtitle', 'שלום רב, מטרת טופס זה היא לאסוף מידע עדכני על מדריכים ומוסדות לקראת שיבוץ הסטודנטים לשנה הקרובה. אנא מלא/י את כל השדות בצורה מדויקת. המידע ישמש לצורך תכנון השיבוץ בלבד.')")
+    
+    # רשימות דינמיות
     c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('specializations', 'רווחה,מוגבלות,זקנה,ילדים ונוער,בריאות הנפש,שיקום,משפחה,נשים,בריאות,קהילה')")
+    c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('mentor_statuses', 'מדריך חדש (נדרש קורס),מדריך ותיק,רכז/ת')")
+    c.execute("INSERT OR IGNORE INTO settings (key, value) VALUES ('feedback_points', 'זמינות גבוהה,ליווי מקצועי משמעותי,שיתוף פעולה עם המוסד,צורך בחיזוק בליווי')")
     
     default_order = [('personal', 1), ('institute', 2), ('address', 3), ('students', 4), ('continue', 5), ('requests', 6), ('feedback', 7), ('contact', 8), ('custom_fields', 9)]
     for sec, order in default_order:
@@ -40,13 +43,10 @@ def get_settings():
     c = conn.cursor()
     c.execute("SELECT key, value FROM settings")
     settings = {row[0]: row[1] for row in c.fetchall()}
-    
     c.execute("SELECT section_id, sort_order FROM form_order ORDER BY sort_order")
     settings['form_order'] = c.fetchall()
-    
     c.execute("SELECT name, label, field_type, is_required FROM custom_fields")
     settings['custom_fields'] = c.fetchall()
-    
     conn.close()
     return settings
 

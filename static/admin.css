@@ -19,13 +19,14 @@
 }
 
 /* =========================================
-   כפתור ניהול עליון (בדיוק כמו בתמונה)
+   כפתור ניהול עליון
    ========================================= */
 .header-top-bar {
     width: 100%;
+    max-width: 450px; /* מיושר עם רוחב הטופס */
     display: flex;
-    justify-content: flex-start; /* מצמיד לימין ב-RTL */
-    margin-bottom: 40px;
+    justify-content: flex-start;
+    margin-bottom: 30px;
 }
 
 .top-nav-btn {
@@ -33,7 +34,7 @@
     align-items: center;
     background: #ffffff;
     border-radius: 50px;
-    padding: 6px 20px 6px 6px; /* ריווח שונה כדי לעטוף את העיגול יפה */
+    padding: 6px 20px 6px 6px;
     text-decoration: none;
     color: #111827;
     font-weight: 800;
@@ -86,7 +87,7 @@
 }
 
 /* =========================================
-   כרטיסיית התחברות מודרנית (כמו בתמונה)
+   כרטיסיית התחברות מודרנית
    ========================================= */
 .login-card-modern {
     background: #ffffff;
@@ -109,6 +110,7 @@
 
 .form-group {
     margin-bottom: 20px;
+    text-align: right;
 }
 
 .form-group label {
@@ -123,7 +125,7 @@
     width: 100%;
     padding: 14px 15px;
     border: 2px solid transparent;
-    background-color: #eef2ff; /* הרקע התכלת-אפור של שדות הקלט */
+    background-color: #eef2ff;
     border-radius: 10px;
     font-size: 16px;
     color: #1f2937;
@@ -142,7 +144,7 @@
 .btn-gradient-modern {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(to left, #ec4899, #a855f7); /* צבעי הגרדיאנט */
+    background: linear-gradient(to left, #ec4899, #a855f7);
     color: white;
     border: none;
     border-radius: 12px;

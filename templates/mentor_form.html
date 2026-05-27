@@ -1,0 +1,256 @@
+{% extends "layout.html" %}
+{% block title %}מיפוי מדריכים לשיבוץ סטודנטים{% endblock %}
+
+{% block content %}
+  <div style="text-align: left; padding-top: 15px;">
+    <a href="{{ url_for('admin_login') }}" style="display: inline-block; background: #ffffff; color: var(--primary); border: 2px solid var(--primary); padding: 8px 20px; border-radius: 999px; text-decoration: none; font-weight: bold; font-size: 16px; transition: all 0.3s; box-shadow: 0 4px 12px rgba(181,125,142,.15);">
+      כניסת הנהלה
+    </a>
+  </div>
+
+  <header class="hero">
+    <h1>{{ settings.form_title }}</h1>
+    <p class="sub">{{ settings.form_subtitle }}</p>
+  </header>
+
+  <main>
+    <div id="validation-error-box" class="msg msg-error" style="display: none; margin-bottom: 20px;">
+        <strong id="error-title">שגיאה במילוי הטופס:</strong>
+        <p id="error-text"></p>
+        <button type="button" id="fix-error-btn" style="margin-top:10px; padding: 5px 15px; border-radius: 12px; border:none; background:#b91c1c; color:#fff; cursor:pointer;">קח אותי לתיקון</button>
+    </div>
+
+    <form method="post" class="card" id="mentor-form">
+      
+      {% for sec_id, order in settings.form_order %}
+      
+        {% if sec_id == 'personal' %}
+        <section id="sec-personal">
+          <h2>פרטים אישיים</h2>
+          <label class="required"><span class="label-text">שם פרטי</span><input type="text" name="first_name" required></label>
+          <label class="required"><span class="label-text">שם משפחה</span><input type="text" name="last_name" required></label>
+          <label class="required">
+            <span class="label-text">סטטוס מדריך</span>
+            <select name="mentor_status" required>
+              <option value="">בחר/י</option>
+              {% for s in mentor_statuses %}
+                <option value="{{ s }}">{{ s }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </section>
+        {% endif %}
+
+        {% if sec_id == 'institute' %}
+        <section id="sec-institute">
+          <h2>מוסד ההכשרה</h2>
+          <label class="required"><span class="label-text">שם המוסד</span><input type="text" name="institute" required></label>
+          <label class="required">
+            <span class="label-text">תחום התמחות</span>
+            <select name="specialization" required id="specialization-select">
+              <option value="">בחר/י</option>
+              {% for s in specializations %}
+                <option value="{{ s }}">{{ s }}</option>
+              {% endfor %}
+            </select>
+          </label>
+        </section>
+        {% endif %}
+
+        {% if sec_id == 'address' %}
+        <section id="sec-address">
+          <h2>כתובת המוסד</h2>
+          <label class="required"><span class="label-text">רחוב</span><input type="text" name="street" required></label>
+          <label class="required"><span class="label-text">עיר</span><input type="text" name="city" required></label>
+          <label class="required"><span class="label-text">מיקוד</span><input type="text" name="postal_code" required></label>
+        </section>
+        {% endif %}
+
+        {% if sec_id == 'students' %}
+        <section id="sec-students">
+          <h2>קליטת סטודנטים</h2>
+          <label class="required">
+            <span class="label-text">מספר סטודנטים שניתן לקלוט (1 או 2)</span>
+            <select name="num_students" required>
+              <option value="">בחר/י</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+            </select>
+          </label>
+        </section>
+        {% endif %}
+
+        {% if sec_id == 'continue' %}
+        <section id="sec-continue">
+          <h2>המשכיות ההדרכה</h2>
+          <label class="required">
+            <span class="label-text">האם יש כוונה להמשיך בהדרכה לשנה נוספת?</span>
+            <div class="radio-group">
+              <label class="radio-option"><span>כן</span><input type="radio" name="continue_mentoring" value="כן" required></label>
+              <label class="radio-option"><span>לא</span><input type="radio" name="continue_mentoring" value="לא" required></label>
+            </div>
+          </label>
+        </section>
+        {% endif %}
+
+        {% if sec_id == 'requests' %}
+        <section id="sec-requests">
+          <h2>בקשות מיוחדות</h2>
+          <label><span class="label-text">בקשות מיוחדות (לדוגמה: ימי הדרכה, שעות, נגישות, אילוצים)</span>
+            <textarea name="special_requests" rows="3" placeholder="כתוב/י כאן כל בקשה שנרצה לקחת בחשבון בשיבוץ"></textarea>
+          </label>
+        </section>
+        {% endif %}
+
+        {% if sec_id == 'feedback' %}
+        <section id="sec-feedback">
+          <h2>חוות דעת על המדריך</h2>
+          <label class="required"><span class="label-text">חוות דעת על המדריך (נקודות)</span></label>
+          <div class="tag-ms">
+            <div class="control">
+              <div class="chips" data-ms-chips></div>
+              <div class="placeholder">בחר/י</div>
+              <div class="caret">▼</div>
+            </div>
+            <div class="menu">
+              {% for f in feedback_points %}
+              <div class="item" data-value="{{ f }}"><span>{{ f }}</span><span class="check">✓</span></div>
+              {% endfor %}
+            </div>
+            <select name="mentor_feedback_points" multiple hidden required id="feedback-select">
+              {% for f in feedback_points %}
+              <option value="{{ f }}"></option>
+              {% endfor %}
+            </select>
+          </div>
+          <label>
+            <span class="label-text">כתיבה חופשית (פירוט נוסף)</span>
+            <textarea name="mentor_feedback_text" rows="3" placeholder="כתוב/י כאן חוות דעת חופשית..."></textarea>
+          </label>
+        </section>
+        {% endif %}
+
+        {% if sec_id == 'contact' %}
+        <section id="sec-contact">
+          <h2>פרטי התקשרות</h2>
+          <label class="required"><span class="label-text">מספר טלפון</span><input type="tel" name="phone" required placeholder="0501234567" id="phone-input"></label>
+          <label class="required"><span class="label-text">כתובת דוא״ל</span><input type="email" name="email" required placeholder="name@example.com" id="email-input"></label>
+        </section>
+        {% endif %}
+
+        {% if sec_id == 'custom_fields' and settings.custom_fields %}
+        <section id="sec-custom">
+          <h2>מידע נוסף (הוגדר על ידי ההנהלה)</h2>
+          {% for cf in settings.custom_fields %}
+            <label class="{% if cf[3] %}required{% endif %}">
+              <span class="label-text">{{ cf[1] }}</span>
+              <input type="{{ cf[2] }}" name="{{ cf[0] }}" {% if cf[3] %}required{% endif %}>
+            </label>
+          {% endfor %}
+        </section>
+        {% endif %}
+
+      {% endfor %}
+
+      <div class="submit-wrap">
+        <button type="submit" id="submit-btn">שליחת הטופס</button>
+      </div>
+    </form>
+  </main>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  function initTagMS(ms) {
+    const control = ms.querySelector('.control');
+    const menu = ms.querySelector('.menu');
+    const chipsBox = ms.querySelector('[data-ms-chips]');
+    const placeholder = ms.querySelector('.placeholder');
+    const hiddenSelect = ms.querySelector('select[multiple][hidden]');
+
+    function updatePlaceholder() { placeholder.style.display = hiddenSelect.selectedOptions.length > 0 ? 'none' : 'block'; }
+    function renderChips() {
+      chipsBox.innerHTML = '';
+      Array.from(hiddenSelect.selectedOptions).forEach(opt => {
+        const chip = document.createElement('div');
+        chip.className = 'chip'; chip.dataset.value = opt.value;
+        chip.innerHTML = `<span>${opt.value}</span><button type="button">&times;</button>`;
+        chip.querySelector('button').addEventListener('click', e => { e.stopPropagation(); setSelected(opt.value, false); });
+        chipsBox.appendChild(chip);
+      });
+      updatePlaceholder();
+    }
+    function syncMenu() {
+      const selected = new Set(Array.from(hiddenSelect.selectedOptions).map(o => o.value));
+      menu.querySelectorAll('.item').forEach(item => { item.classList.toggle('active', selected.has(item.dataset.value)); });
+    }
+    function setSelected(value, on) {
+      const opt = Array.from(hiddenSelect.options).find(o => o.value === value);
+      if (!opt) return;
+      opt.selected = !!on;
+      renderChips(); syncMenu();
+    }
+    control.addEventListener('click', () => ms.classList.toggle('open'));
+    menu.querySelectorAll('.item').forEach(item => {
+      item.addEventListener('click', e => {
+        e.stopPropagation();
+        const value = item.dataset.value;
+        const opt = Array.from(hiddenSelect.options).find(o => o.value === value);
+        setSelected(value, !(opt && opt.selected));
+      });
+    });
+    document.addEventListener('click', e => { if (!ms.contains(e.target)) ms.classList.remove('open'); });
+    renderChips(); syncMenu();
+  }
+  document.querySelectorAll('.tag-ms').forEach(initTagMS);
+
+  const form = document.getElementById('mentor-form');
+  const errorBox = document.getElementById('validation-error-box');
+  const errorText = document.getElementById('error-text');
+  let targetErrorElement = null;
+
+  document.getElementById('fix-error-btn').addEventListener('click', () => {
+      if(targetErrorElement) {
+          targetErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          targetErrorElement.focus();
+      }
+  });
+
+  form.addEventListener('submit', function(e) {
+      errorBox.style.display = 'none';
+      targetErrorElement = null;
+
+      const phone = document.getElementById('phone-input').value.replace(/[-\s]/g, "");
+      if(phone && !/^(0?5\d{8})$/.test(phone)) {
+          e.preventDefault();
+          errorText.innerText = "מספר הטלפון שהוזן אינו תקין. יש להזין מספר נייד (לדוגמה: 0501234567).";
+          targetErrorElement = document.getElementById('phone-input');
+          errorBox.style.display = 'block';
+          targetErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+      }
+      
+      const email = document.getElementById('email-input').value;
+      if(email && !/^[^@]+@[^@]+\.[^@]+$/.test(email)) {
+          e.preventDefault();
+          errorText.innerText = "כתובת הדוא\"ל שהוזנה אינה תקינה.";
+          targetErrorElement = document.getElementById('email-input');
+          errorBox.style.display = 'block';
+          targetErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+      }
+      
+      const feedbackSelect = document.getElementById('feedback-select');
+      if(feedbackSelect && feedbackSelect.selectedOptions.length === 0) {
+          e.preventDefault();
+          errorText.innerText = "חובה לבחור לפחות נקודה אחת בחוות הדעת על המדריך.";
+          targetErrorElement = document.querySelector('.tag-ms .control');
+          errorBox.style.display = 'block';
+          targetErrorElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+      }
+  });
+});
+</script>
+{% endblock %}

@@ -4,9 +4,11 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 
-<div class="admin-wrapper">
-    <div style="margin-bottom: 15px;">
-        <a href="/" class="back-btn">חזרה לשאלון</a>
+<div style="margin-bottom: 15px;">
+        <a href="/" class="back-to-form-btn">
+            <span>חזרה לשאלון</span>
+            <span aria-hidden="true">⚙️</span>
+        </a>
     </div>
 
     <header class="admin-header">

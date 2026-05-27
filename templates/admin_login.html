@@ -1,27 +1,33 @@
 {% extends "layout.html" %}
 {% block title %}כניסה למרצים{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
 
+{% block content %}
 <a href="{{ url_for('index') }}" class="back-btn">חזרה לשאלון</a>
 
-<div class="header-icon">
-    <h1>פאנל ניהול מתקדם</h1>
-    <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות הסטודנטים.</p>
-</div>
+<div class="admin-wrapper narrow">
+  <div class="admin-header">
+    <h1>פאנל מרצים</h1>
+    <p>כניסה לניהול טופס הסטודנטים וטופס מיפוי המדריכים.</p>
+  </div>
 
-<form method="post" class="login-card">
-    <h2>כניסה למרצים</h2>
-    
-    <label>סיסמת מנהל:</label>
-    <input type="password" name="password" required>
-    
-    <label>קוד סודי:</label>
-    <input type="password" name="secret_code" required>
-    
+  <form method="post" class="login-card">
+    <h2>כניסה למערכת</h2>
+
+    <label>
+      <span>סיסמת מנהל</span>
+      <input type="password" name="password" required>
+    </label>
+
+    <label>
+      <span>קוד סודי</span>
+      <input type="password" name="secret_code" required>
+    </label>
+
     <button type="submit" class="login-btn">כניסה למערכת</button>
-    
-    <a href="#" class="forgot-link">שכחת את הקוד הסודי? שלח למייל</a>
-</form>
+  </form>
+</div>
 {% endblock %}

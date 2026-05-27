@@ -2,26 +2,28 @@
 {% block title %}כניסה למרצים{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 
 <a href="{{ url_for('index') }}" class="back-btn">חזרה לשאלון</a>
 
-<div class="header-icon" style="text-align: center; margin-top: 20px;">
-    <h1>פאנל ניהול מתקדם</h1>
-    <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות הסטודנטים.</p>
-</div>
+<div class="admin-wrapper">
+    <div class="admin-header">
+        <h1>פאנל ניהול מתקדם</h1>
+        <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות המדריכים.</p>
+    </div>
 
-<form method="post" class="login-card">
-    <h2>כניסה למרצים</h2>
-    
-    <label>סיסמת מנהל:</label>
-    <input type="password" name="password" required>
-    
-    <label>קוד סודי:</label>
-    <input type="password" name="secret_code" required>
-    
-    <button type="submit" class="login-btn">כניסה למערכת</button>
-    
-    <a href="#" class="forgot-link">שכחת את הקוד הסודי? שלח למייל</a>
-</form>
+    <form method="post" class="login-card">
+        <h2>כניסה למרצים</h2>
+        
+        <label>סיסמת מנהל:</label>
+        <input type="password" name="password" required>
+        
+        <label>קוד סודי:</label>
+        <input type="password" name="secret_code" required>
+        
+        <button type="submit" class="login-btn">כניסה למערכת</button>
+        
+        <a href="#" class="forgot-link">שכחת את הקוד הסודי? שלח למייל</a>
+    </form>
+</div>
 {% endblock %}

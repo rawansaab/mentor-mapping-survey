@@ -1,512 +1,110 @@
-:root {
-  --bg-1: #f4fbfb;
-  --bg-2: #f7f3fb;
-  --bg-4: #fdf1f4;
-  --bg-5: #f5faf5;
-  --ink: #0f172a;
-  --field-border: #d0d7e3;
-  --grad-main: linear-gradient(90deg, #f05da8 0%, #a855f7 100%);
+/* =========================================
+   עיצוב כללי לפאנל הניהול וההתחברות
+   ========================================= */
+
+.admin-wrapper, .login-page-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: system-ui, -apple-system, sans-serif;
+    direction: rtl;
 }
 
-.admin-wrapper {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: "David", "Assistant", sans-serif;
-  direction: rtl;
-}
-
-.admin-header {
-  text-align: center;
-  margin-bottom: 30px;
-  margin-top: 40px;
-}
-
-.admin-header h1 {
-  font-size: 40px;
-  color: #111827;
-  font-weight: 900;
-  margin: 0;
-  font-family: "David", sans-serif;
-}
-
-.admin-header p {
-  color: #6b7280;
-  font-size: 16px;
-  margin-top: 6px;
-}
-
-.login-card {
-  max-width: 450px;
-  margin: 50px auto;
-  padding: 35px 30px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.06);
-  text-align: center;
-  border: 1px solid #f1f5f9;
-}
-
-.login-card h2 {
-  font-size: 26px;
-  font-weight: 800;
-  color: #1e293b;
-  margin-top: 0;
-  margin-bottom: 25px;
-  font-family: "David", sans-serif;
-}
-
-.login-card label {
-  display: block;
-  text-align: right;
-  margin-bottom: 15px;
-  font-weight: bold;
-  color: #475569;
-}
-
-.login-card input {
-  width: 100%;
-  padding: 14px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  margin-top: 6px;
-  font-family: "David", sans-serif;
-  font-size: 18px;
-  transition: 0.2s;
-  background: #f8fafc;
-}
-
-.login-card input:focus {
-  border-color: #a855f7;
-  background: #fff;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(168,85,247,0.15);
-}
-
-.login-btn {
-  width: 75%;
-  margin: 25px auto 0 auto;
-  display: block;
-  text-align: center;
-  background: var(--grad-main);
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 19px;
-  font-weight: 800;
-  font-family: "David", sans-serif;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 6px 15px rgba(168,85,247,0.25);
-}
-
-.login-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(168,85,247,0.35);
-}
-
-.forgot-link {
-  display: block;
-  text-align: center;
-  font-size: 16px;
-  color: #8b5cf6;
-  text-decoration: none;
-  margin-top: 20px;
-  cursor: pointer;
-  background: none;
-  border: none;
-  font-family: "David", sans-serif;
-  width: 100%;
-  font-weight: bold;
-}
-
-.forgot-link:hover { text-decoration: underline; }
-
-.flash-box {
-  margin-top: 25px;
-  padding: 15px;
-  border-radius: 12px;
-  font-weight: bold;
-  font-size: 16px;
-  text-align: center;
-}
-
-.flash-error { background: #fff1f2; color: #991b1b; border: 1px solid #fecaca; }
-.flash-success { background: #ecfdf5; color: #065f46; border: 1px solid #bbf7d0; }
-
-.admin-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-.tab-btn {
-  background: #f3f4f6;
-  border: none;
-  padding: 12px 30px;
-  font-size: 18px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-weight: bold;
-  font-family: "David", sans-serif;
-  transition: 0.3s;
-  color: #4b5563;
-}
-
-.tab-btn.active {
-  background: var(--grad-main);
-  color: white;
-  box-shadow: 0 8px 20px rgba(168,85,247,0.3);
-}
-
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-
-.admin-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-}
-
-@media (max-width: 768px) {
-  .admin-grid { grid-template-columns: 1fr; }
-}
-
-.admin-section {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  border: 1px solid #e9edf3;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  border-bottom: 2px solid #f3f4f6;
-  padding-bottom: 10px;
-}
-
-.section-header h2, .section-header h3 {
-  font-size: 24px;
-  margin: 0;
-  color: #1f2937;
-}
-
-.edit-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 400px;
-  overflow-y: auto;
-  padding-left: 5px;
-}
-
-.edit-item {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: #f8fafc;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  width: 100%;
-}
-
-.edit-item-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-}
-
-.edit-input {
-  border: 1px solid transparent !important;
-  background: transparent !important;
-  padding: 5px !important;
-  font-weight: bold;
-  width: 100%;
-  border-radius: 6px;
-  font-family: "David", sans-serif;
-  font-size: 18px;
-}
-
-.edit-input:focus {
-  background: white !important;
-  border: 1px solid #a855f7 !important;
-  outline: none;
-}
-
-.btn-add {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-family: "David", sans-serif;
-  font-weight: bold;
-}
-
-.btn-del {
-  background: #fee2e2;
-  color: #ef4444;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: 0.2s;
-  font-family: "David", sans-serif;
-  font-weight: bold;
-  flex-shrink: 0;
-}
-
-.btn-del:hover { background: #f87171; color: white; }
-
-.btn-save-floating {
-  position: fixed;
-  bottom: 30px;
-  left: 30px;
-  z-index: 1000;
-  background: linear-gradient(90deg,#10b981 0%,#059669 100%);
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  border-radius: 50px;
-  font-weight: 900;
-  font-family: "David", sans-serif;
-  font-size: 20px;
-  box-shadow: 0 10px 25px rgba(16,185,129,0.4);
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-save-floating:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(16,185,129,0.6);
-}
-
-.table-container {
-  overflow-x: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-}
-
-.results-table {
-  width: 100%;
-  border-collapse: collapse;
-  white-space: nowrap;
-  font-size: 16px;
-}
-
-.results-table th, .results-table td {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 12px;
-  text-align: right;
-}
-
-.results-table th {
-  background: #f9fafb;
-  color: #374151;
-  font-weight: bold;
-}
-
-.results-table tr:hover { background: #f3f4f6; }
-
-.btn-logout-red {
-  display: inline-block;
-  background-color: #ef4444;
-  color: #ffffff !important;
-  text-decoration: underline;
-  padding: 12px 30px;
-  border-radius: 10px;
-  font-weight: bold;
-  font-family: "David", sans-serif;
-  font-size: 18px;
-  transition: background-color 0.3s ease;
-  border: none;
-}
-
-.btn-logout-red:hover {
-  background-color: #dc2626;
-  text-decoration: underline;
-}
-
-.back-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #f0ecf4;
-  color: #4b3e99;
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.back-to-form-btn {
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    padding: 8px 24px;
-    background-color: #ffffff;
-    border: 2.5px solid #b08496; /* צבע מסגרת התואם לתמונה */
-    border-radius: 50px; /* צורה אליפטית */
-    color: #b08496; /* צבע הטקסט */
-    font-size: 16px;
-    box-shadow: 0 4px 6px rgba(176, 132, 150, 0.1);
-    transition: all 0.3s ease;
-    letter-spacing: 0.5px;
-}
-
-.back-to-form-btn:hover {
-    background-color: #faf5f7;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(176, 132, 150, 0.15);
-}
-/* --- עיצוב כפתור חזרה לשאלון --- */
-.back-to-form-btn {
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    padding: 8px 24px;
-    background-color: #ffffff;
-    border: 2.5px solid #b08496;
-    border-radius: 50px;
-    color: #b08496;
-    font-size: 16px;
-    box-shadow: 0 4px 6px rgba(176, 132, 150, 0.1);
-    transition: all 0.3s ease;
-    letter-spacing: 0.5px;
-}
-
-.back-to-form-btn:hover {
-    background-color: #faf5f7;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(176, 132, 150, 0.15);
-}
-
-/* --- עיצוב הודעת שגיאה בהתחברות --- */
-.modern-flash-error {
-    background-color: #fff1f2;
-    border: 1px solid #fda4af;
-    color: #e11d48;
-    padding: 10px 15px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(225, 29, 72, 0.1);
-    margin-top: 15px;
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-/* --- עיצוב דף ההתחברות החדש --- */
 .login-page-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 80vh;
+    min-height: 85vh;
 }
 
+/* =========================================
+   כפתור ניהול עליון (בדיוק כמו בתמונה)
+   ========================================= */
 .header-top-bar {
     width: 100%;
-    max-width: 800px;
     display: flex;
-    justify-content: flex-start; /* מתיישר לימין ב-RTL */
-    margin-bottom: 20px;
+    justify-content: flex-start; /* מצמיד לימין ב-RTL */
+    margin-bottom: 40px;
 }
 
-/* עיצוב כפתור עליון - תואם לתמונה 1 */
-.header-action-btn {
-    background-color: #f3f4f6;
-    color: #111827;
-    font-weight: bold;
-    text-decoration: none;
-    padding: 6px 20px 6px 8px; /* ריווח א-סימטרי שיתאים לעיגול */
-    border-radius: 50px;
+.top-nav-btn {
     display: inline-flex;
     align-items: center;
+    background: #ffffff;
+    border-radius: 50px;
+    padding: 6px 20px 6px 6px; /* ריווח שונה כדי לעטוף את העיגול יפה */
+    text-decoration: none;
+    color: #111827;
+    font-weight: 800;
+    font-size: 1.15rem;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.06);
     gap: 12px;
-    font-size: 16px;
-    transition: background-color 0.2s;
+    border: 1px solid #f3f4f6;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
-.header-action-btn:hover {
-    background-color: #e5e7eb;
+.top-nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
 }
 
-/* העיגול הסגול סביב סמל גלגל השיניים */
-.icon-circle {
-    background-color: #f3e8ff;
+.top-nav-icon {
+    background: #f3f4f6;
     border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    width: 38px;
+    height: 38px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 16px;
+    font-size: 18px;
+    color: #a855f7;
 }
 
+/* =========================================
+   כותרות התחברות
+   ========================================= */
 .login-titles {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
 }
 
 .login-titles h1 {
-    font-size: 2.5rem;
+    font-size: 2.8rem;
     color: #000;
-    margin-bottom: 10px;
-    font-weight: 800;
+    margin-bottom: 15px;
+    font-weight: 900;
+    letter-spacing: -0.5px;
 }
 
 .login-titles p {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     color: #4b5563;
-    max-width: 600px;
+    max-width: 650px;
     margin: 0 auto;
+    line-height: 1.5;
 }
 
-/* עיצוב כרטיסיית ההתחברות - תואם לתמונה 4 */
+/* =========================================
+   כרטיסיית התחברות מודרנית (כמו בתמונה)
+   ========================================= */
 .login-card-modern {
     background: #ffffff;
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 40px;
     width: 100%;
-    max-width: 420px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f9fafb;
 }
 
 .login-card-modern h2 {
     text-align: center;
     margin-top: 0;
     margin-bottom: 30px;
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     color: #000;
-    font-weight: 800;
+    font-weight: 900;
 }
 
 .form-group {
@@ -516,22 +114,22 @@
 .form-group label {
     display: block;
     margin-bottom: 8px;
-    font-weight: bold;
+    font-weight: 800;
     color: #4b5563;
     font-size: 0.95rem;
 }
 
-/* שדות קלט בצבע תכלת/אפור בהיר */
 .form-input-modern {
     width: 100%;
-    padding: 12px 15px;
+    padding: 14px 15px;
     border: 2px solid transparent;
-    background-color: #eef2ff;
+    background-color: #eef2ff; /* הרקע התכלת-אפור של שדות הקלט */
     border-radius: 10px;
     font-size: 16px;
     color: #1f2937;
     transition: all 0.2s;
     box-sizing: border-box;
+    font-weight: bold;
 }
 
 .form-input-modern:focus {
@@ -541,35 +139,30 @@
     box-shadow: 0 0 0 4px rgba(216, 180, 254, 0.2);
 }
 
-/* כפתור הדרגתי עם צל */
 .btn-gradient-modern {
     width: 100%;
     padding: 14px;
-    background: linear-gradient(135deg, #ec4899, #a855f7);
+    background: linear-gradient(to left, #ec4899, #a855f7); /* צבעי הגרדיאנט */
     color: white;
     border: none;
-    border-radius: 50px;
-    font-size: 1.1rem;
+    border-radius: 12px;
+    font-size: 1.2rem;
     font-weight: bold;
     cursor: pointer;
     transition: transform 0.2s, box-shadow 0.2s;
-    box-shadow: 0 6px 15px rgba(168, 85, 247, 0.35);
-    margin-top: 10px;
+    box-shadow: 0 6px 15px rgba(168, 85, 247, 0.3);
+    margin-top: 15px;
 }
 
 .btn-gradient-modern:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.45);
+    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
 }
 
-/* קישור שכחת סיסמה */
 .forgot-password-link {
-    display: block;
-    text-align: center;
-    margin-top: 20px;
     color: #8b5cf6;
     text-decoration: none;
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-weight: bold;
     transition: color 0.2s;
 }
@@ -577,4 +170,133 @@
 .forgot-password-link:hover {
     color: #7c3aed;
     text-decoration: underline;
+}
+
+/* =========================================
+   הודעות שגיאה
+   ========================================= */
+.modern-flash-error {
+    background-color: #fff1f2;
+    border: 1px solid #fda4af;
+    color: #e11d48;
+    padding: 12px 15px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(225, 29, 72, 0.05);
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =========================================
+   עיצוב פאנל הניהול הפנימי (לאחר התחברות)
+   ========================================= */
+.dynamic-card {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    margin-bottom: 25px;
+    border: 1px solid #f0f0f0;
+}
+
+.dynamic-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #f8f9fa;
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.dynamic-card-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #111;
+}
+
+.btn-add-green {
+    background-color: #059669;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 15px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-add-green:hover {
+    background-color: #047857;
+}
+
+.dynamic-item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    transition: box-shadow 0.2s;
+}
+
+.dynamic-item-row:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.dynamic-item-input {
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    color: #333;
+    font-weight: 500;
+    width: 100%;
+    background: transparent;
+}
+
+.btn-delete-pink {
+    background-color: #fce7f3;
+    color: #be185d;
+    border: none;
+    border-radius: 6px;
+    padding: 5px 15px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-right: 15px;
+}
+
+.btn-delete-pink:hover {
+    background-color: #fbcfe8;
+    color: #9d174d;
+}
+
+.btn-save-purple {
+    background: linear-gradient(135deg, #d946ef, #8b5cf6);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.btn-save-purple:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
 }

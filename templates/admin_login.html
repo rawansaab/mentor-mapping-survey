@@ -7,9 +7,9 @@
 <div class="login-page-wrapper">
     
     <div class="header-top-bar">
-        <a href="/" class="header-action-btn">
-            <span>חזרה לשאלון</span>
-            <div class="icon-circle">⚙️</div>
+        <a href="/" class="top-nav-btn">
+            <div class="top-nav-icon">⚙️</div>
+            <span class="top-nav-text">ניהול</span>
         </a>
     </div>
 
@@ -50,7 +50,9 @@
             {% endif %}
         {% endwith %}
 
-        <a href="/admin/forgot" class="forgot-password-link">שכחת את הקוד הסודי? שלח למייל</a>
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/admin/forgot" class="forgot-password-link">שכחת את הקוד הסודי? שלח למייל</a>
+        </div>
     </div>
     
 </div>

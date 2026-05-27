@@ -25,7 +25,7 @@
     margin-top: 6px;
 }
 
-/* עיצוב כרטיסיית כניסה למערכת */
+/* עיצוב תיבת הכניסה למרצים */
 .login-card {
     max-width: 450px;
     margin: 50px auto;
@@ -117,6 +117,7 @@
     text-decoration: underline;
 }
 
+/* תוצאות והודעות מערכת */
 .flash-box {
     margin-top: 25px;
     padding: 15px;
@@ -144,7 +145,7 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* מערכת טאבים */
+/* טאבים לניווט בפאנל */
 .admin-tabs {
     display: flex;
     justify-content: center;
@@ -179,6 +180,7 @@
     display: block;
 }
 
+/* גריד וכרטיסיות ניהול */
 .admin-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -215,7 +217,7 @@
     padding-left: 5px;
 }
 
-/* סידור אופקי מושלם בשורה של שדה הקלט וכפתור המחיקה */
+/* יישור אופקי קבוע של השדה וכפתור המחיקה זה לצד זה */
 .edit-item {
     display: flex;
     flex-direction: row;
@@ -300,6 +302,7 @@
     box-shadow: 0 15px 30px rgba(16,185,129,0.6);
 }
 
+/* טבלת הצגת נתוני המדריכים */
 .table-container {
     overflow-x: auto;
     background: white;
@@ -331,7 +334,7 @@
     background: #f3f4f6;
 }
 
-/* כפתור התנתקות אדום עם קו תחתון וללא אימוג'י */
+/* כפתור התנתקות בלוק אדום עם קו תחתון */
 .btn-logout-red {
     display: inline-block;
     background-color: #ef4444;

@@ -1,114 +1,27 @@
 {% extends "layout.html" %}
-{% block title %}כניסה לפאנל מרצים{% endblock %}
+{% block title %}כניסה למרצים{% endblock %}
 
 {% block content %}
-<style>
-  body { background: #fdfafb; }
-  .login-card {
-    background: #ffffff;
-    border-radius: 24px;
-    padding: 45px 40px;
-    max-width: 480px;
-    margin: 50px auto;
-    box-shadow: 0 15px 50px rgba(181, 125, 142, 0.15);
-    text-align: center;
-    border: 1px solid #f8fafc;
-  }
-  .login-card h2 {
-    font-size: 28px;
-    margin-bottom: 35px;
-    color: #1e293b;
-    font-weight: 800;
-  }
-  .login-card label {
-    text-align: right;
-    display: block;
-    font-weight: bold;
-    font-size: 16px;
-    margin-bottom: 10px;
-    color: #334155;
-  }
-  .login-card input {
-    width: 100%;
-    padding: 14px 16px;
-    border-radius: 12px;
-    border: 2px solid #e2e8f0;
-    margin-bottom: 25px;
-    background: #f8fafc;
-    font-size: 16px;
-    transition: all 0.3s;
-  }
-  .login-card input:focus {
-    background: #ffffff;
-    border-color: #df549f;
-    box-shadow: 0 0 0 4px rgba(223, 84, 159, 0.1);
-    outline: none;
-  }
-  .login-btn {
-    width: 100%;
-    padding: 16px;
-    border-radius: 14px;
-    border: none;
-    background: linear-gradient(90deg, #df549f, #9b51e0);
-    color: white;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 6px 20px rgba(223, 84, 159, 0.3);
-    transition: all 0.3s ease;
-  }
-  .login-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(223, 84, 159, 0.4); }
-  
-  .header-icon {
-    text-align: center;
-    margin-top: 30px;
-  }
-  .header-icon h1 {
-    font-size: 42px;
-    margin: 0;
-    background: linear-gradient(90deg, #df549f, #9b51e0); 
-    -webkit-background-clip: text; 
-    -webkit-text-fill-color: transparent;
-  }
-  .header-icon p {
-    color: #64748b;
-    margin-top: 12px;
-    font-size: 18px;
-  }
-  .back-btn {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: #f0ecf4;
-    color: #4b3e99;
-    padding: 10px 20px;
-    border-radius: 25px;
-    text-decoration: none;
-    font-weight: bold;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: background 0.3s;
-  }
-  .back-btn:hover { background: #e4dcf0; }
-</style>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 
-<a href="{{ url_for('index') }}" class="back-btn">⬅️ חזרה לטופס</a>
+<a href="{{ url_for('index') }}" class="back-btn">חזרה לשאלון</a>
 
-<div class="header-icon">
-  <h1>👨‍🏫 פאנל מרצים</h1>
-  <p>מערכת ניהול להזנת נתוני מדריכים ומוסדות</p>
+<div class="header-icon" style="text-align: center; margin-top: 20px;">
+    <h1>פאנל ניהול מתקדם</h1>
+    <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות הסטודנטים.</p>
 </div>
 
 <form method="post" class="login-card">
-  <h2>כניסה מאובטחת</h2>
-  
-  <label>סיסמת ניהול:</label>
-  <input type="password" name="password" required placeholder="הזן סיסמה...">
-  
-  <label>קוד סודי:</label>
-  <input type="password" name="secret_code" required placeholder="הזן קוד סודי...">
-  
-  <button type="submit" class="login-btn">כניסה למערכת</button>
+    <h2>כניסה למרצים</h2>
+    
+    <label>סיסמת מנהל:</label>
+    <input type="password" name="password" required>
+    
+    <label>קוד סודי:</label>
+    <input type="password" name="secret_code" required>
+    
+    <button type="submit" class="login-btn">כניסה למערכת</button>
+    
+    <a href="#" class="forgot-link">שכחת את הקוד הסודי? שלח למייל</a>
 </form>
 {% endblock %}

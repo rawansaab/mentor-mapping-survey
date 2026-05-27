@@ -1,166 +1,70 @@
 {% extends "layout.html" %}
-{% block title %}פאנל מרצים - ניהול מתקדם{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<div class="admin-wrapper">
+  <div class="admin-header">
+    <h1>{{ page_title }}</h1>
+    <p>אותו פאנל ניהול משמש גם את טופס הסטודנטים וגם את טופס מיפוי המדריכים.</p>
+  </div>
 
-<a href="{{ url_for('index') }}" class="back-btn">חזרה לשאלון</a>
+  <div class="admin-top-actions">
+    <a href="{{ url_for('index') }}" class="admin-link">צפייה בטופס סטודנטים</a>
+    <a href="{{ url_for('mentor_mapping') }}" class="admin-link">צפייה בטופס מיפוי מדריכים</a>
+    <a href="{{ url_for('mentor_admin') }}" class="admin-link">פאנל מיפוי מדריכים</a>
+    <a href="{{ url_for('logout') }}" class="admin-link danger">התנתקות</a>
+  </div>
 
-<div class="header-area">
-    <h1>פאנל ניהול מתקדם</h1>
-    <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות המדריכים.</p>
-</div>
+  <div class="admin-tabs">
+    <button type="button" class="tab-btn active" data-tab="editForm">עריכת אפשרויות הטפסים</button>
+    <button type="button" class="tab-btn" data-tab="viewResults">{{ results_title }}</button>
+  </div>
 
-<div class="admin-tabs">
-    <button class="tab-btn active" onclick="switchTab('editForm')">עריכת השאלון</button>
-    <button class="tab-btn" onclick="switchTab('viewResults')">תשובות מדריכים</button>
-</div>
+  <div id="editForm" class="tab-content active">
+    {% include "_shared_admin_panel.html" %}
+  </div>
 
-<div id="editForm" class="tab-content active">
-    <form method="post" id="adminForm" onsubmit="prepareData()">
-        <div class="dashboard-grid">
-            
-            <div class="admin-card" style="grid-column: 1 / -1;">
-                <div class="card-header">
-                    <h3>הגדרות טקסט של הטופס</h3>
-                </div>
-                <div style="display:flex; flex-direction:column; gap:15px;">
-                    <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px; border-radius:8px;">
-                        <strong style="min-width:120px;">כותרת ראשית:</strong>
-                        <input type="text" name="form_title" value="{{ settings.form_title }}" style="flex:1; border:none; background:transparent; font-weight:bold;">
-                    </div>
-                    <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px; border-radius:8px;">
-                        <strong style="min-width:120px;">טקסט משנה:</strong>
-                        <textarea name="form_subtitle" rows="2" style="flex:1; border:none; background:transparent; resize:none;">{{ settings.form_subtitle }}</textarea>
-                    </div>
-                </div>
-            </div>
-
-            <div class="admin-card">
-                <div class="card-header">
-                    <h3>תחומי התמחות</h3>
-                    <button type="button" class="add-btn" onclick="addItem('list-specs')">+ הוסף תחום</button>
-                </div>
-                <div id="list-specs" class="edit-list">
-                    {% for item in settings.specializations.split(',') if item.strip() %}
-                    <div class="edit-item">
-                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                        <button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>
-                    </div>
-                    {% endfor %}
-                </div>
-                <input type="hidden" name="specializations" id="hidden-specs">
-            </div>
-
-            <div class="admin-card">
-                <div class="card-header">
-                    <h3>סטטוס מדריך</h3>
-                    <button type="button" class="add-btn" onclick="addItem('list-statuses')">+ הוסף סטטוס</button>
-                </div>
-                <div id="list-statuses" class="edit-list">
-                    {% for item in settings.mentor_statuses.split(',') if item.strip() %}
-                    <div class="edit-item">
-                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                        <button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>
-                    </div>
-                    {% endfor %}
-                </div>
-                <input type="hidden" name="mentor_statuses" id="hidden-statuses">
-            </div>
-
-            <div class="admin-card">
-                <div class="card-header">
-                    <h3>נקודות לחוות דעת</h3>
-                    <button type="button" class="add-btn" onclick="addItem('list-feedback')">+ הוסף נקודה</button>
-                </div>
-                <div id="list-feedback" class="edit-list">
-                    {% for item in settings.feedback_points.split(',') if item.strip() %}
-                    <div class="edit-item">
-                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                        <button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>
-                    </div>
-                    {% endfor %}
-                </div>
-                <input type="hidden" name="feedback_points" id="hidden-feedback">
-            </div>
-
-        </div>
-        <button type="submit" class="floating-save">שמור שינויים</button>
-    </form>
-</div>
-
-<div id="viewResults" class="tab-content">
-    <div class="admin-section" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin: 0;">נתוני המדריכים שהוגשו</h2>
-        <a href="/download/master" class="btn primary" style="background:#10b981; color:white; padding:10px 20px; text-decoration:none; border-radius:10px; font-weight:bold;">הורד נתונים ל-Excel</a>
+  <div id="viewResults" class="tab-content">
+    <div class="admin-section result-head">
+      <h2>{{ results_title }}</h2>
+      <a href="{{ url_for('download', kind=results_kind) }}" class="download-btn">הורדה ל-CSV</a>
     </div>
 
     <div class="table-container">
-        {% if mentors|length > 0 %}
+      {% if rows %}
         <table class="results-table">
-            <thead>
-                <tr>
-                    <th>תאריך שליחה</th>
-                    <th>שם המדריך</th>
-                    <th>סטטוס</th>
-                    <th>מוסד</th>
-                    <th>תחום התמחות</th>
-                    <th>טלפון</th>
-                    <th>אימייל</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in mentors %}
-                <tr>
-                    <td>{{ row.get('תאריך שליחה', '') }}</td>
-                    <td>{{ row.get('שם פרטי', '') }} {{ row.get('שם משפחה', '') }}</td>
-                    <td>{{ row.get('סטטוס מדריך', '') }}</td>
-                    <td>{{ row.get('מוסד', '') }}</td>
-                    <td>{{ row.get('תחום התמחות', '') }}</td>
-                    <td>{{ row.get('טלפון', '') }}</td>
-                    <td>{{ row.get('אימייל', '') }}</td>
-                </tr>
+          <thead>
+            <tr>
+              {% for key in rows[0].keys() %}
+                <th>{{ key }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                {% for key in rows[0].keys() %}
+                  <td>{{ row.get(key, '') }}</td>
                 {% endfor %}
-            </tbody>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
-        {% else %}
-        <p style="text-align: center; color: #6b7280; padding: 30px;">עדיין אין נתונים במערכת. המדריכים טרם הגישו טפסים.</p>
-        {% endif %}
+      {% else %}
+        <p class="empty-state">עדיין אין נתונים במערכת.</p>
+      {% endif %}
     </div>
+  </div>
 </div>
+{% endblock %}
 
-<div class="logout-wrap">
-    <a href="{{ url_for('logout') }}" class="btn-logout-red">התנתקות מהמערכת</a>
-</div>
-
+{% block scripts %}
 <script>
-function switchTab(tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
-}
-
-function addItem(containerId) {
-    let val = prompt("הכנס ערך חדש:");
-    if(val && val.trim() !== "") {
-        let container = document.getElementById(containerId);
-        let div = document.createElement('div');
-        div.className = 'edit-item';
-        div.innerHTML = `<input type="text" value="${val.trim()}" class="edit-input val-item"><button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>`;
-        container.appendChild(div);
-    }
-}
-
-function prepareData() {
-    let specs = Array.from(document.querySelectorAll('#list-specs .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
-    document.getElementById('hidden-specs').value = specs;
-
-    let statuses = Array.from(document.querySelectorAll('#list-statuses .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
-    document.getElementById('hidden-statuses').value = statuses;
-
-    let feedback = Array.from(document.querySelectorAll('#list-feedback .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
-    document.getElementById('hidden-feedback').value = feedback;
-}
+  window.APP_CFG = {{ cfg_json|safe }};
 </script>
+<script src="{{ url_for('static', filename='js/admin_panel.js') }}"></script>
 {% endblock %}

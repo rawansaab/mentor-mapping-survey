@@ -89,15 +89,20 @@ def index():
 def admin_login():
     settings = get_settings()
     if request.method == "POST":
-        pwd = request.form.get('password')
-        code = request.form.get('secret_code')
+        # תמיכה בשמות השדות החדשים והישנים
+        pwd = request.form.get('password') or request.form.get('pwd')
+        code = request.form.get('secret_code') or request.form.get('secret')
         
-        # אימות סיסמה וקוד סודי
-        if pwd == settings.get('admin_password', '1234') and code == settings.get('secret_code', '0000'):
+        # משיכת הסיסמאות מ-Render
+        correct_pwd = os.environ.get('ADMIN_PASSWORD', settings.get('admin_password', '1234'))
+        correct_secret = os.environ.get('LECTURER_SECRET', settings.get('secret_code', '0000'))
+        
+        # אימות
+        if pwd == correct_pwd and code == correct_secret:
             session['admin_logged_in'] = True
             return redirect(url_for('admin_dashboard'))
         else:
-            flash("❌ סיסמה או קוד סודי שגויים, נסה שוב.", "error")
+            flash("סיסמה או קוד סודי שגויים, נסה שוב.", "error")
             
     return render_template("admin_login.html")
 

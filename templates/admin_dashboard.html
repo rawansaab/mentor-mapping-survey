@@ -1,136 +1,121 @@
 {% extends "layout.html" %}
-{% block title %}פאנל מרצים - ניהול מתקדם{% endblock %}
+{% block title %}ניהול מערכת מדריכים{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
 
-<a href="{{ url_for('index') }}" class="back-btn">חזרה לשאלון</a>
+<div class="admin-wrapper">
+    <div style="margin-bottom: 15px;">
+        <a href="/" class="back-btn">חזרה לשאלון</a>
+    </div>
 
-<div class="header-area">
-    <h1>פאנל ניהול מתקדם</h1>
-    <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות המדריכים.</p>
-</div>
+    <header class="admin-header">
+        <h1>פאנל ניהול מתקדם</h1>
+        <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתשובות המדריכים.</p>
+    </header>
 
-<div class="admin-tabs">
-    <button class="tab-btn active" onclick="switchTab('editForm')">עריכת השאלון</button>
-    <button class="tab-btn" onclick="switchTab('viewResults')">תשובות מדריכים</button>
-</div>
+    <div class="admin-tabs">
+        <button class="tab-btn active" onclick="switchTab('editForm')">עריכת השאלון</button>
+        <button class="tab-btn" onclick="switchTab('viewResults')">תשובות מדריכים</button>
+    </div>
 
-<div id="editForm" class="tab-content active">
-    <form method="post" id="adminForm" onsubmit="prepareData()">
-        <div class="dashboard-grid">
+    <div id="editForm" class="tab-content active">
+        <form method="post" id="adminForm" onsubmit="prepareData()">
+            <button type="submit" class="btn-save-floating">שמור שינויים</button>
             
-            <div class="admin-card" style="grid-column: 1 / -1;">
-                <div class="card-header">
-                    <h3>הגדרות טקסט של הטופס</h3>
-                </div>
-                <div style="display:flex; flex-direction:column; gap:15px;">
-                    <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px; border-radius:8px;">
-                        <strong style="min-width:120px;">כותרת ראשית:</strong>
-                        <input type="text" name="form_title" value="{{ settings.form_title }}" class="edit-input">
+            <div class="admin-grid">
+                
+                <section class="admin-section" style="grid-column: 1 / -1;">
+                    <div class="section-header"><h2>הגדרות טקסט של הטופס</h2></div>
+                    <div class="edit-list">
+                        <div class="edit-item">
+                            <div class="edit-item-row">
+                                <span style="min-width: 120px; font-weight:bold;">כותרת ראשית:</span>
+                                <input type="text" name="form_title" value="{{ settings.form_title }}" class="edit-input">
+                            </div>
+                        </div>
+                        <div class="edit-item">
+                            <div class="edit-item-row">
+                                <span style="min-width: 120px; font-weight:bold;">טקסט משנה:</span>
+                                <textarea name="form_subtitle" rows="2" style="resize:none;" class="edit-input">{{ settings.form_subtitle }}</textarea>
+                            </div>
+                        </div>
                     </div>
-                    <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px; border-radius:8px;">
-                        <strong style="min-width:120px;">טקסט משנה:</strong>
-                        <textarea name="form_subtitle" rows="2" style="flex:1; border:none; background:transparent; resize:none;" class="edit-input">{{ settings.form_subtitle }}</textarea>
-                    </div>
-                </div>
-            </div>
+                </section>
 
-            <div class="admin-section">
-                <div class="section-header">
-                    <h2>תחומי התמחות</h2>
-                    <button type="button" class="btn-add" onclick="addItem('list-specs', 'תחום חדש')">+ הוסף תחום</button>
-                </div>
-                <div id="list-specs" class="edit-list">
-                    {% for item in settings.specializations.split(',') if item.strip() %}
-                    <div class="edit-item">
-                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                        <button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>
+                <section class="admin-section">
+                    <div class="section-header">
+                        <h2>תחומי התמחות</h2>
+                        <button type="button" class="btn-add" onclick="addItem('list-specs', 'תחום חדש')">+ הוסף תחום</button>
                     </div>
-                    {% endfor %}
-                </div>
-                <input type="hidden" name="specializations" id="hidden-specs">
-            </div>
-
-            <div class="admin-section">
-                <div class="section-header">
-                    <h2>סטטוס מדריך</h2>
-                    <button type="button" class="btn-add" onclick="addItem('list-statuses', 'סטטוס חדש')">+ הוסף סטטוס</button>
-                </div>
-                <div id="list-statuses" class="edit-list">
-                    {% for item in settings.mentor_statuses.split(',') if item.strip() %}
-                    <div class="edit-item">
-                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                        <button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>
+                    <div id="list-specs" class="edit-list">
+                        {% for item in settings.specializations.split(',') if item.strip() %}
+                        <div class="edit-item">
+                            <div class="edit-item-row">
+                                <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
-                </div>
-                <input type="hidden" name="mentor_statuses" id="hidden-statuses">
-            </div>
+                    <input type="hidden" name="specializations" id="hidden-specs">
+                </section>
 
-            <div class="admin-section">
-                <div class="section-header">
-                    <h2>נקודות לחוות דעת</h2>
-                    <button type="button" class="btn-add" onclick="addItem('list-feedback', 'נקודה חדשה')">+ הוסף נקודה</button>
-                </div>
-                <div id="list-feedback" class="edit-list">
-                    {% for item in settings.feedback_points.split(',') if item.strip() %}
-                    <div class="edit-item">
-                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                        <button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>
+                <section class="admin-section">
+                    <div class="section-header">
+                        <h2>סטטוס מדריך</h2>
+                        <button type="button" class="btn-add" onclick="addItem('list-statuses', 'סטטוס חדש')">+ הוסף סטטוס</button>
                     </div>
-                    {% endfor %}
-                </div>
-                <input type="hidden" name="feedback_points" id="hidden-feedback">
-            </div>
+                    <div id="list-statuses" class="edit-list">
+                        {% for item in settings.mentor_statuses.split(',') if item.strip() %}
+                        <div class="edit-item">
+                            <div class="edit-item-row">
+                                <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="mentor_statuses" id="hidden-statuses">
+                </section>
 
+                <section class="admin-section">
+                    <div class="section-header">
+                        <h2>נקודות לחוות דעת</h2>
+                        <button type="button" class="btn-add" onclick="addItem('list-feedback', 'נקודה חדשה')">+ הוסף נקודה</button>
+                    </div>
+                    <div id="list-feedback" class="edit-list">
+                        {% for item in settings.feedback_points.split(',') if item.strip() %}
+                        <div class="edit-item">
+                            <div class="edit-item-row">
+                                <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="feedback_points" id="hidden-feedback">
+                </section>
+
+            </div>
+        </form>
+    </div>
+
+    <div id="viewResults" class="tab-content">
+        <div class="admin-section" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">נתוני המדריכים שהוגשו</h2>
+            <a href="/download/master" class="btn-add" style="text-decoration:none; padding:10px 20px;">הורד נתונים ל-Excel</a>
         </div>
-        <button type="submit" class="floating-save">שמור שינויים</button>
-    </form>
-</div>
-
-<div id="viewResults" class="tab-content">
-    <div class="admin-section" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-        <h2 style="margin: 0;">נתוני המדריכים שהוגשו</h2>
-        <a href="/download/master" class="btn primary" style="background:#10b981; color:white; padding:10px 20px; text-decoration:none; border-radius:10px; font-weight:bold;">הורד נתונים ל-Excel</a>
+        
+        <div class="table-container">
+            <p style="text-align: center; color: #6b7280; padding: 30px;">רשימת המדריכים שהוגשו תופיע בקובץ ה-Excel שהורד למעלה או תסונכרן ל-Google Sheets.</p>
+        </div>
     </div>
 
-    <div class="table-container">
-        {% if mentors|length > 0 %}
-        <table class="results-table">
-            <thead>
-                <tr>
-                    <th>תאריך שליחה</th>
-                    <th>שם המדריך</th>
-                    <th>סטטוס</th>
-                    <th>מוסד</th>
-                    <th>תחום התמחות</th>
-                    <th>טלפון</th>
-                    <th>אימייל</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for row in mentors %}
-                <tr>
-                    <td>{{ row.get('תאריך שליחה', '') }}</td>
-                    <td>{{ row.get('שם פרטי', '') }} {{ row.get('שם משפחה', '') }}</td>
-                    <td>{{ row.get('סטטוס מדריך', '') }}</td>
-                    <td>{{ row.get('מוסד', '') }}</td>
-                    <td>{{ row.get('תחום התמחות', '') }}</td>
-                    <td>{{ row.get('טלפון', '') }}</td>
-                    <td>{{ row.get('אימייל', '') }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p style="text-align: center; color: #6b7280; padding: 30px;">עדיין אין נתונים במערכת. המדריכים טרם הגישו טפסים.</p>
-        {% endif %}
+    <div style="text-align: center; margin-top: 40px;">
+        <a href="{{ url_for('logout') }}" class="btn-logout-red">התנתקות מהמערכת</a>
     </div>
-</div>
 
-<div class="logout-wrap" style="text-align: center; margin-top: 40px;">
-    <a href="{{ url_for('logout') }}" class="btn-logout-red">התנתקות מהמערכת</a>
 </div>
 
 <script>
@@ -145,10 +130,15 @@ function addItem(containerId, placeholder) {
     let container = document.getElementById(containerId);
     let div = document.createElement('div');
     div.className = 'edit-item';
-    div.innerHTML = `<input type="text" value="${placeholder}" class="edit-input val-item"><button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>`;
+    div.innerHTML = `
+        <div class="edit-item-row">
+            <input type="text" value="${placeholder}" class="edit-input val-item">
+            <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+        </div>`;
     container.appendChild(div);
 }
 
+// אוסף את הנתונים מהשדות הדינמיים לתוך שדות חבויים כדי ש-main.py יוכל לשמור אותם
 function prepareData() {
     let specs = Array.from(document.querySelectorAll('#list-specs .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
     document.getElementById('hidden-specs').value = specs;

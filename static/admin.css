@@ -423,3 +423,158 @@
     from { opacity: 0; transform: translateY(-10px); }
     to { opacity: 1; transform: translateY(0); }
 }
+/* --- עיצוב דף ההתחברות החדש --- */
+.login-page-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+}
+
+.header-top-bar {
+    width: 100%;
+    max-width: 800px;
+    display: flex;
+    justify-content: flex-start; /* מתיישר לימין ב-RTL */
+    margin-bottom: 20px;
+}
+
+/* עיצוב כפתור עליון - תואם לתמונה 1 */
+.header-action-btn {
+    background-color: #f3f4f6;
+    color: #111827;
+    font-weight: bold;
+    text-decoration: none;
+    padding: 6px 20px 6px 8px; /* ריווח א-סימטרי שיתאים לעיגול */
+    border-radius: 50px;
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 16px;
+    transition: background-color 0.2s;
+}
+
+.header-action-btn:hover {
+    background-color: #e5e7eb;
+}
+
+/* העיגול הסגול סביב סמל גלגל השיניים */
+.icon-circle {
+    background-color: #f3e8ff;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.login-titles {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-titles h1 {
+    font-size: 2.5rem;
+    color: #000;
+    margin-bottom: 10px;
+    font-weight: 800;
+}
+
+.login-titles p {
+    font-size: 1.1rem;
+    color: #4b5563;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* עיצוב כרטיסיית ההתחברות - תואם לתמונה 4 */
+.login-card-modern {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.login-card-modern h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+    color: #000;
+    font-weight: 800;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #4b5563;
+    font-size: 0.95rem;
+}
+
+/* שדות קלט בצבע תכלת/אפור בהיר */
+.form-input-modern {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid transparent;
+    background-color: #eef2ff;
+    border-radius: 10px;
+    font-size: 16px;
+    color: #1f2937;
+    transition: all 0.2s;
+    box-sizing: border-box;
+}
+
+.form-input-modern:focus {
+    outline: none;
+    background-color: #ffffff;
+    border-color: #d8b4fe;
+    box-shadow: 0 0 0 4px rgba(216, 180, 254, 0.2);
+}
+
+/* כפתור הדרגתי עם צל */
+.btn-gradient-modern {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #ec4899, #a855f7);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 15px rgba(168, 85, 247, 0.35);
+    margin-top: 10px;
+}
+
+.btn-gradient-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(168, 85, 247, 0.45);
+}
+
+/* קישור שכחת סיסמה */
+.forgot-password-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #8b5cf6;
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: bold;
+    transition: color 0.2s;
+}
+
+.forgot-password-link:hover {
+    color: #7c3aed;
+    text-decoration: underline;
+}

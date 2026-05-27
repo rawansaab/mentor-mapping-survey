@@ -354,3 +354,26 @@
   text-decoration: none;
   font-weight: bold;
 }
+
+.back-to-form-btn {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    padding: 8px 24px;
+    background-color: #ffffff;
+    border: 2.5px solid #b08496; /* צבע מסגרת התואם לתמונה */
+    border-radius: 50px; /* צורה אליפטית */
+    color: #b08496; /* צבע הטקסט */
+    font-size: 16px;
+    box-shadow: 0 4px 6px rgba(176, 132, 150, 0.1);
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.back-to-form-btn:hover {
+    background-color: #faf5f7;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(176, 132, 150, 0.15);
+}

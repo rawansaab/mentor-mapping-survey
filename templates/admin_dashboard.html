@@ -1,70 +1,273 @@
 {% extends "layout.html" %}
-{% block title %}{{ page_title }}{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
-{% endblock %}
+{% block title %}פאנל מרצים - ניהול מערך הדרכה{% endblock %}
 
 {% block content %}
-<div class="admin-wrapper">
-  <div class="admin-header">
-    <h1>{{ page_title }}</h1>
-    <p>אותו פאנל ניהול משמש גם את טופס הסטודנטים וגם את טופס מיפוי המדריכים.</p>
-  </div>
+<style>
+  body { background: #fdfafb; }
+  
+  .back-btn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #f0ecf4;
+    color: #4b3e99;
+    padding: 8px 18px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transition: all 0.3s ease;
+  }
+  .back-btn:hover { background: #e4dcf0; transform: translateY(-1px); }
 
-  <div class="admin-top-actions">
-    <a href="{{ url_for('index') }}" class="admin-link">צפייה בטופס סטודנטים</a>
-    <a href="{{ url_for('mentor_mapping') }}" class="admin-link">צפייה בטופס מיפוי מדריכים</a>
-    <a href="{{ url_for('mentor_admin') }}" class="admin-link">פאנל מיפוי מדריכים</a>
-    <a href="{{ url_for('logout') }}" class="admin-link danger">התנתקות</a>
-  </div>
+  .header-area { text-align: center; margin: 50px 0 30px; }
+  .header-area h1 { 
+    font-size: 40px; 
+    margin-bottom: 10px; 
+    background: linear-gradient(90deg, #df549f, #9b51e0); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent;
+    font-weight: 900;
+  }
+  .header-area p { color: #6b7280; font-size: 18px; }
+  
+  .top-actions { display: flex; justify-content: center; gap: 20px; margin-bottom: 40px; }
+  .action-btn {
+    padding: 12px 28px;
+    border-radius: 30px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 16px;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+  }
+  .btn-purple { 
+    background: linear-gradient(90deg, #df549f, #9b51e0); 
+    color: white; 
+    box-shadow: 0 4px 15px rgba(155, 81, 224, 0.3); 
+  }
+  .btn-purple:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(155, 81, 224, 0.4); }
+  
+  .btn-light { 
+    background: #ffffff; 
+    color: #4b3e99; 
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+    border: 1px solid #e2e8f0;
+  }
+  .btn-light:hover { transform: translateY(-2px); background: #f8fafc; }
+  
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+    margin-bottom: 80px;
+  }
+  
+  .admin-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+    border: 1px solid #f1f5f9;
+    transition: transform 0.3s ease;
+  }
+  .admin-card:hover { transform: translateY(-3px); }
+  
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f8fafc;
+    padding-bottom: 12px;
+  }
+  .card-header h3 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 10px; color: #1e293b; }
+  
+  .add-btn {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    transition: background 0.2s;
+  }
+  .add-btn:hover { background: #059669; }
+  
+  .dynamic-list { list-style: none; padding: 0; margin: 0; max-height: 280px; overflow-y: auto; }
+  .dynamic-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    padding: 12px 18px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s;
+  }
+  .dynamic-list li:hover { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+  .dynamic-list li .text { font-weight: bold; color: #334155; }
+  
+  .del-btn {
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    border-radius: 8px;
+    padding: 6px 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .del-btn:hover { background: #fca5a5; color: #b91c1c; }
+  
+  .floating-save {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    background: linear-gradient(90deg, #10b981, #059669);
+    color: white;
+    border: none;
+    padding: 15px 35px;
+    border-radius: 30px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.4);
+    z-index: 1000;
+    transition: all 0.3s ease;
+  }
+  .floating-save:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(16, 185, 129, 0.5); }
+  
+  .logout-wrap { text-align: center; margin-top: 20px; padding-bottom: 60px; }
+  .logout-btn { 
+    color: #ef4444; 
+    text-decoration: none; 
+    font-weight: bold; 
+    background: #fee2e2; 
+    padding: 12px 25px; 
+    border-radius: 12px; 
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+  }
+  .logout-btn:hover { background: #fca5a5; color: #b91c1c; }
+</style>
 
-  <div class="admin-tabs">
-    <button type="button" class="tab-btn active" data-tab="editForm">עריכת אפשרויות הטפסים</button>
-    <button type="button" class="tab-btn" data-tab="viewResults">{{ results_title }}</button>
-  </div>
+<a href="{{ url_for('index') }}" class="back-btn">⬅️ חזרה לטופס</a>
 
-  <div id="editForm" class="tab-content active">
-    {% include "_shared_admin_panel.html" %}
-  </div>
-
-  <div id="viewResults" class="tab-content">
-    <div class="admin-section result-head">
-      <h2>{{ results_title }}</h2>
-      <a href="{{ url_for('download', kind=results_kind) }}" class="download-btn">הורדה ל-CSV</a>
-    </div>
-
-    <div class="table-container">
-      {% if rows %}
-        <table class="results-table">
-          <thead>
-            <tr>
-              {% for key in rows[0].keys() %}
-                <th>{{ key }}</th>
-              {% endfor %}
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in rows %}
-              <tr>
-                {% for key in rows[0].keys() %}
-                  <td>{{ row.get(key, '') }}</td>
-                {% endfor %}
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      {% else %}
-        <p class="empty-state">עדיין אין נתונים במערכת.</p>
-      {% endif %}
-    </div>
-  </div>
+<div class="header-area">
+  <h1>👨‍🏫 פאנל מרצים</h1>
+  <p>ניהול והגדרת מערך מיפוי המדריכים לשנת ההכשרה</p>
 </div>
-{% endblock %}
 
-{% block scripts %}
+<div class="top-actions">
+  <button type="button" class="action-btn btn-purple" onclick="window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'});">⚙️ עריכת הגדרות הטופס</button>
+  <a href="#" class="action-btn btn-light" target="_blank">📊 צפייה בנתוני המדריכים</a>
+</div>
+
+<form method="post" id="adminForm" onsubmit="prepareData()">
+  <div class="dashboard-grid">
+    
+    <div class="admin-card" style="grid-column: 1 / -1;">
+      <div class="card-header">
+        <h3>📝 הגדרות טקסט של הטופס</h3>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:15px;">
+        <div style="display:flex; align-items:center; gap:15px; background:#f8fafc; padding:15px; border-radius:12px; border: 1px solid #e2e8f0;">
+          <strong style="min-width:130px; color:#1e293b;">כותרת ראשית:</strong>
+          <input type="text" name="form_title" value="{{ settings.form_title }}" style="flex:1; border:none; background:transparent; font-weight:bold; font-size:16px; outline:none;">
+        </div>
+        <div style="display:flex; align-items:flex-start; gap:15px; background:#f8fafc; padding:15px; border-radius:12px; border: 1px solid #e2e8f0;">
+          <strong style="min-width:130px; color:#1e293b; margin-top:5px;">טקסט משנה:</strong>
+          <textarea name="form_subtitle" rows="3" style="flex:1; border:none; background:transparent; resize:none; font-size:15px; outline:none; line-height:1.5;">{{ settings.form_subtitle }}</textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-card">
+      <div class="card-header">
+        <h3>🎓 תחומי התמחות</h3>
+        <button type="button" class="add-btn" onclick="addItem('list-specs')">+ הוספה</button>
+      </div>
+      <ul class="dynamic-list" id="list-specs">
+        {% for item in settings.specializations.split(',') if item.strip() %}
+        <li>
+          <button type="button" class="del-btn" onclick="this.parentElement.remove()">🗑️</button>
+          <span class="text">{{ item.strip() }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <input type="hidden" name="specializations" id="hidden-specs">
+    </div>
+
+    <div class="admin-card">
+      <div class="card-header">
+        <h3>👤 סטטוס מדריך</h3>
+        <button type="button" class="add-btn" onclick="addItem('list-statuses')">+ הוספה</button>
+      </div>
+      <ul class="dynamic-list" id="list-statuses">
+        {% for item in settings.mentor_statuses.split(',') if item.strip() %}
+        <li>
+          <button type="button" class="del-btn" onclick="this.parentElement.remove()">🗑️</button>
+          <span class="text">{{ item.strip() }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <input type="hidden" name="mentor_statuses" id="hidden-statuses">
+    </div>
+
+    <div class="admin-card">
+      <div class="card-header">
+        <h3>⭐ נקודות לחוות דעת</h3>
+        <button type="button" class="add-btn" onclick="addItem('list-feedback')">+ הוספה</button>
+      </div>
+      <ul class="dynamic-list" id="list-feedback">
+        {% for item in settings.feedback_points.split(',') if item.strip() %}
+        <li>
+          <button type="button" class="del-btn" onclick="this.parentElement.remove()">🗑️</button>
+          <span class="text">{{ item.strip() }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+      <input type="hidden" name="feedback_points" id="hidden-feedback">
+    </div>
+
+  </div>
+
+  <button type="submit" class="floating-save">✅ שמירת שינויים</button>
+</form>
+
+<div class="logout-wrap">
+  <a href="{{ url_for('logout') }}" class="logout-btn">🚪 יציאה מהפאנל</a>
+</div>
+
 <script>
-  window.APP_CFG = {{ cfg_json|safe }};
+function addItem(listId) {
+    let val = prompt("הכנס ערך חדש:");
+    if(val && val.trim() !== "") {
+        let ul = document.getElementById(listId);
+        let li = document.createElement('li');
+        li.innerHTML = `<button type="button" class="del-btn" onclick="this.parentElement.remove()">🗑️</button><span class="text">${val.trim()}</span>`;
+        ul.appendChild(li);
+    }
+}
+
+function prepareData() {
+    let specs = Array.from(document.getElementById('list-specs').children).map(li => li.querySelector('.text').innerText).join(',');
+    document.getElementById('hidden-specs').value = specs;
+
+    let statuses = Array.from(document.getElementById('list-statuses').children).map(li => li.querySelector('.text').innerText).join(',');
+    document.getElementById('hidden-statuses').value = statuses;
+
+    let feedback = Array.from(document.getElementById('list-feedback').children).map(li => li.querySelector('.text').innerText).join(',');
+    document.getElementById('hidden-feedback').value = feedback;
+}
 </script>
-<script src="{{ url_for('static', filename='js/admin_panel.js') }}"></script>
 {% endblock %}

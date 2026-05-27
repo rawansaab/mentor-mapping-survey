@@ -377,3 +377,49 @@
     transform: translateY(-2px);
     box-shadow: 0 6px 12px rgba(176, 132, 150, 0.15);
 }
+/* --- עיצוב כפתור חזרה לשאלון --- */
+.back-to-form-btn {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: bold;
+    padding: 8px 24px;
+    background-color: #ffffff;
+    border: 2.5px solid #b08496;
+    border-radius: 50px;
+    color: #b08496;
+    font-size: 16px;
+    box-shadow: 0 4px 6px rgba(176, 132, 150, 0.1);
+    transition: all 0.3s ease;
+    letter-spacing: 0.5px;
+}
+
+.back-to-form-btn:hover {
+    background-color: #faf5f7;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(176, 132, 150, 0.15);
+}
+
+/* --- עיצוב הודעת שגיאה בהתחברות --- */
+.modern-flash-error {
+    background-color: #fff1f2;
+    border: 1px solid #fda4af;
+    color: #e11d48;
+    padding: 10px 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(225, 29, 72, 0.1);
+    margin-top: 15px;
+    animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

@@ -2,14 +2,176 @@
 {% block title %}התחברות להנהלה{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=4">
+<style>
+    /* עיצוב פנימי כדי למנוע בעיות מטמון (Cache) */
+    .login-ultra-wrapper {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        direction: rtl;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 85vh;
+        background-color: #f8f9fa; /* רקע בהיר */
+        margin: -20px; /* מתגבר על שוליים של layout.html אם יש */
+        padding: 40px 20px;
+    }
 
-<div class="login-page-wrapper">
+    .top-nav-btn {
+        display: inline-flex;
+        align-items: center;
+        background: #ffffff;
+        border-radius: 50px;
+        padding: 6px 20px 6px 6px;
+        text-decoration: none;
+        color: #111827;
+        font-weight: 800;
+        font-size: 1.15rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+        gap: 12px;
+        border: 1px solid #f3f4f6;
+        transition: transform 0.2s, box-shadow 0.2s;
+        margin-bottom: 40px;
+        align-self: flex-start;
+        width: fit-content;
+    }
+
+    .top-nav-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+    }
+
+    .top-nav-icon {
+        background: #f3f4f6;
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #a855f7;
+    }
+
+    .login-titles {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .login-titles h1 {
+        font-size: 2.8rem;
+        color: #111827;
+        margin-bottom: 15px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+    }
+
+    .login-titles p {
+        font-size: 1.2rem;
+        color: #4b5563;
+        max-width: 650px;
+        margin: 0 auto;
+        line-height: 1.5;
+    }
+
+    .login-card-modern {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 40px;
+        width: 100%;
+        max-width: 420px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f9fafb;
+    }
+
+    .login-card-modern h2 {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 30px;
+        font-size: 1.8rem;
+        color: #111827;
+        font-weight: 900;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        text-align: right;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 800;
+        color: #4b5563;
+        font-size: 0.95rem;
+    }
+
+    .form-input-modern {
+        width: 100%;
+        padding: 14px 15px;
+        border: 2px solid transparent;
+        background-color: #eef2ff;
+        border-radius: 12px;
+        font-size: 16px;
+        color: #1f2937;
+        transition: all 0.2s;
+        box-sizing: border-box;
+        font-weight: bold;
+        direction: ltr; /* טוב לסיסמאות */
+    }
+
+    .form-input-modern:focus {
+        outline: none;
+        background-color: #ffffff;
+        border-color: #d8b4fe;
+        box-shadow: 0 0 0 4px rgba(216, 180, 254, 0.2);
+    }
+
+    .btn-gradient-modern {
+        width: 100%;
+        padding: 15px;
+        background: linear-gradient(to left, #ec4899, #a855f7);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: transform 0.2s, box-shadow 0.2s;
+        box-shadow: 0 6px 15px rgba(168, 85, 247, 0.3);
+        margin-top: 10px;
+    }
+
+    .btn-gradient-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(168, 85, 247, 0.4);
+    }
+
+    .forgot-password-link {
+        color: #8b5cf6;
+        text-decoration: none;
+        font-size: 1rem;
+        font-weight: bold;
+    }
+
+    .modern-flash-error {
+        background-color: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        padding: 14px;
+        border-radius: 12px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 0.95rem;
+    }
+</style>
+
+<div class="login-ultra-wrapper">
     
-    <div class="header-top-bar">
+    <div style="width: 100%; max-width: 650px;">
         <a href="/" class="top-nav-btn">
             <div class="top-nav-icon">⚙️</div>
-            <span class="top-nav-text">חזרה לשאלון</span>
+            <span>חזרה לשאלון</span>
         </a>
     </div>
 
@@ -37,16 +199,16 @@
             </button>
         </form>
 
-        <div style="text-align: center; margin-top: 20px;">
+        <div style="text-align: center; margin-top: 25px;">
             <a href="/admin/forgot" class="forgot-password-link">שכחת את הקוד הסודי? שלח למייל</a>
         </div>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
             {% if messages %}
-                <div class="messages-wrapper" style="margin-top: 25px;">
+                <div style="margin-top: 20px;">
                     {% for cat, msg in messages %}
                         <div class="modern-flash-error">
-                            <span>{{ msg }}</span>
+                            {{ msg }}
                         </div>
                     {% endfor %}
                 </div>

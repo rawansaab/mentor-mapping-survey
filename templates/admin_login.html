@@ -1,27 +1,49 @@
 {% extends "layout.html" %}
-{% block title %}כניסה למרצים{% endblock %}
+{% block title %}התחברות להנהלה{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 
-<a href="{{ url_for('index') }}" class="back-btn">חזרה לשאלון</a>
+<div class="admin-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh;">
+    
+    <div style="width: 100%; max-width: 400px; margin-bottom: 20px; text-align: right;">
+        <a href="/" class="back-to-form-btn">
+            <span>חזרה לשאלון</span>
+            <span aria-hidden="true">⚙️</span>
+        </a>
+    </div>
 
-<div class="header-icon" style="text-align: center; margin-top: 20px;">
-    <h1>פאנל ניהול מתקדם</h1>
-    <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות הסטודנטים.</p>
+    <div class="login-card" style="width: 100%; max-width: 400px; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+        <h2 style="text-align: center; margin-bottom: 25px; color: #333;">כניסה למרצים</h2>
+        
+        <form method="post" action="/admin_login">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">סיסמת מנהל:</label>
+                <input type="password" name="password" required class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+            </div>
+            
+            <div style="margin-bottom: 25px;">
+                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">קוד סודי:</label>
+                <input type="password" name="secret_code" required class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
+            </div>
+            
+            <button type="submit" class="btn primary" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 50px; background-color: #b08496; color: white; border: none; cursor: pointer;">
+                כניסה למערכת
+            </button>
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="messages-wrapper" style="margin-top: 15px;">
+                    {% for cat, msg in messages %}
+                        <div class="modern-flash-error">
+                            <span aria-hidden="true">⚠️</span>
+                            <span>{{ msg }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
 </div>
-
-<form method="post" class="login-card">
-    <h2>כניסה למרצים</h2>
-    
-    <label>סיסמת מנהל:</label>
-    <input type="password" name="password" required>
-    
-    <label>קוד סודי:</label>
-    <input type="password" name="secret_code" required>
-    
-    <button type="submit" class="login-btn">כניסה למערכת</button>
-    
-    <a href="#" class="forgot-link">שכחת את הקוד הסודי? שלח למייל</a>
-</form>
 {% endblock %}

@@ -377,3 +377,30 @@ body {
         gap: 5px;
     }
 }
+/* אם חסר לך, הוסיפי את העיצוב לכפתור השמירה הצף */
+.btn-save-floating {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    z-index: 1000;
+    background: linear-gradient(90deg,#10b981 0%,#059669 100%);
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-weight: 900;
+    font-size: 20px;
+    box-shadow: 0 10px 25px rgba(16,185,129,0.4);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+/* והוספה לעיצוב ה-Textarea שיהיה נעים לעין */
+textarea.edit-item {
+    font-family: "David", sans-serif;
+    font-size: 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 15px;
+    background: #f8fafc;
+}

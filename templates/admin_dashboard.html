@@ -2,13 +2,193 @@
 {% block title %}פאנל ניהול - מדריכים{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=4">
+<style>
+    /* עיצוב פנימי כדי למנוע בעיות מטמון (Cache) */
+    .admin-ultra-wrapper {
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        direction: rtl;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        background-color: #f8f9fa;
+        min-height: 100vh;
+    }
 
-<div class="admin-wrapper">
-    <div class="header-top-bar" style="margin-bottom: 20px;">
+    .top-nav-btn {
+        display: inline-flex;
+        align-items: center;
+        background: #ffffff;
+        border-radius: 50px;
+        padding: 6px 20px 6px 8px; 
+        text-decoration: none;
+        color: #111827;
+        font-weight: 800;
+        font-size: 1.15rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        gap: 12px;
+        transition: transform 0.2s;
+        border: 1px solid #f3f4f6;
+    }
+    .top-nav-btn:hover { transform: translateY(-2px); }
+    .top-nav-icon {
+        background: #f3f4f6;
+        border-radius: 50%;
+        width: 38px;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: #a855f7;
+    }
+
+    .login-titles { text-align: center; margin-bottom: 30px; }
+    .login-titles h1 { font-size: 2.8rem; color: #111827; margin-bottom: 15px; font-weight: 900; }
+    .login-titles p { font-size: 1.2rem; color: #6b7280; max-width: 600px; margin: 0 auto; line-height: 1.4; }
+
+    .modern-tabs-container {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+    .modern-tab {
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        cursor: pointer;
+        border: none;
+        transition: all 0.2s;
+    }
+    .modern-tab.active {
+        background: linear-gradient(to left, #ec4899, #a855f7);
+        color: white;
+        box-shadow: 0 4px 15px rgba(168, 85, 247, 0.3);
+    }
+    .modern-tab.inactive {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+    .modern-tab.inactive:hover { background: #e5e7eb; }
+
+    .dynamic-card {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.03);
+        margin-bottom: 25px;
+        border: 1px solid #f3f4f6;
+    }
+    .dynamic-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 2px solid #f3f4f6;
+        padding-bottom: 15px;
+        margin-bottom: 20px;
+    }
+    .dynamic-card-header h3 { margin: 0; font-size: 1.4rem; color: #111827; font-weight: 900; }
+
+    .btn-add-green {
+        background-color: #10b981;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 1rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+    .btn-add-green:hover { background-color: #059669; }
+
+    .form-group-horizontal {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 15px;
+    }
+    .form-group-horizontal label { font-weight: 800; font-size: 1.1rem; width: 120px; color: #111827; }
+    .clean-input {
+        flex: 1;
+        border: none;
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: #111827;
+        outline: none;
+        background: transparent;
+    }
+
+    .dynamic-item-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background-color: #f9fafb;
+        border: 1px solid #f3f4f6;
+        border-radius: 12px;
+        padding: 12px 15px;
+        margin-bottom: 12px;
+    }
+    .dynamic-item-input {
+        border: none;
+        outline: none;
+        font-size: 1.1rem;
+        color: #111827;
+        font-weight: 800;
+        background: transparent;
+        width: 100%;
+    }
+
+    .btn-delete-pink {
+        background-color: #fce7f3;
+        color: #be185d;
+        border: none;
+        border-radius: 8px;
+        padding: 6px 16px;
+        font-size: 0.95rem;
+        font-weight: bold;
+        cursor: pointer;
+        margin-right: 15px;
+    }
+
+    .btn-save-green-floating {
+        position: fixed;
+        bottom: 40px;
+        left: 40px;
+        background-color: #10b981;
+        color: white;
+        padding: 16px 35px;
+        border-radius: 50px;
+        font-size: 1.3rem;
+        font-weight: 900;
+        border: none;
+        box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+        cursor: pointer;
+        z-index: 1000;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-save-green-floating:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 30px rgba(16, 185, 129, 0.5);
+    }
+
+    @media (max-width: 768px) {
+        .btn-save-green-floating {
+            position: relative;
+            bottom: 0; left: 0; width: 100%; margin-top: 20px;
+        }
+        .form-group-horizontal { flex-direction: column; align-items: flex-start; gap: 5px; }
+    }
+</style>
+
+<div class="admin-ultra-wrapper">
+    
+    <div style="margin-bottom: 20px;">
         <a href="/" class="top-nav-btn">
             <div class="top-nav-icon">⚙️</div>
-            <span class="top-nav-text">חזרה לשאלון</span>
+            <span>חזרה לשאלון</span>
         </a>
     </div>
 
@@ -37,19 +217,20 @@
     <div id="editForm" class="tab-content active">
         <form id="adminForm" method="POST" action="/admin">
             
-            <button type="submit" class="btn-save-green-floating">
-                שמור שינויים
-            </button>
+            <!-- כפתור שמירה מרחף -->
+            <button type="submit" class="btn-save-green-floating">שמור שינויים</button>
 
+            <!-- הגדרות טקסט -->
             <div class="dynamic-card">
                 <div class="dynamic-card-header">
                     <h3>הגדרות טקסט של הטופס</h3>
                 </div>
-                <div class="dynamic-card-body">
+                <div>
                     <div class="form-group-horizontal">
                         <label>כותרת ראשית:</label>
                         <input type="text" name="form_title" value="{{ settings.get('form_title', '') }}" class="clean-input">
                     </div>
+                    <hr style="border: 0; border-top: 1px solid #f3f4f6; margin: 15px 0;">
                     <div class="form-group-horizontal">
                         <label>טקסט משנה:</label>
                         <input type="text" name="form_subtitle" value="{{ settings.get('form_subtitle', '') }}" class="clean-input">
@@ -57,34 +238,37 @@
                 </div>
             </div>
 
+            <!-- תחומי התמחות -->
             <div class="dynamic-card">
                 <div class="dynamic-card-header">
                     <h3>תחומי התמחות</h3>
                     <button type="button" class="btn-add-green" onclick="addItem('specializations-list', 'תחום חדש')">+ הוסף תחום</button>
                 </div>
-                <div class="dynamic-card-body">
+                <div>
                     <div id="specializations-list"></div>
                     <input type="hidden" name="specializations" id="specializations-hidden">
                 </div>
             </div>
 
+            <!-- סטטוס מדריך -->
             <div class="dynamic-card">
                 <div class="dynamic-card-header">
                     <h3>סטטוס מדריך</h3>
                     <button type="button" class="btn-add-green" onclick="addItem('mentor_statuses-list', 'סטטוס חדש')">+ הוסף סטטוס</button>
                 </div>
-                <div class="dynamic-card-body">
+                <div>
                     <div id="mentor_statuses-list"></div>
                     <input type="hidden" name="mentor_statuses" id="mentor_statuses-hidden">
                 </div>
             </div>
 
+            <!-- נקודות לחוות דעת -->
             <div class="dynamic-card">
                 <div class="dynamic-card-header">
                     <h3>נקודות לחוות דעת</h3>
                     <button type="button" class="btn-add-green" onclick="addItem('feedback_points-list', 'נקודה חדשה')">+ הוסף נקודה</button>
                 </div>
-                <div class="dynamic-card-body">
+                <div>
                     <div id="feedback_points-list"></div>
                     <input type="hidden" name="feedback_points" id="feedback_points-hidden">
                 </div>
@@ -100,25 +284,22 @@
         </div>
     </div>
 
-    <div style="text-align: center; margin-top: 40px; margin-bottom: 60px;">
-        <a href="/logout" style="color: #e11d48; text-decoration: none; font-weight: bold; font-size: 15px;">התנתקות מהמערכת</a>
+    <div style="text-align: center; margin-top: 40px; padding-bottom: 60px;">
+        <a href="/logout" style="color: #e11d48; text-decoration: none; font-weight: bold; font-size: 16px;">התנתקות מהמערכת</a>
     </div>
 </div>
 
 <script>
-    // הנתונים הקיימים מהשרת
     const initialData = {
         'specializations-list': "{{ settings.get('specializations', '') }}",
         'mentor_statuses-list': "{{ settings.get('mentor_statuses', '') }}",
         'feedback_points-list': "{{ settings.get('feedback_points', '') }}"
     };
 
-    // פונקציה להוספת שורה חדשה
     function addItem(containerId, value = '') {
         const container = document.getElementById(containerId);
         const row = document.createElement('div');
         row.className = 'dynamic-item-row';
-        
         row.innerHTML = `
             <input type="text" class="dynamic-item-input" value="${value}" placeholder="הקלד כאן...">
             <button type="button" class="btn-delete-pink" onclick="this.parentElement.remove()">מחק</button>
@@ -126,26 +307,20 @@
         container.appendChild(row);
     }
 
-    // טעינת הנתונים למסך בעליית הדף
     window.onload = () => {
         for (const [containerId, rawString] of Object.entries(initialData)) {
             const items = rawString.split(',').map(s => s.trim()).filter(s => s !== '');
-            if (items.length === 0) {
-                addItem(containerId, '');
-            } else {
-                items.forEach(item => addItem(containerId, item));
-            }
+            if (items.length === 0) addItem(containerId, '');
+            else items.forEach(item => addItem(containerId, item));
         }
     };
 
-    // איסוף הנתונים לפני השמירה
     document.getElementById('adminForm').addEventListener('submit', function() {
         const lists = [
             { div: 'specializations-list', hidden: 'specializations-hidden' },
             { div: 'mentor_statuses-list', hidden: 'mentor_statuses-hidden' },
             { div: 'feedback_points-list', hidden: 'feedback_points-hidden' }
         ];
-
         lists.forEach(listConfig => {
             const container = document.getElementById(listConfig.div);
             const inputs = container.querySelectorAll('.dynamic-item-input');
@@ -154,14 +329,12 @@
         });
     });
 
-    // החלפת לשוניות
     function switchTab(tabId) {
         document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
         document.querySelectorAll('.modern-tab').forEach(el => {
             el.classList.remove('active');
             el.classList.add('inactive');
         });
-        
         document.getElementById(tabId).style.display = 'block';
         event.currentTarget.classList.remove('inactive');
         event.currentTarget.classList.add('active');

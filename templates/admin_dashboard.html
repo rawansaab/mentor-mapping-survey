@@ -13,8 +13,8 @@
     </div>
 
     <header class="admin-header" style="text-align: center; margin-bottom: 30px;">
-        <h1 style="font-size: 2.5rem; color: #333;">פאנל ניהול מתקדם</h1>
-        <p style="color: #666; font-size: 1.1rem;">כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולנהל את התשובות.</p>
+        <h1 style="font-size: 2.5rem; color: #333;">פאנל ניהול מתקדם - מדריכים</h1>
+        <p style="color: #666; font-size: 1.1rem;">כאן ניתן לערוך את כותרות השאלון ואת אפשרויות הבחירה (יש להפריד ערכים בפסיקים).</p>
     </header>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -29,56 +29,45 @@
         {% endif %}
     {% endwith %}
 
-    <form id="adminForm" method="POST" action="/admin">
+    <form method="POST" action="/admin" class="admin-card" style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
         
-        <div class="dynamic-card">
-            <div class="dynamic-card-header">
-                <h3>הגדרות טקסט של הטופס</h3>
-            </div>
+        <section style="margin-bottom: 30px;">
+            <h2 style="border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; margin-bottom: 20px;">הגדרות טקסט של הטופס</h2>
+            
             <div style="margin-bottom: 15px;">
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">כותרת ראשית:</label>
                 <input type="text" name="form_title" value="{{ settings.get('form_title', '') }}" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
             </div>
-            <div>
+            
+            <div style="margin-bottom: 15px;">
                 <label style="font-weight: bold; display: block; margin-bottom: 5px;">טקסט משנה (הנחיות):</label>
                 <input type="text" name="form_subtitle" value="{{ settings.get('form_subtitle', '') }}" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
             </div>
-        </div>
+        </section>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <section style="margin-bottom: 30px;">
+            <h2 style="border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; margin-bottom: 20px;">אפשרויות בחירה (רשימות)</h2>
+            <p style="color: #e11d48; font-size: 0.9rem; margin-top: -15px; margin-bottom: 15px;">* חובה להפריד בין כל אפשרות באמצעות פסיק ( , )</p>
             
-            <div class="dynamic-card">
-                <div class="dynamic-card-header">
-                    <h3>תחומי התמחות</h3>
-                    <button type="button" class="btn-add-green" onclick="addItem('specializations-list', 'תחום חדש')">+ הוסף תחום</button>
-                </div>
-                <div id="specializations-list"></div>
-                <input type="hidden" name="specializations" id="specializations-hidden">
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">תחומי התמחות:</label>
+                <textarea name="specializations" rows="3" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" placeholder="לדוגמה: עבודה סוציאלית, פסיכולוגיה, קרימינולוגיה">{{ settings.get('specializations', '') }}</textarea>
             </div>
 
-            <div class="dynamic-card">
-                <div class="dynamic-card-header">
-                    <h3>סטטוס מדריך</h3>
-                    <button type="button" class="btn-add-green" onclick="addItem('mentor_statuses-list', 'סטטוס חדש')">+ הוסף סטטוס</button>
-                </div>
-                <div id="mentor_statuses-list"></div>
-                <input type="hidden" name="mentor_statuses" id="mentor_statuses-hidden">
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">סטטוס מדריך:</label>
+                <textarea name="mentor_statuses" rows="3" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" placeholder="לדוגמה: מדריך מוסמך, פקיד סעד, מתמחה">{{ settings.get('mentor_statuses', '') }}</textarea>
             </div>
 
-        </div>
-
-        <div class="dynamic-card" style="max-width: 600px; margin: 0 auto 30px auto;">
-            <div class="dynamic-card-header">
-                <h3>נקודות לחוות דעת</h3>
-                <button type="button" class="btn-add-green" onclick="addItem('feedback_points-list', 'נקודה חדשה')">+ הוסף נקודה</button>
+            <div style="margin-bottom: 20px;">
+                <label style="font-weight: bold; display: block; margin-bottom: 5px;">נקודות לחוות דעת:</label>
+                <textarea name="feedback_points" rows="3" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" placeholder="לדוגמה: יחסי אנוש, מקצועיות, עמידה בזמנים">{{ settings.get('feedback_points', '') }}</textarea>
             </div>
-            <div id="feedback_points-list"></div>
-            <input type="hidden" name="feedback_points" id="feedback_points-hidden">
-        </div>
+        </section>
 
         <div style="text-align: center; margin-top: 20px;">
-            <button type="submit" class="btn-save-purple">
-                שמור שינויים
+            <button type="submit" class="btn primary" style="padding: 12px 40px; font-size: 18px; border-radius: 50px; background-color: #b08496; color: white; border: none; cursor: pointer; transition: all 0.3s ease;">
+                שמירת שינויים
             </button>
         </div>
     </form>
@@ -87,66 +76,4 @@
         <a href="/logout" style="color: #e11d48; text-decoration: none; font-weight: bold; padding: 10px 20px; border: 1px solid #e11d48; border-radius: 8px;">התנתקות מהמערכת</a>
     </div>
 </div>
-
-<script>
-    // הנתונים הקיימים מהשרת
-    const initialData = {
-        'specializations-list': "{{ settings.get('specializations', '') }}",
-        'mentor_statuses-list': "{{ settings.get('mentor_statuses', '') }}",
-        'feedback_points-list': "{{ settings.get('feedback_points', '') }}"
-    };
-
-    // פונקציה להוספת שורה חדשה
-    function addItem(containerId, value = '') {
-        const container = document.getElementById(containerId);
-        
-        const row = document.createElement('div');
-        row.className = 'dynamic-item-row';
-        
-        row.innerHTML = `
-            <input type="text" class="dynamic-item-input" value="${value}" placeholder="הקלד כאן...">
-            <button type="button" class="btn-delete-pink" onclick="this.parentElement.remove()">מחק</button>
-        `;
-        
-        container.appendChild(row);
-    }
-
-    // טעינת הנתונים הקיימים למסך
-    window.onload = () => {
-        for (const [containerId, rawString] of Object.entries(initialData)) {
-            // מפצל לפי פסיקים ומנקה רווחים
-            const items = rawString.split(',').map(s => s.trim()).filter(s => s !== '');
-            
-            // אם אין כלום, נוסיף שורה ריקה אחת כברירת מחדל
-            if (items.length === 0) {
-                addItem(containerId, '');
-            } else {
-                items.forEach(item => addItem(containerId, item));
-            }
-        }
-    };
-
-    // רגע לפני השליחה לשרת: אוספים את כל השורות חזרה למחרוזת עם פסיקים
-    document.getElementById('adminForm').addEventListener('submit', function(e) {
-        
-        const lists = [
-            { div: 'specializations-list', hidden: 'specializations-hidden' },
-            { div: 'mentor_statuses-list', hidden: 'mentor_statuses-hidden' },
-            { div: 'feedback_points-list', hidden: 'feedback_points-hidden' }
-        ];
-
-        lists.forEach(listConfig => {
-            const container = document.getElementById(listConfig.div);
-            const inputs = container.querySelectorAll('.dynamic-item-input');
-            
-            // לוקחים את כל הערכים שאינם ריקים
-            const values = Array.from(inputs)
-                                .map(input => input.value.trim())
-                                .filter(val => val !== '');
-            
-            // מכניסים לשדה הנסתר עם פסיקים
-            document.getElementById(listConfig.hidden).value = values.join(', ');
-        });
-    });
-</script>
 {% endblock %}

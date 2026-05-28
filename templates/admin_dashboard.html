@@ -1,79 +1,163 @@
 {% extends "layout.html" %}
-{% block title %}פאנל ניהול - מדריכים{% endblock %}
+{% block title %}פאנל מרצים - ניהול מתקדם{% endblock %}
 
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 
-<div class="admin-wrapper">
-    <div style="margin-bottom: 20px;">
-        <a href="/" class="back-to-form-btn">
-            <span>חזרה לשאלון</span>
-            <span aria-hidden="true">⚙️</span>
-        </a>
+<a href="{{ url_for('index') }}" class="back-btn">חזרה לשאלון</a>
+
+<div class="header-area">
+    <h1>פאנל ניהול מתקדם</h1>
+    <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתוצאות המדריכים.</p>
+</div>
+
+<div class="admin-tabs">
+    <button class="tab-btn active" onclick="switchTab('editForm')">עריכת השאלון</button>
+    <button class="tab-btn" onclick="switchTab('viewResults')">תשובות מדריכים</button>
+</div>
+
+<div id="editForm" class="tab-content active">
+    <form method="post" id="adminForm" onsubmit="prepareData()">
+        <div class="dashboard-grid">
+            
+            <div class="admin-card" style="grid-column: 1 / -1;">
+                <div class="card-header">
+                    <h3>הגדרות טקסט של הטופס</h3>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:15px;">
+                    <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px; border-radius:8px;">
+                        <strong style="min-width:120px;">כותרת ראשית:</strong>
+                        <input type="text" name="form_title" value="{{ settings.form_title }}" class="edit-input">
+                    </div>
+                    <div style="display:flex; align-items:center; gap:10px; background:#f8fafc; padding:10px; border-radius:8px;">
+                        <strong style="min-width:120px;">טקסט משנה:</strong>
+                        <textarea name="form_subtitle" rows="2" style="flex:1; border:none; background:transparent; resize:none;" class="edit-input">{{ settings.form_subtitle }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>תחומי התמחות</h2>
+                    <button type="button" class="btn-add" onclick="addItem('list-specs', 'תחום חדש')">+ הוסף תחום</button>
+                </div>
+                <div id="list-specs" class="edit-list">
+                    {% for item in settings.specializations.split(',') if item.strip() %}
+                    <div class="edit-item">
+                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                        <button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="specializations" id="hidden-specs">
+            </div>
+
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>סטטוס מדריך</h2>
+                    <button type="button" class="btn-add" onclick="addItem('list-statuses', 'סטטוס חדש')">+ הוסף סטטוס</button>
+                </div>
+                <div id="list-statuses" class="edit-list">
+                    {% for item in settings.mentor_statuses.split(',') if item.strip() %}
+                    <div class="edit-item">
+                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                        <button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="mentor_statuses" id="hidden-statuses">
+            </div>
+
+            <div class="admin-section">
+                <div class="section-header">
+                    <h2>נקודות לחוות דעת</h2>
+                    <button type="button" class="btn-add" onclick="addItem('list-feedback', 'נקודה חדשה')">+ הוסף נקודה</button>
+                </div>
+                <div id="list-feedback" class="edit-list">
+                    {% for item in settings.feedback_points.split(',') if item.strip() %}
+                    <div class="edit-item">
+                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                        <button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>
+                    </div>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="feedback_points" id="hidden-feedback">
+            </div>
+
+        </div>
+        <button type="submit" class="floating-save">שמור שינויים</button>
+    </form>
+</div>
+
+<div id="viewResults" class="tab-content">
+    <div class="admin-section" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0;">נתוני המדריכים שהוגשו</h2>
+        <a href="/download/master" class="btn primary" style="background:#10b981; color:white; padding:10px 20px; text-decoration:none; border-radius:10px; font-weight:bold;">הורד נתונים ל-Excel</a>
     </div>
 
-    <header class="admin-header" style="text-align: center; margin-bottom: 30px;">
-        <h1 style="font-size: 2.5rem; color: #333;">פאנל ניהול מתקדם - מדריכים</h1>
-        <p style="color: #666; font-size: 1.1rem;">כאן ניתן לערוך את כותרות השאלון ואת אפשרויות הבחירה (יש להפריד ערכים בפסיקים).</p>
-    </header>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div style="margin-bottom: 20px;">
-                {% for cat, msg in messages %}
-                    <div style="background-color: #dcfce7; color: #166534; padding: 15px; border-radius: 8px; border: 1px solid #bbf7d0; text-align: center; font-weight: bold;">
-                        {{ msg }}
-                    </div>
+    <div class="table-container">
+        {% if mentors|length > 0 %}
+        <table class="results-table">
+            <thead>
+                <tr>
+                    <th>תאריך שליחה</th>
+                    <th>שם המדריך</th>
+                    <th>סטטוס</th>
+                    <th>מוסד</th>
+                    <th>תחום התמחות</th>
+                    <th>טלפון</th>
+                    <th>אימייל</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in mentors %}
+                <tr>
+                    <td>{{ row.get('תאריך שליחה', '') }}</td>
+                    <td>{{ row.get('שם פרטי', '') }} {{ row.get('שם משפחה', '') }}</td>
+                    <td>{{ row.get('סטטוס מדריך', '') }}</td>
+                    <td>{{ row.get('מוסד', '') }}</td>
+                    <td>{{ row.get('תחום התמחות', '') }}</td>
+                    <td>{{ row.get('טלפון', '') }}</td>
+                    <td>{{ row.get('אימייל', '') }}</td>
+                </tr>
                 {% endfor %}
-            </div>
+            </tbody>
+        </table>
+        {% else %}
+        <p style="text-align: center; color: #6b7280; padding: 30px;">עדיין אין נתונים במערכת. המדריכים טרם הגישו טפסים.</p>
         {% endif %}
-    {% endwith %}
-
-    <form method="POST" action="/admin" class="admin-card" style="background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-        
-        <section style="margin-bottom: 30px;">
-            <h2 style="border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; margin-bottom: 20px;">הגדרות טקסט של הטופס</h2>
-            
-            <div style="margin-bottom: 15px;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">כותרת ראשית:</label>
-                <input type="text" name="form_title" value="{{ settings.get('form_title', '') }}" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
-            </div>
-            
-            <div style="margin-bottom: 15px;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">טקסט משנה (הנחיות):</label>
-                <input type="text" name="form_subtitle" value="{{ settings.get('form_subtitle', '') }}" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;">
-            </div>
-        </section>
-
-        <section style="margin-bottom: 30px;">
-            <h2 style="border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; margin-bottom: 20px;">אפשרויות בחירה (רשימות)</h2>
-            <p style="color: #e11d48; font-size: 0.9rem; margin-top: -15px; margin-bottom: 15px;">* חובה להפריד בין כל אפשרות באמצעות פסיק ( , )</p>
-            
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">תחומי התמחות:</label>
-                <textarea name="specializations" rows="3" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" placeholder="לדוגמה: עבודה סוציאלית, פסיכולוגיה, קרימינולוגיה">{{ settings.get('specializations', '') }}</textarea>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">סטטוס מדריך:</label>
-                <textarea name="mentor_statuses" rows="3" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" placeholder="לדוגמה: מדריך מוסמך, פקיד סעד, מתמחה">{{ settings.get('mentor_statuses', '') }}</textarea>
-            </div>
-
-            <div style="margin-bottom: 20px;">
-                <label style="font-weight: bold; display: block; margin-bottom: 5px;">נקודות לחוות דעת:</label>
-                <textarea name="feedback_points" rows="3" class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px;" placeholder="לדוגמה: יחסי אנוש, מקצועיות, עמידה בזמנים">{{ settings.get('feedback_points', '') }}</textarea>
-            </div>
-        </section>
-
-        <div style="text-align: center; margin-top: 20px;">
-            <button type="submit" class="btn primary" style="padding: 12px 40px; font-size: 18px; border-radius: 50px; background-color: #b08496; color: white; border: none; cursor: pointer; transition: all 0.3s ease;">
-                שמירת שינויים
-            </button>
-        </div>
-    </form>
-
-    <div style="text-align: center; margin-top: 40px;">
-        <a href="/logout" style="color: #e11d48; text-decoration: none; font-weight: bold; padding: 10px 20px; border: 1px solid #e11d48; border-radius: 8px;">התנתקות מהמערכת</a>
     </div>
 </div>
+
+<div class="logout-wrap" style="text-align: center; margin-top: 40px;">
+    <a href="{{ url_for('logout') }}" class="btn-logout-red">התנתקות מהמערכת</a>
+</div>
+
+<script>
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+function addItem(containerId, placeholder) {
+    let container = document.getElementById(containerId);
+    let div = document.createElement('div');
+    div.className = 'edit-item';
+    div.innerHTML = `<input type="text" value="${placeholder}" class="edit-input val-item"><button type="button" class="btn-del" onclick="this.parentElement.remove()">מחק</button>`;
+    container.appendChild(div);
+}
+
+function prepareData() {
+    let specs = Array.from(document.querySelectorAll('#list-specs .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
+    document.getElementById('hidden-specs').value = specs;
+
+    let statuses = Array.from(document.querySelectorAll('#list-statuses .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
+    document.getElementById('hidden-statuses').value = statuses;
+
+    let feedback = Array.from(document.querySelectorAll('#list-feedback .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
+    document.getElementById('hidden-feedback').value = feedback;
+}
+</script>
 {% endblock %}

@@ -72,6 +72,33 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0 16px 32px;
 }
 
+.admin-link-bar {
+  display: flex;
+  justify-content: flex-start;
+  padding: 18px 0 0;
+}
+
+.admin-link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #ffffff;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  border-radius: 999px;
+  padding: 10px 18px;
+  text-decoration: none;
+  font-weight: 700;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 10px 20px rgba(181,125,142,0.12);
+}
+
+.admin-link-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px rgba(181,125,142,0.2);
+}
+
 .card {
   background: var(--card);
   border: 1px solid #e9edf3;

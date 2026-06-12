@@ -1,19 +1,112 @@
-function switchTab(tabId, event) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+document.addEventListener('DOMContentLoaded', function () {
+    initTabs();
+    initAccordionBehavior();
+    initDynamicListButtons();
+    initFileUploads();
+    initAdminFormSubmit();
+});
 
-    const target = document.getElementById(tabId);
-    if (target) target.classList.add('active');
+function initTabs() {
+    const tabButtons = document.querySelectorAll('[data-tab-target]');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('active');
-    }
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const targetId = button.dataset.tabTarget;
+            const target = document.getElementById(targetId);
 
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+            if (!target) return;
+
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            tabContents.forEach(content => content.classList.remove('active'));
+
+            button.classList.add('active');
+            target.classList.add('active');
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    });
+}
+
+function initAccordionBehavior() {
+    const accordions = document.querySelectorAll('.admin-accordion');
+
+    accordions.forEach(details => {
+        const indicator = details.querySelector('.accordion-open-indicator');
+        if (indicator) {
+            indicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
+        }
+
+        details.addEventListener('toggle', function () {
+            const currentIndicator = details.querySelector('.accordion-open-indicator');
+
+            if (currentIndicator) {
+                currentIndicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
+            }
+
+            if (details.open) {
+                accordions.forEach(other => {
+                    if (other !== details) {
+                        other.open = false;
+
+                        const otherIndicator = other.querySelector('.accordion-open-indicator');
+                        if (otherIndicator) {
+                            otherIndicator.textContent = 'פתח עריכה';
+                        }
+                    }
+                });
+
+                setTimeout(() => {
+                    details.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 120);
+            }
+        });
+    });
+}
+
+function initDynamicListButtons() {
+    document.addEventListener('click', function (event) {
+        const addButton = event.target.closest('[data-add-item]');
+        const deleteButton = event.target.closest('[data-delete-item]');
+
+        if (addButton) {
+            const containerId = addButton.dataset.addItem;
+            const placeholder = addButton.dataset.placeholder || 'פריט חדש';
+            addItem(containerId, placeholder);
+            return;
+        }
+
+        if (deleteButton) {
+            const item = deleteButton.closest('.edit-item');
+            if (item) item.remove();
+        }
+    });
+}
+
+function initFileUploads() {
+    document.querySelectorAll('[data-upload-list]').forEach(input => {
+        input.addEventListener('change', function (event) {
+            const containerId = input.dataset.uploadList;
+            const statusId = input.dataset.uploadStatus;
+
+            uploadListFile(event, containerId, statusId);
+        });
+    });
+}
+
+function initAdminFormSubmit() {
+    const form = document.getElementById('adminForm');
+
+    if (!form) return;
+
+    form.addEventListener('submit', function () {
+        prepareData();
+    });
 }
 
 function setSaveStatus(message, type = 'info') {
     const statusEl = document.getElementById('saveStatus');
+
     if (!statusEl) return;
 
     statusEl.textContent = message;
@@ -30,6 +123,7 @@ function escapeAttr(value) {
 
 function addItem(containerId, placeholder) {
     const container = document.getElementById(containerId);
+
     if (!container) return;
 
     const div = document.createElement('div');
@@ -38,8 +132,9 @@ function addItem(containerId, placeholder) {
     div.innerHTML = `
         <div class="edit-item-row">
             <input type="text" value="${escapeAttr(placeholder)}" class="edit-input val-item">
-            <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
-        </div>`;
+            <button type="button" class="btn-del" data-delete-item>מחק</button>
+        </div>
+    `;
 
     container.prepend(div);
 }
@@ -60,15 +155,28 @@ function prepareData() {
 
     setSaveStatus('שומר שינויים...', 'info');
 
-    document.getElementById('hidden-specs').value = collectList('list-specs').join(',');
-    document.getElementById('hidden-statuses').value = collectList('list-statuses').join(',');
-    document.getElementById('hidden-feedback').value = collectList('list-feedback').join(',');
+    const hiddenSpecs = document.getElementById('hidden-specs');
+    const hiddenStatuses = document.getElementById('hidden-statuses');
+    const hiddenFeedback = document.getElementById('hidden-feedback');
+
+    if (hiddenSpecs) {
+        hiddenSpecs.value = collectList('list-specs').join(',');
+    }
+
+    if (hiddenStatuses) {
+        hiddenStatuses.value = collectList('list-statuses').join(',');
+    }
+
+    if (hiddenFeedback) {
+        hiddenFeedback.value = collectList('list-feedback').join(',');
+    }
 
     return true;
 }
 
 function parseCSVData(text) {
     const cleanText = String(text || '').replace(/^\uFEFF/, '').trim();
+
     if (!cleanText) return [];
 
     const lines = cleanText.split(/\r?\n/)
@@ -97,9 +205,9 @@ function parseFileData(file) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
 
-        reader.onload = (e) => {
+        reader.onload = function (event) {
             try {
-                const content = e.target.result;
+                const content = event.target.result;
                 let data = [];
 
                 if (file.name.endsWith('.json')) {
@@ -120,8 +228,8 @@ function parseFileData(file) {
                 }
 
                 resolve(data.filter(item => item && String(item).trim().length > 0));
-            } catch (err) {
-                reject(err);
+            } catch (error) {
+                reject(error);
             }
         };
 
@@ -132,18 +240,26 @@ function parseFileData(file) {
 
 function uploadListFile(event, containerId, statusId) {
     const file = event.target.files[0];
+
     if (!file) return;
 
     const statusEl = document.getElementById(statusId);
-    if (statusEl) statusEl.textContent = 'בעיבוד...';
+
+    if (statusEl) {
+        statusEl.textContent = 'בעיבוד...';
+    }
 
     parseFileData(file)
         .then(items => {
             const container = document.getElementById(containerId);
+
+            if (!container) return;
+
             container.innerHTML = '';
 
             items.forEach(item => {
                 const value = String(item).trim();
+
                 if (!value) return;
 
                 const div = document.createElement('div');
@@ -152,14 +268,16 @@ function uploadListFile(event, containerId, statusId) {
                 div.innerHTML = `
                     <div class="edit-item-row">
                         <input type="text" value="${escapeAttr(value)}" class="edit-input val-item">
-                        <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
-                    </div>`;
+                        <button type="button" class="btn-del" data-delete-item>מחק</button>
+                    </div>
+                `;
 
                 container.appendChild(div);
             });
 
             if (statusEl) {
                 statusEl.textContent = `✅ הועלו ${items.length} פריטים`;
+
                 setTimeout(() => {
                     statusEl.textContent = '';
                 }, 3000);
@@ -167,8 +285,8 @@ function uploadListFile(event, containerId, statusId) {
 
             event.target.value = '';
         })
-        .catch(err => {
-            console.error(err);
+        .catch(error => {
+            console.error(error);
 
             if (statusEl) {
                 statusEl.textContent = '❌ שגיאה בקריאת הקובץ';
@@ -179,40 +297,3 @@ function uploadListFile(event, containerId, statusId) {
             }
         });
 }
-
-function setupAccordionBehavior() {
-    const accordions = document.querySelectorAll('.admin-accordion');
-
-    accordions.forEach(details => {
-        const indicator = details.querySelector('.accordion-open-indicator');
-
-        if (indicator) {
-            indicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
-        }
-
-        details.addEventListener('toggle', () => {
-            const currentIndicator = details.querySelector('.accordion-open-indicator');
-
-            if (currentIndicator) {
-                currentIndicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
-            }
-
-            if (details.open) {
-                accordions.forEach(other => {
-                    if (other !== details) {
-                        other.open = false;
-
-                        const otherIndicator = other.querySelector('.accordion-open-indicator');
-                        if (otherIndicator) otherIndicator.textContent = 'פתח עריכה';
-                    }
-                });
-
-                setTimeout(() => {
-                    details.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 120);
-            }
-        });
-    });
-}
-
-document.addEventListener('DOMContentLoaded', setupAccordionBehavior);

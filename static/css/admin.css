@@ -93,6 +93,7 @@ body {
   font-weight: 900;
   letter-spacing: 0.06em;
   font-size: 0.78rem;
+  text-align: center;
 }
 
 .admin-header h1 {
@@ -149,7 +150,7 @@ body {
   background: rgba(255, 255, 255, 0.96);
 }
 
-/* חשוב: גובר על button[type=submit] מה-CSS הכללי */
+/* שמור שינויים - גובר על עיצוב כללי של button[type=submit] */
 .btn-save-primary,
 button.btn-save-primary,
 button.btn-save-primary[type="submit"] {
@@ -256,47 +257,86 @@ button.btn-save-primary:disabled {
   font-size: 0.94rem;
 }
 
+/* =========================
+   Tabs - CSS only
+   ========================= */
+
+.admin-tab-radio {
+  position: absolute !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
 .admin-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 14px !important;
+  flex-wrap: wrap !important;
+  margin: 26px auto 28px !important;
+  width: auto !important;
 }
 
-.tab-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 14px 30px;
-  border-radius: 999px;
-  font-size: 1rem;
-  font-weight: 900;
-  cursor: pointer;
-  border: none;
-  transition: 0.2s;
-  background: rgba(255, 255, 255, 0.82);
-  color: #334155;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07);
-  font-family: "David", "Assistant", sans-serif;
+.admin-tabs label.tab-btn,
+.admin-tabs .tab-btn {
+  width: auto !important;
+  min-width: 170px !important;
+  max-width: 230px !important;
+  height: auto !important;
+  margin: 0 !important;
+  padding: 14px 30px !important;
+
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  border-radius: 999px !important;
+  border: none !important;
+  cursor: pointer !important;
+  user-select: none !important;
+
+  background: rgba(255, 255, 255, 0.88) !important;
+  color: #334155 !important;
+  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07) !important;
+
+  font-family: "David", "Assistant", sans-serif !important;
+  font-size: 1rem !important;
+  font-weight: 900 !important;
+  text-align: center !important;
+  line-height: 1.2 !important;
+  transition: 0.2s ease !important;
 }
 
-.tab-btn.active {
-  background: var(--grad-pink-purple);
-  color: #ffffff;
-  box-shadow: 0 12px 28px rgba(168, 85, 247, 0.25);
+.admin-tabs label.tab-btn:hover,
+.admin-tabs .tab-btn:hover {
+  transform: translateY(-2px) !important;
+  background: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.10) !important;
 }
 
-.tab-btn:not(.active):hover {
-  background: #f8fafc;
-  transform: translateY(-2px);
+#admin-tab-edit:checked ~ .admin-tabs label[for="admin-tab-edit"],
+#admin-tab-results:checked ~ .admin-tabs label[for="admin-tab-results"] {
+  background: var(--grad-pink-purple) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(168, 85, 247, 0.25) !important;
 }
 
-.tab-content {
+.tab-content,
+.admin-tab-panels .tab-content {
   display: none !important;
 }
 
 .tab-content.active {
+  display: block !important;
+}
+
+#admin-tab-edit:checked ~ .admin-tab-panels #editForm {
+  display: block !important;
+}
+
+#admin-tab-results:checked ~ .admin-tab-panels #viewResults {
   display: block !important;
 }
 
@@ -324,6 +364,10 @@ button.btn-save-primary:disabled {
 .save-status.info {
   color: #4b5563;
 }
+
+/* =========================
+   Accordion
+   ========================= */
 
 .admin-accordion-grid {
   display: grid;
@@ -407,6 +451,10 @@ button.btn-save-primary:disabled {
   padding: 22px 24px 24px;
 }
 
+/* =========================
+   Forms
+   ========================= */
+
 .settings-form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -415,6 +463,7 @@ button.btn-save-primary:disabled {
 
 .settings-field label {
   display: block;
+  width: auto;
   margin: 0 0 10px;
   color: #111827;
   font-weight: 900;
@@ -460,7 +509,7 @@ textarea.clean-input {
   margin: 0;
 }
 
-/* חשוב: גובר על button רגיל */
+/* הוסף */
 .btn-add,
 button.btn-add,
 button.btn-add[type="button"] {
@@ -487,6 +536,7 @@ button.btn-add:hover {
   box-shadow: 0 8px 20px rgba(16, 185, 129, 0.28) !important;
 }
 
+/* Upload */
 .compact-upload {
   display: flex;
   flex-wrap: wrap;
@@ -507,8 +557,10 @@ button.btn-add:hover {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: auto;
   gap: 8px;
   padding: 10px 16px;
+  margin: 0;
   background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
   color: #ffffff;
   border-radius: 12px;
@@ -540,6 +592,7 @@ button.btn-add:hover {
   margin-top: 2px;
 }
 
+/* Lists */
 .edit-list {
   display: flex;
   flex-direction: column;
@@ -592,7 +645,7 @@ button.btn-add:hover {
   width: 100%;
 }
 
-/* חשוב: גובר על עיצוב כללי של button */
+/* מחק */
 .btn-del,
 button.btn-del,
 button.btn-del[type="button"] {
@@ -617,12 +670,12 @@ button.btn-del:hover {
   box-shadow: 0 8px 14px rgba(239, 68, 68, 0.22) !important;
 }
 
+/* שמירה תחתונה */
 .sticky-save-bar {
-  position: sticky;
-  bottom: 16px;
+  position: static !important;
   z-index: 20;
   max-width: 680px;
-  margin: 24px auto 0;
+  margin: 28px auto 0 !important;
   background: rgba(255, 255, 255, 0.94);
   border: 1px solid rgba(226, 232, 240, 0.95);
   box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
@@ -651,6 +704,10 @@ button.btn-del:hover {
   color: var(--muted);
   font-size: 0.92rem;
 }
+
+/* =========================
+   Results
+   ========================= */
 
 .results-card {
   background: #ffffff;
@@ -704,30 +761,36 @@ button.btn-del:hover {
   margin: 0;
 }
 
+/* =========================
+   Logout
+   ========================= */
+
 .admin-footer-actions {
   text-align: center;
   margin-top: 34px;
 }
 
-.logout-link {
-  display: inline-flex;
+.logout-link,
+.btn-logout-red {
+  display: inline-flex !important;
   align-items: center;
   justify-content: center;
-  background: var(--admin-red);
+  background: var(--admin-red) !important;
   color: #ffffff !important;
-  text-decoration: none;
-  padding: 12px 30px;
-  border-radius: 14px;
-  font-weight: 900;
-  font-family: "David", "Assistant", sans-serif;
-  font-size: 1rem;
-  transition: 0.2s;
-  border: none;
-  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.20);
+  text-decoration: none !important;
+  padding: 12px 30px !important;
+  border-radius: 14px !important;
+  font-weight: 900 !important;
+  font-family: "David", "Assistant", sans-serif !important;
+  font-size: 1rem !important;
+  transition: 0.2s !important;
+  border: none !important;
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.20) !important;
 }
 
-.logout-link:hover {
-  background: var(--admin-red-dark);
+.logout-link:hover,
+.btn-logout-red:hover {
+  background: var(--admin-red-dark) !important;
   transform: translateY(-1px);
 }
 
@@ -839,6 +902,7 @@ button.btn-del:hover {
 
 .form-field label {
   display: block;
+  width: auto;
   margin-bottom: 10px;
   font-weight: 900;
   color: #334155;
@@ -1018,6 +1082,18 @@ button.btn-del:hover {
     width: 100%;
   }
 
+  .admin-tabs {
+    gap: 10px !important;
+  }
+
+  .admin-tabs label.tab-btn,
+  .admin-tabs .tab-btn {
+    min-width: 145px !important;
+    max-width: none !important;
+    padding: 12px 22px !important;
+    font-size: 0.95rem !important;
+  }
+
   .login-ultra-wrapper .top-nav-btn {
     position: static;
     width: auto;
@@ -1065,7 +1141,6 @@ button.btn-del:hover {
   .sticky-save-bar {
     flex-direction: column;
     align-items: stretch;
-    bottom: 10px;
   }
 
   .sticky-save-copy {
@@ -1077,67 +1152,4 @@ button.btn-del:hover {
     align-items: stretch;
     text-align: center;
   }
-}
-/* =========================
-   CSS-only tabs fix
-   ========================= */
-
-.admin-tab-radio {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.admin-tab-panels .tab-content {
-  display: none !important;
-}
-
-#admin-tab-edit:checked ~ .admin-tab-panels #editForm {
-  display: block !important;
-}
-
-#admin-tab-results:checked ~ .admin-tab-panels #viewResults {
-  display: block !important;
-}
-
-#admin-tab-edit:checked ~ .admin-tabs label[for="admin-tab-edit"],
-#admin-tab-results:checked ~ .admin-tabs label[for="admin-tab-results"] {
-  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 28px rgba(168, 85, 247, 0.25) !important;
-}
-
-.admin-tabs label.tab-btn {
-  cursor: pointer;
-  user-select: none;
-}
-
-/* שהשמירה לא תכסה את הקוביות באמצע הדף */
-.sticky-save-bar {
-  position: static !important;
-  max-width: 680px;
-  margin: 28px auto 0 !important;
-}
-
-/* כפתור התנתקות כמו כפתור מסודר */
-.logout-link {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  background: #ef4444 !important;
-  color: #ffffff !important;
-  text-decoration: none !important;
-  padding: 12px 30px !important;
-  border-radius: 14px !important;
-  font-weight: 900 !important;
-  font-family: "David", "Assistant", sans-serif !important;
-  font-size: 1rem !important;
-  transition: 0.2s !important;
-  border: none !important;
-  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.20) !important;
-}
-
-.logout-link:hover {
-  background: #dc2626 !important;
-  transform: translateY(-1px);
 }

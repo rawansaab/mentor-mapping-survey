@@ -2,7 +2,7 @@
 {% block title %}ניהול מערכת מדריכים{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=20">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=30">
 {% endblock %}
 
 {% block content %}
@@ -45,179 +45,185 @@
         </div>
     </section>
 
+    <!-- טאבים ללא תלות ב-JS -->
+    <input type="radio" name="admin_tab" id="admin-tab-edit" class="admin-tab-radio" checked>
+    <input type="radio" name="admin_tab" id="admin-tab-results" class="admin-tab-radio">
+
     <div class="admin-tabs">
-        <button class="tab-btn active" type="button" data-tab-target="editForm">עריכת השאלון</button>
-        <button class="tab-btn" type="button" data-tab-target="viewResults">תשובות מדריכים</button>
+        <label class="tab-btn" for="admin-tab-edit">עריכת השאלון</label>
+        <label class="tab-btn" for="admin-tab-results">תשובות מדריכים</label>
     </div>
 
     <div class="save-status-row">
         <div id="saveStatus" class="save-status" aria-live="polite"></div>
     </div>
 
-    <div id="editForm" class="tab-content active">
-        <form method="post" action="{{ url_for('admin_dashboard') }}" id="adminForm">
-            <input type="hidden" name="specializations" id="hidden-specs">
-            <input type="hidden" name="mentor_statuses" id="hidden-statuses">
-            <input type="hidden" name="feedback_points" id="hidden-feedback">
+    <div class="admin-tab-panels">
+        <div id="editForm" class="tab-content">
+            <form method="post" action="{{ url_for('admin_dashboard') }}" id="adminForm">
+                <input type="hidden" name="specializations" id="hidden-specs">
+                <input type="hidden" name="mentor_statuses" id="hidden-statuses">
+                <input type="hidden" name="feedback_points" id="hidden-feedback">
 
-            <div class="admin-accordion-grid">
+                <div class="admin-accordion-grid">
 
-                <details class="admin-accordion">
-                    <summary class="accordion-summary">
-                        <div class="accordion-title-wrap">
-                            <h3>הגדרות טקסט של הטופס</h3>
-                            <p>עדכון הכותרת הראשית וטקסט המשנה שמופיעים בראש שאלון המדריכים.</p>
-                        </div>
-                        <span class="accordion-open-indicator">פתח עריכה</span>
-                    </summary>
-
-                    <div class="accordion-content">
-                        <div class="settings-form-grid">
-                            <div class="settings-field">
-                                <label for="form_title">כותרת ראשית</label>
-                                <input id="form_title" type="text" name="form_title" value="{{ settings.form_title }}" class="clean-input">
+                    <details class="admin-accordion">
+                        <summary class="accordion-summary">
+                            <div class="accordion-title-wrap">
+                                <h3>הגדרות טקסט של הטופס</h3>
+                                <p>עדכון הכותרת הראשית וטקסט המשנה שמופיעים בראש שאלון המדריכים.</p>
                             </div>
+                            <span class="accordion-open-indicator">פתח עריכה</span>
+                        </summary>
 
-                            <div class="settings-field">
-                                <label for="form_subtitle">טקסט משנה</label>
-                                <textarea id="form_subtitle" name="form_subtitle" rows="3" class="clean-input">{{ settings.form_subtitle }}</textarea>
-                            </div>
-                        </div>
-                    </div>
-                </details>
+                        <div class="accordion-content">
+                            <div class="settings-form-grid">
+                                <div class="settings-field">
+                                    <label for="form_title">כותרת ראשית</label>
+                                    <input id="form_title" type="text" name="form_title" value="{{ settings.form_title }}" class="clean-input">
+                                </div>
 
-                <details class="admin-accordion">
-                    <summary class="accordion-summary">
-                        <div class="accordion-title-wrap">
-                            <h3>תחומי התמחות</h3>
-                            <p>הרשימה שמופיעה בשדה “תחום התמחות” בשאלון המדריכים.</p>
-                        </div>
-                        <span class="accordion-open-indicator">פתח עריכה</span>
-                    </summary>
-
-                    <div class="accordion-content">
-                        <div class="section-actions-row">
-                            <p class="section-small-note">הוסיפי, מחקי או ערכי תחומי התמחות. הרשימה הזו תופיע למדריכים בטופס.</p>
-                            <button type="button" class="btn-add" data-add-item="list-specs" data-placeholder="תחום חדש">+ הוסף תחום</button>
-                        </div>
-
-                        <div class="compact-upload">
-                            <label class="upload-label" for="specsUpload">📤 העלאת CSV / JSON</label>
-                            <input type="file" id="specsUpload" class="upload-input" accept=".csv,.json,.txt" data-upload-list="list-specs" data-upload-status="specsStatus">
-                            <span class="upload-status" id="specsStatus"></span>
-                            <small class="upload-hint">אפשר להעלות רשימה בשורות נפרדות, או CSV עם פריט בכל שורה.</small>
-                        </div>
-
-                        <div id="list-specs" class="edit-list compact-grid-list list-scrollable">
-                            {% for item in settings.specializations.split(',') if item.strip() %}
-                            <div class="edit-item">
-                                <div class="edit-item-row">
-                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                    <button type="button" class="btn-del" data-delete-item>מחק</button>
+                                <div class="settings-field">
+                                    <label for="form_subtitle">טקסט משנה</label>
+                                    <textarea id="form_subtitle" name="form_subtitle" rows="3" class="clean-input">{{ settings.form_subtitle }}</textarea>
                                 </div>
                             </div>
-                            {% endfor %}
                         </div>
-                    </div>
-                </details>
+                    </details>
 
-                <details class="admin-accordion">
-                    <summary class="accordion-summary">
-                        <div class="accordion-title-wrap">
-                            <h3>סטטוס מדריך</h3>
-                            <p>הרשימה שמופיעה בשדה “סטטוס מדריך” בשאלון המדריכים.</p>
-                        </div>
-                        <span class="accordion-open-indicator">פתח עריכה</span>
-                    </summary>
-
-                    <div class="accordion-content">
-                        <div class="section-actions-row">
-                            <p class="section-small-note">כאן עורכים את סוגי/סטטוס המדריכים שהמדריך יכול לבחור בטופס.</p>
-                            <button type="button" class="btn-add" data-add-item="list-statuses" data-placeholder="סטטוס חדש">+ הוסף סטטוס</button>
-                        </div>
-
-                        <div class="compact-upload">
-                            <label class="upload-label" for="statusesUpload">📤 העלאת CSV / JSON</label>
-                            <input type="file" id="statusesUpload" class="upload-input" accept=".csv,.json,.txt" data-upload-list="list-statuses" data-upload-status="statusesStatus">
-                            <span class="upload-status" id="statusesStatus"></span>
-                            <small class="upload-hint">לדוגמה: מדריך חדש, מדריך ממשיך, מדריך מחליף.</small>
-                        </div>
-
-                        <div id="list-statuses" class="edit-list compact-grid-list list-scrollable">
-                            {% for item in settings.mentor_statuses.split(',') if item.strip() %}
-                            <div class="edit-item">
-                                <div class="edit-item-row">
-                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                    <button type="button" class="btn-del" data-delete-item>מחק</button>
-                                </div>
+                    <details class="admin-accordion">
+                        <summary class="accordion-summary">
+                            <div class="accordion-title-wrap">
+                                <h3>תחומי התמחות</h3>
+                                <p>הרשימה שמופיעה בשדה “תחום התמחות” בשאלון המדריכים.</p>
                             </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </details>
+                            <span class="accordion-open-indicator">פתח עריכה</span>
+                        </summary>
 
-                <details class="admin-accordion">
-                    <summary class="accordion-summary">
-                        <div class="accordion-title-wrap">
-                            <h3>נקודות לחוות דעת</h3>
-                            <p>האפשרויות שמופיעות בשדה “חוות דעת על המדריך” בטופס.</p>
-                        </div>
-                        <span class="accordion-open-indicator">פתח עריכה</span>
-                    </summary>
-
-                    <div class="accordion-content">
-                        <div class="section-actions-row">
-                            <p class="section-small-note">כאן מגדירים את הנקודות שהמדריך יוכל לבחור בחוות הדעת.</p>
-                            <button type="button" class="btn-add" data-add-item="list-feedback" data-placeholder="נקודה חדשה">+ הוסף נקודה</button>
-                        </div>
-
-                        <div class="compact-upload">
-                            <label class="upload-label" for="feedbackUpload">📤 העלאת CSV / JSON</label>
-                            <input type="file" id="feedbackUpload" class="upload-input" accept=".csv,.json,.txt" data-upload-list="list-feedback" data-upload-status="feedbackStatus">
-                            <span class="upload-status" id="feedbackStatus"></span>
-                            <small class="upload-hint">כל שורה בקובץ תהפוך לנקודת חוות דעת נפרדת.</small>
-                        </div>
-
-                        <div id="list-feedback" class="edit-list compact-grid-list list-scrollable">
-                            {% for item in settings.feedback_points.split(',') if item.strip() %}
-                            <div class="edit-item">
-                                <div class="edit-item-row">
-                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                    <button type="button" class="btn-del" data-delete-item>מחק</button>
-                                </div>
+                        <div class="accordion-content">
+                            <div class="section-actions-row">
+                                <p class="section-small-note">הוסיפי, מחקי או ערכי תחומי התמחות. הרשימה הזו תופיע למדריכים בטופס.</p>
+                                <button type="button" class="btn-add" data-add-item="list-specs" data-placeholder="תחום חדש">+ הוסף תחום</button>
                             </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </details>
-            </div>
 
-            <div class="sticky-save-bar">
-                <div class="sticky-save-copy">
-                    <strong>סיימת לערוך?</strong>
-                    <span>לחצי על שמירה כדי לעדכן את שאלון המדריכים.</span>
+                            <div class="compact-upload">
+                                <label class="upload-label" for="specsUpload">📤 העלאת CSV / JSON</label>
+                                <input type="file" id="specsUpload" class="upload-input" accept=".csv,.json,.txt" data-upload-list="list-specs" data-upload-status="specsStatus">
+                                <span class="upload-status" id="specsStatus"></span>
+                                <small class="upload-hint">אפשר להעלות רשימה בשורות נפרדות, או CSV עם פריט בכל שורה.</small>
+                            </div>
+
+                            <div id="list-specs" class="edit-list compact-grid-list list-scrollable">
+                                {% for item in settings.specializations.split(',') if item.strip() %}
+                                <div class="edit-item">
+                                    <div class="edit-item-row">
+                                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                        <button type="button" class="btn-del" data-delete-item>מחק</button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="admin-accordion">
+                        <summary class="accordion-summary">
+                            <div class="accordion-title-wrap">
+                                <h3>סטטוס מדריך</h3>
+                                <p>הרשימה שמופיעה בשדה “סטטוס מדריך” בשאלון המדריכים.</p>
+                            </div>
+                            <span class="accordion-open-indicator">פתח עריכה</span>
+                        </summary>
+
+                        <div class="accordion-content">
+                            <div class="section-actions-row">
+                                <p class="section-small-note">כאן עורכים את סוגי/סטטוס המדריכים שהמדריך יכול לבחור בטופס.</p>
+                                <button type="button" class="btn-add" data-add-item="list-statuses" data-placeholder="סטטוס חדש">+ הוסף סטטוס</button>
+                            </div>
+
+                            <div class="compact-upload">
+                                <label class="upload-label" for="statusesUpload">📤 העלאת CSV / JSON</label>
+                                <input type="file" id="statusesUpload" class="upload-input" accept=".csv,.json,.txt" data-upload-list="list-statuses" data-upload-status="statusesStatus">
+                                <span class="upload-status" id="statusesStatus"></span>
+                                <small class="upload-hint">לדוגמה: מדריך חדש, מדריך ממשיך, מדריך מחליף.</small>
+                            </div>
+
+                            <div id="list-statuses" class="edit-list compact-grid-list list-scrollable">
+                                {% for item in settings.mentor_statuses.split(',') if item.strip() %}
+                                <div class="edit-item">
+                                    <div class="edit-item-row">
+                                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                        <button type="button" class="btn-del" data-delete-item>מחק</button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </details>
+
+                    <details class="admin-accordion">
+                        <summary class="accordion-summary">
+                            <div class="accordion-title-wrap">
+                                <h3>נקודות לחוות דעת</h3>
+                                <p>האפשרויות שמופיעות בשדה “חוות דעת על המדריך” בטופס.</p>
+                            </div>
+                            <span class="accordion-open-indicator">פתח עריכה</span>
+                        </summary>
+
+                        <div class="accordion-content">
+                            <div class="section-actions-row">
+                                <p class="section-small-note">כאן מגדירים את הנקודות שהמדריך יוכל לבחור בחוות הדעת.</p>
+                                <button type="button" class="btn-add" data-add-item="list-feedback" data-placeholder="נקודה חדשה">+ הוסף נקודה</button>
+                            </div>
+
+                            <div class="compact-upload">
+                                <label class="upload-label" for="feedbackUpload">📤 העלאת CSV / JSON</label>
+                                <input type="file" id="feedbackUpload" class="upload-input" accept=".csv,.json,.txt" data-upload-list="list-feedback" data-upload-status="feedbackStatus">
+                                <span class="upload-status" id="feedbackStatus"></span>
+                                <small class="upload-hint">כל שורה בקובץ תהפוך לנקודת חוות דעת נפרדת.</small>
+                            </div>
+
+                            <div id="list-feedback" class="edit-list compact-grid-list list-scrollable">
+                                {% for item in settings.feedback_points.split(',') if item.strip() %}
+                                <div class="edit-item">
+                                    <div class="edit-item-row">
+                                        <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                        <button type="button" class="btn-del" data-delete-item>מחק</button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </details>
                 </div>
-                <button id="saveBottomBtn" type="submit" class="btn-save-primary">שמור שינויים</button>
-            </div>
-        </form>
-    </div>
 
-    <div id="viewResults" class="tab-content">
-        <div class="results-card">
-            <div>
-                <h2>נתוני המדריכים שהוגשו</h2>
-                <p class="section-small-note">
-                    כאן ניתן להוריד את נתוני המדריכים או לבדוק אותם ב-Google Sheets, לפי ההגדרות של המערכת.
-                </p>
-            </div>
-
-            <a href="/download/master" class="btn-download">הורד נתונים ל-Excel</a>
+                <div class="sticky-save-bar">
+                    <div class="sticky-save-copy">
+                        <strong>סיימת לערוך?</strong>
+                        <span>לחצי על שמירה כדי לעדכן את שאלון המדריכים.</span>
+                    </div>
+                    <button id="saveBottomBtn" type="submit" class="btn-save-primary">שמור שינויים</button>
+                </div>
+            </form>
         </div>
 
-        <div class="table-container">
-            <p class="table-empty-state">
-                רשימת המדריכים שהוגשו תופיע בקובץ ה-Excel שהורד למעלה או תסונכרן ל-Google Sheets.
-            </p>
+        <div id="viewResults" class="tab-content">
+            <div class="results-card">
+                <div>
+                    <h2>נתוני המדריכים שהוגשו</h2>
+                    <p class="section-small-note">
+                        כאן ניתן להוריד את נתוני המדריכים או לבדוק אותם ב-Google Sheets, לפי ההגדרות של המערכת.
+                    </p>
+                </div>
+
+                <a href="/download/master" class="btn-download">הורד נתונים ל-Excel</a>
+            </div>
+
+            <div class="table-container">
+                <p class="table-empty-state">
+                    רשימת המדריכים שהוגשו תופיע בקובץ ה-Excel שהורד למעלה או תסונכרן ל-Google Sheets.
+                </p>
+            </div>
         </div>
     </div>
 
@@ -228,5 +234,5 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}?v=21"></script>
+<script defer src="{{ url_for('static', filename='js/admin_dashboard.js') }}?v=30"></script>
 {% endblock %}

@@ -2,152 +2,429 @@
 {% block title %}ניהול מערכת מדריכים{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=10">
 
 <div class="admin-wrapper">
-    <div style="margin-bottom: 15px;">
-        <a href="/" class="back-btn">חזרה לשאלון</a>
-    </div>
-
     <header class="admin-header">
-        <h1>פאנל ניהול מתקדם</h1>
-        <p>כאן ניתן לערוך את מבנה השאלון, להוסיף תחומים ולצפות בתשובות המדריכים.</p>
+        <div class="admin-header-actions">
+            <a href="/" class="top-nav-btn">חזרה לשאלון</a>
+            <button id="saveTopBtn" type="submit" form="adminForm" class="btn-save-primary">שמור שינויים</button>
+        </div>
+
+        <div class="admin-title-center">
+            <span class="hero-eyebrow">לוח ניהול שאלון מדריכים</span>
+            <h1>פאנל ניהול מתקדם</h1>
+            <p>ניהול מבנה שאלון המדריכים, אפשרויות הבחירה ותשובות המדריכים — בממשק ברור, נקי ונוח לשימוש.</p>
+        </div>
     </header>
 
+    <div class="admin-overview-card">
+        <div class="overview-main">
+            <h3>איך משתמשים בפאנל?</h3>
+            <p>
+                בחרי את החלק שברצונך לערוך, פתחי אותו, עדכני את הנתונים, ואז לחצי על שמירת שינויים.
+                כך אפשר לנהל את שאלון המדריכים בלי לראות את כל הרשימות הארוכות בבת אחת.
+            </p>
+
+            <div class="overview-chips">
+                <span class="overview-chip">1. בוחרים מה לערוך</span>
+                <span class="overview-chip">2. פותחים רק את החלק הרלוונטי</span>
+                <span class="overview-chip">3. עורכים / מעלים קובץ</span>
+                <span class="overview-chip">4. שומרים שינויים</span>
+            </div>
+        </div>
+
+        <div class="mini-guide">
+            <strong>טיפ חשוב</strong>
+            <p>
+                אפשר להעלות CSV / JSON לרשימות כמו תחומי התמחות, סטטוס מדריך ונקודות חוות דעת.
+                העלאת קובץ מחליפה את הרשימה הקיימת באותו חלק.
+            </p>
+        </div>
+    </div>
+
     <div class="admin-tabs">
-        <button class="tab-btn active" onclick="switchTab('editForm')">עריכת השאלון</button>
-        <button class="tab-btn" onclick="switchTab('viewResults')">תשובות מדריכים</button>
+        <button class="tab-btn active" type="button" onclick="switchTab('editForm', event)">עריכת השאלון</button>
+        <button class="tab-btn" type="button" onclick="switchTab('viewResults', event)">תשובות מדריכים</button>
+    </div>
+
+    <div class="save-status-row">
+        <div id="saveStatus" class="save-status" aria-live="polite"></div>
     </div>
 
     <div id="editForm" class="tab-content active">
-        <form method="post" id="adminForm" onsubmit="prepareData()">
-            <button type="submit" class="btn-save-floating">שמור שינויים</button>
-            
-            <div class="admin-grid">
-                
-                <section class="admin-section" style="grid-column: 1 / -1;">
-                    <div class="section-header"><h2>הגדרות טקסט של הטופס</h2></div>
-                    <div class="edit-list">
-                        <div class="edit-item">
-                            <div class="edit-item-row">
-                                <span style="min-width: 120px; font-weight:bold;">כותרת ראשית:</span>
-                                <input type="text" name="form_title" value="{{ settings.form_title }}" class="edit-input">
-                            </div>
-                        </div>
-                        <div class="edit-item">
-                            <div class="edit-item-row">
-                                <span style="min-width: 120px; font-weight:bold;">טקסט משנה:</span>
-                                <textarea name="form_subtitle" rows="2" style="resize:none;" class="edit-input">{{ settings.form_subtitle }}</textarea>
-                            </div>
-                        </div>
-                    </div>
-                </section>
+        <form method="post" action="{{ url_for('admin_dashboard') }}" id="adminForm" onsubmit="return prepareData()">
+            <input type="hidden" name="specializations" id="hidden-specs">
+            <input type="hidden" name="mentor_statuses" id="hidden-statuses">
+            <input type="hidden" name="feedback_points" id="hidden-feedback">
 
-                <section class="admin-section">
-                    <div class="section-header">
-                        <h2>תחומי התמחות</h2>
-                        <button type="button" class="btn-add" onclick="addItem('list-specs', 'תחום חדש')">+ הוסף תחום</button>
-                    </div>
-                    <div id="list-specs" class="edit-list">
-                        {% for item in settings.specializations.split(',') if item.strip() %}
-                        <div class="edit-item">
-                            <div class="edit-item-row">
-                                <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+            <div class="admin-accordion-grid">
+
+                <details class="admin-accordion" open>
+                    <summary class="accordion-summary">
+                        <div class="accordion-title-wrap">
+                            <h3>הגדרות טקסט של הטופס</h3>
+                            <p>עדכון הכותרת הראשית וטקסט המשנה שמופיעים בראש שאלון המדריכים.</p>
+                        </div>
+                        <span class="accordion-open-indicator">סגור</span>
+                    </summary>
+
+                    <div class="accordion-content">
+                        <div class="settings-form-grid">
+                            <div class="settings-field">
+                                <label>כותרת ראשית</label>
+                                <input type="text" name="form_title" value="{{ settings.form_title }}" class="clean-input">
+                            </div>
+
+                            <div class="settings-field">
+                                <label>טקסט משנה</label>
+                                <textarea name="form_subtitle" rows="3" class="clean-input">{{ settings.form_subtitle }}</textarea>
                             </div>
                         </div>
-                        {% endfor %}
                     </div>
-                    <input type="hidden" name="specializations" id="hidden-specs">
-                </section>
+                </details>
 
-                <section class="admin-section">
-                    <div class="section-header">
-                        <h2>סטטוס מדריך</h2>
-                        <button type="button" class="btn-add" onclick="addItem('list-statuses', 'סטטוס חדש')">+ הוסף סטטוס</button>
-                    </div>
-                    <div id="list-statuses" class="edit-list">
-                        {% for item in settings.mentor_statuses.split(',') if item.strip() %}
-                        <div class="edit-item">
-                            <div class="edit-item-row">
-                                <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
-                            </div>
+                <details class="admin-accordion">
+                    <summary class="accordion-summary">
+                        <div class="accordion-title-wrap">
+                            <h3>תחומי התמחות</h3>
+                            <p>הרשימה שמופיעה בשדה “תחום התמחות” בשאלון המדריכים.</p>
                         </div>
-                        {% endfor %}
-                    </div>
-                    <input type="hidden" name="mentor_statuses" id="hidden-statuses">
-                </section>
+                        <span class="accordion-open-indicator">פתח עריכה</span>
+                    </summary>
 
-                <section class="admin-section">
-                    <div class="section-header">
-                        <h2>נקודות לחוות דעת</h2>
-                        <button type="button" class="btn-add" onclick="addItem('list-feedback', 'נקודה חדשה')">+ הוסף נקודה</button>
-                    </div>
-                    <div id="list-feedback" class="edit-list">
-                        {% for item in settings.feedback_points.split(',') if item.strip() %}
-                        <div class="edit-item">
-                            <div class="edit-item-row">
-                                <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
-                            </div>
+                    <div class="accordion-content">
+                        <div class="section-actions-row">
+                            <p class="section-small-note">הוסיפי, מחקי או ערכי תחומי התמחות. הרשימה הזו תופיע למדריכים בטופס.</p>
+                            <button type="button" class="btn-add" onclick="addItem('list-specs', 'תחום חדש')">+ הוסף תחום</button>
                         </div>
-                        {% endfor %}
-                    </div>
-                    <input type="hidden" name="feedback_points" id="hidden-feedback">
-                </section>
 
+                        <div class="compact-upload">
+                            <label class="upload-label" for="specsUpload">📤 העלאת CSV / JSON</label>
+                            <input type="file" id="specsUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-specs', 'specsStatus')">
+                            <span class="upload-status" id="specsStatus"></span>
+                            <small class="upload-hint">אפשר להעלות רשימה בשורות נפרדות, או CSV עם פריט בכל שורה.</small>
+                        </div>
+
+                        <div id="list-specs" class="edit-list compact-grid-list list-scrollable">
+                            {% for item in settings.specializations.split(',') if item.strip() %}
+                            <div class="edit-item">
+                                <div class="edit-item-row">
+                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </details>
+
+                <details class="admin-accordion">
+                    <summary class="accordion-summary">
+                        <div class="accordion-title-wrap">
+                            <h3>סטטוס מדריך</h3>
+                            <p>הרשימה שמופיעה בשדה “סטטוס מדריך” בשאלון המדריכים.</p>
+                        </div>
+                        <span class="accordion-open-indicator">פתח עריכה</span>
+                    </summary>
+
+                    <div class="accordion-content">
+                        <div class="section-actions-row">
+                            <p class="section-small-note">כאן עורכים את סוגי/סטטוס המדריכים שהמדריך יכול לבחור בטופס.</p>
+                            <button type="button" class="btn-add" onclick="addItem('list-statuses', 'סטטוס חדש')">+ הוסף סטטוס</button>
+                        </div>
+
+                        <div class="compact-upload">
+                            <label class="upload-label" for="statusesUpload">📤 העלאת CSV / JSON</label>
+                            <input type="file" id="statusesUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-statuses', 'statusesStatus')">
+                            <span class="upload-status" id="statusesStatus"></span>
+                            <small class="upload-hint">לדוגמה: מדריך חדש, מדריך ממשיך, מדריך מחליף.</small>
+                        </div>
+
+                        <div id="list-statuses" class="edit-list compact-grid-list list-scrollable">
+                            {% for item in settings.mentor_statuses.split(',') if item.strip() %}
+                            <div class="edit-item">
+                                <div class="edit-item-row">
+                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </details>
+
+                <details class="admin-accordion">
+                    <summary class="accordion-summary">
+                        <div class="accordion-title-wrap">
+                            <h3>נקודות לחוות דעת</h3>
+                            <p>האפשרויות שמופיעות בשדה “חוות דעת על המדריך” בטופס.</p>
+                        </div>
+                        <span class="accordion-open-indicator">פתח עריכה</span>
+                    </summary>
+
+                    <div class="accordion-content">
+                        <div class="section-actions-row">
+                            <p class="section-small-note">כאן מגדירים את הנקודות שהמדריך יוכל לבחור בחוות הדעת.</p>
+                            <button type="button" class="btn-add" onclick="addItem('list-feedback', 'נקודה חדשה')">+ הוסף נקודה</button>
+                        </div>
+
+                        <div class="compact-upload">
+                            <label class="upload-label" for="feedbackUpload">📤 העלאת CSV / JSON</label>
+                            <input type="file" id="feedbackUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-feedback', 'feedbackStatus')">
+                            <span class="upload-status" id="feedbackStatus"></span>
+                            <small class="upload-hint">כל שורה בקובץ תהפוך לנקודת חוות דעת נפרדת.</small>
+                        </div>
+
+                        <div id="list-feedback" class="edit-list compact-grid-list list-scrollable">
+                            {% for item in settings.feedback_points.split(',') if item.strip() %}
+                            <div class="edit-item">
+                                <div class="edit-item-row">
+                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <div class="sticky-save-bar">
+                <div class="sticky-save-copy">
+                    <strong>סיימת לערוך?</strong>
+                    <span>לחצי על שמירה כדי לעדכן את שאלון המדריכים.</span>
+                </div>
+                <button id="saveBottomBtn" type="submit" class="btn-save-primary">שמור שינויים</button>
             </div>
         </form>
     </div>
 
     <div id="viewResults" class="tab-content">
-        <div class="admin-section" style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="margin: 0;">נתוני המדריכים שהוגשו</h2>
-            <a href="/download/master" class="btn-add" style="text-decoration:none; padding:10px 20px;">הורד נתונים ל-Excel</a>
+        <div class="results-card">
+            <div>
+                <h2>נתוני המדריכים שהוגשו</h2>
+                <p class="section-small-note" style="margin-top: 8px;">
+                    כאן ניתן להוריד את נתוני המדריכים או לבדוק אותם ב-Google Sheets, לפי ההגדרות של המערכת.
+                </p>
+            </div>
+
+            <a href="/download/master" class="btn-download">הורד נתונים ל-Excel</a>
         </div>
-        
+
         <div class="table-container">
-            <p style="text-align: center; color: #6b7280; padding: 30px;">רשימת המדריכים שהוגשו תופיע בקובץ ה-Excel שהורד למעלה או תסונכרן ל-Google Sheets.</p>
+            <p class="table-empty-state">
+                רשימת המדריכים שהוגשו תופיע בקובץ ה-Excel שהורד למעלה או תסונכרן ל-Google Sheets.
+            </p>
         </div>
     </div>
 
-    <div style="text-align: center; margin-top: 40px;">
+    <div class="admin-footer-actions">
         <a href="{{ url_for('logout') }}" class="btn-logout-red">התנתקות מהמערכת</a>
     </div>
-
 </div>
 
 <script>
-function switchTab(tabId) {
+function switchTab(tabId, event) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-    document.getElementById(tabId).classList.add('active');
-    event.currentTarget.classList.add('active');
+
+    const target = document.getElementById(tabId);
+    if (target) target.classList.add('active');
+
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function setSaveStatus(message, type = 'info') {
+    const statusEl = document.getElementById('saveStatus');
+    if (!statusEl) return;
+
+    statusEl.textContent = message;
+    statusEl.className = 'save-status ' + type;
+}
+
+function escapeAttr(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
 }
 
 function addItem(containerId, placeholder) {
-    let container = document.getElementById(containerId);
-    let div = document.createElement('div');
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const div = document.createElement('div');
     div.className = 'edit-item';
     div.innerHTML = `
         <div class="edit-item-row">
-            <input type="text" value="${placeholder}" class="edit-input val-item">
+            <input type="text" value="${escapeAttr(placeholder)}" class="edit-input val-item">
             <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
         </div>`;
-    container.appendChild(div);
+    container.prepend(div);
 }
 
-// אוסף את הנתונים מהשדות הדינמיים לתוך שדות חבויים כדי ש-main.py יוכל לשמור אותם
+function collectList(containerId) {
+    return Array.from(document.querySelectorAll(`#${containerId} .val-item`))
+        .map(input => input.value.trim())
+        .filter(value => value !== "");
+}
+
 function prepareData() {
-    let specs = Array.from(document.querySelectorAll('#list-specs .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
-    document.getElementById('hidden-specs').value = specs;
+    const saveButtons = document.querySelectorAll('#saveTopBtn, #saveBottomBtn');
 
-    let statuses = Array.from(document.querySelectorAll('#list-statuses .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
-    document.getElementById('hidden-statuses').value = statuses;
+    saveButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.textContent = 'שומר...';
+    });
 
-    let feedback = Array.from(document.querySelectorAll('#list-feedback .val-item')).map(input => input.value.trim()).filter(v => v !== "").join(',');
-    document.getElementById('hidden-feedback').value = feedback;
+    setSaveStatus('שומר שינויים...', 'info');
+
+    document.getElementById('hidden-specs').value = collectList('list-specs').join(',');
+    document.getElementById('hidden-statuses').value = collectList('list-statuses').join(',');
+    document.getElementById('hidden-feedback').value = collectList('list-feedback').join(',');
+
+    return true;
 }
+
+function parseCSVData(text) {
+    const cleanText = String(text || '').replace(/^\uFEFF/, '').trim();
+    if (!cleanText) return [];
+
+    const lines = cleanText.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+
+    if (lines.length === 1 && lines[0].includes(',')) {
+        return lines[0]
+            .split(',')
+            .map(item => item.trim().replace(/^"|"$/g, ''))
+            .filter(Boolean);
+    }
+
+    return lines
+        .map(line => {
+            if (line.includes(',')) {
+                return line.split(',')[0].trim().replace(/^"|"$/g, '');
+            }
+            return line.replace(/^"|"$/g, '').trim();
+        })
+        .filter(Boolean);
+}
+
+function parseFileData(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            try {
+                const content = e.target.result;
+                let data = [];
+
+                if (file.name.endsWith('.json')) {
+                    const json = JSON.parse(content);
+                    data = Array.isArray(json) ? json : Object.values(json);
+                    data = data.map(item => {
+                        if (typeof item === 'string') return item;
+                        if (item && typeof item === 'object') {
+                            return item.name || item.label || item.value || item.שם || '';
+                        }
+                        return '';
+                    });
+                } else {
+                    data = parseCSVData(content);
+                }
+
+                resolve(data.filter(item => item && String(item).trim().length > 0));
+            } catch (err) {
+                reject(err);
+            }
+        };
+
+        reader.onerror = reject;
+        reader.readAsText(file, 'utf-8');
+    });
+}
+
+function uploadListFile(event, containerId, statusId) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const statusEl = document.getElementById(statusId);
+    if (statusEl) statusEl.textContent = 'בעיבוד...';
+
+    parseFileData(file)
+        .then(items => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            items.forEach(item => {
+                const value = String(item).trim();
+                if (!value) return;
+
+                const div = document.createElement('div');
+                div.className = 'edit-item';
+                div.innerHTML = `
+                    <div class="edit-item-row">
+                        <input type="text" value="${escapeAttr(value)}" class="edit-input val-item">
+                        <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                    </div>`;
+                container.appendChild(div);
+            });
+
+            if (statusEl) {
+                statusEl.textContent = `✅ הועלו ${items.length} פריטים`;
+                setTimeout(() => { statusEl.textContent = ''; }, 3000);
+            }
+
+            event.target.value = '';
+        })
+        .catch(err => {
+            console.error(err);
+
+            if (statusEl) {
+                statusEl.textContent = '❌ שגיאה בקריאת הקובץ';
+                setTimeout(() => { statusEl.textContent = ''; }, 3000);
+            }
+        });
+}
+
+function setupAccordionBehavior() {
+    const accordions = document.querySelectorAll('.admin-accordion');
+
+    accordions.forEach(details => {
+        const indicator = details.querySelector('.accordion-open-indicator');
+        if (indicator) {
+            indicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
+        }
+
+        details.addEventListener('toggle', () => {
+            const currentIndicator = details.querySelector('.accordion-open-indicator');
+
+            if (currentIndicator) {
+                currentIndicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
+            }
+
+            if (details.open) {
+                accordions.forEach(other => {
+                    if (other !== details) {
+                        other.open = false;
+                        const otherIndicator = other.querySelector('.accordion-open-indicator');
+                        if (otherIndicator) otherIndicator.textContent = 'פתח עריכה';
+                    }
+                });
+
+                setTimeout(() => {
+                    details.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 120);
+            }
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', setupAccordionBehavior);
 </script>
 {% endblock %}

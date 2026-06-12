@@ -1,443 +1,1048 @@
-{% extends "layout.html" %}
-{% block title %}ניהול מערכת מדריכים{% endblock %}
+:root {
+  --bg-1: #f4fbfb;
+  --bg-2: #f7f3fb;
+  --bg-4: #fdf1f4;
+  --bg-5: #f5faf5;
 
-{% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+  --ink: #0f172a;
+  --muted: #64748b;
 
-<div class="admin-wrapper">
-    <header class="admin-header">
-        <div class="admin-header-actions">
-            <a href="/" class="top-nav-btn">חזרה לשאלון</a>
-            <button id="saveTopBtn" type="submit" form="adminForm" class="btn-save-primary">שמור שינויים</button>
-        </div>
+  --admin-primary: #a855f7;
+  --admin-secondary: #ec4899;
+  --admin-green: #10b981;
+  --admin-green-dark: #059669;
+  --admin-red: #ef4444;
 
-        <div class="admin-title-center">
-            <span class="hero-eyebrow">לוח ניהול שאלון מדריכים</span>
-            <h1>פאנל ניהול מתקדם</h1>
-            <p>ניהול מבנה שאלון המדריכים, אפשרויות הבחירה ותשובות המדריכים — בממשק ברור, נקי ונוח לשימוש.</p>
-        </div>
-    </header>
+  --admin-surface: #ffffff;
+  --admin-border: #e5e7eb;
+  --admin-card-border: #e8eef6;
+  --admin-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+  --admin-soft-shadow: 0 10px 26px rgba(15, 23, 42, 0.06);
 
-    <div class="admin-overview-card">
-        <div class="overview-main">
-            <h3>איך משתמשים בפאנל?</h3>
-            <p>
-                בחרי את החלק שברצונך לערוך, פתחי אותו, עדכני את הנתונים, ואז לחצי על שמירת שינויים.
-                כך אפשר לנהל את שאלון המדריכים בלי להיכנס לקוד.
-            </p>
-
-            <div class="overview-chips">
-                <span class="overview-chip">1. בוחרים מה לערוך</span>
-                <span class="overview-chip">2. פותחים רק את החלק הרלוונטי</span>
-                <span class="overview-chip">3. עורכים / מעלים קובץ</span>
-                <span class="overview-chip">4. שומרים שינויים</span>
-            </div>
-        </div>
-
-        <div class="mini-guide">
-            <strong>טיפ חשוב</strong>
-            <p>
-                אפשר להעלות CSV / JSON לרשימות כמו תחומי התמחות, סטטוס מדריך ונקודות חוות דעת.
-                העלאת קובץ מחליפה את הרשימה הקיימת באותו חלק.
-            </p>
-        </div>
-    </div>
-
-    <div class="admin-tabs">
-        <button class="tab-btn active" type="button" onclick="switchTab('editForm', event)">עריכת השאלון</button>
-        <button class="tab-btn" type="button" onclick="switchTab('viewResults', event)">תשובות מדריכים</button>
-    </div>
-
-    <div class="save-status-row">
-        <div id="saveStatus" class="save-status" aria-live="polite"></div>
-    </div>
-
-    <div id="editForm" class="tab-content active">
-        <form method="post" id="adminForm" onsubmit="return prepareData()">
-            <input type="hidden" name="specializations" id="hidden-specs">
-            <input type="hidden" name="mentor_statuses" id="hidden-statuses">
-            <input type="hidden" name="feedback_points" id="hidden-feedback">
-
-            <div class="admin-accordion-grid">
-
-                <details class="admin-accordion" open>
-                    <summary class="accordion-summary">
-                        <div class="accordion-title-wrap">
-                            <h3>הגדרות טקסט של הטופס</h3>
-                            <p>עדכון הכותרת הראשית וטקסט המשנה שמופיעים בראש שאלון המדריכים.</p>
-                        </div>
-                        <span class="accordion-open-indicator">סגור</span>
-                    </summary>
-
-                    <div class="accordion-content">
-                        <div class="settings-form-grid">
-                            <div class="settings-field">
-                                <label>כותרת ראשית</label>
-                                <input type="text" name="form_title" value="{{ settings.form_title }}" class="clean-input">
-                            </div>
-
-                            <div class="settings-field">
-                                <label>טקסט משנה</label>
-                                <textarea name="form_subtitle" rows="3" class="clean-input">{{ settings.form_subtitle }}</textarea>
-                            </div>
-                        </div>
-                    </div>
-                </details>
-
-                <details class="admin-accordion">
-                    <summary class="accordion-summary">
-                        <div class="accordion-title-wrap">
-                            <h3>תחומי התמחות</h3>
-                            <p>הרשימה שמופיעה בשדה “תחום התמחות” בשאלון המדריכים.</p>
-                        </div>
-                        <span class="accordion-open-indicator">פתח עריכה</span>
-                    </summary>
-
-                    <div class="accordion-content">
-                        <div class="section-actions-row">
-                            <p class="section-small-note">
-                                הוסיפי, מחקי או ערכי תחומי התמחות. הרשימה הזו תופיע למדריכים בטופס.
-                            </p>
-                            <button type="button" class="btn-add" onclick="addItem('list-specs', 'תחום חדש')">+ הוסף תחום</button>
-                        </div>
-
-                        <div class="compact-upload">
-                            <label class="upload-label" for="specsUpload">📤 העלאת CSV / JSON</label>
-                            <input type="file" id="specsUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-specs', 'specsStatus')">
-                            <span class="upload-status" id="specsStatus"></span>
-                            <small class="upload-hint">אפשר להעלות רשימה בשורות נפרדות, או CSV עם פריט בכל שורה.</small>
-                        </div>
-
-                        <div id="list-specs" class="edit-list compact-grid-list list-scrollable">
-                            {% for item in settings.specializations.split(',') if item.strip() %}
-                            <div class="edit-item">
-                                <div class="edit-item-row">
-                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </details>
-
-                <details class="admin-accordion">
-                    <summary class="accordion-summary">
-                        <div class="accordion-title-wrap">
-                            <h3>סטטוס מדריך</h3>
-                            <p>הרשימה שמופיעה בשדה “סטטוס מדריך” בשאלון המדריכים.</p>
-                        </div>
-                        <span class="accordion-open-indicator">פתח עריכה</span>
-                    </summary>
-
-                    <div class="accordion-content">
-                        <div class="section-actions-row">
-                            <p class="section-small-note">
-                                כאן עורכים את סוגי/סטטוס המדריכים שהמדריך יכול לבחור בטופס.
-                            </p>
-                            <button type="button" class="btn-add" onclick="addItem('list-statuses', 'סטטוס חדש')">+ הוסף סטטוס</button>
-                        </div>
-
-                        <div class="compact-upload">
-                            <label class="upload-label" for="statusesUpload">📤 העלאת CSV / JSON</label>
-                            <input type="file" id="statusesUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-statuses', 'statusesStatus')">
-                            <span class="upload-status" id="statusesStatus"></span>
-                            <small class="upload-hint">לדוגמה: מדריך חדש, מדריך ממשיך, מדריך מחליף.</small>
-                        </div>
-
-                        <div id="list-statuses" class="edit-list compact-grid-list list-scrollable">
-                            {% for item in settings.mentor_statuses.split(',') if item.strip() %}
-                            <div class="edit-item">
-                                <div class="edit-item-row">
-                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </details>
-
-                <details class="admin-accordion">
-                    <summary class="accordion-summary">
-                        <div class="accordion-title-wrap">
-                            <h3>נקודות לחוות דעת</h3>
-                            <p>האפשרויות שמופיעות בשדה “חוות דעת על המדריך” בטופס.</p>
-                        </div>
-                        <span class="accordion-open-indicator">פתח עריכה</span>
-                    </summary>
-
-                    <div class="accordion-content">
-                        <div class="section-actions-row">
-                            <p class="section-small-note">
-                                כאן מגדירים את הנקודות שהמדריך יוכל לבחור בחוות הדעת.
-                            </p>
-                            <button type="button" class="btn-add" onclick="addItem('list-feedback', 'נקודה חדשה')">+ הוסף נקודה</button>
-                        </div>
-
-                        <div class="compact-upload">
-                            <label class="upload-label" for="feedbackUpload">📤 העלאת CSV / JSON</label>
-                            <input type="file" id="feedbackUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-feedback', 'feedbackStatus')">
-                            <span class="upload-status" id="feedbackStatus"></span>
-                            <small class="upload-hint">כל שורה בקובץ תהפוך לנקודת חוות דעת נפרדת.</small>
-                        </div>
-
-                        <div id="list-feedback" class="edit-list compact-grid-list list-scrollable">
-                            {% for item in settings.feedback_points.split(',') if item.strip() %}
-                            <div class="edit-item">
-                                <div class="edit-item-row">
-                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
-                                </div>
-                            </div>
-                            {% endfor %}
-                        </div>
-                    </div>
-                </details>
-
-            </div>
-
-            <div class="sticky-save-bar">
-                <div class="sticky-save-copy">
-                    <strong>סיימת לערוך?</strong>
-                    <span>לחצי על שמירה כדי לעדכן את שאלון המדריכים.</span>
-                </div>
-                <button id="saveBottomBtn" type="submit" class="btn-save-primary">שמור שינויים</button>
-            </div>
-        </form>
-    </div>
-
-    <div id="viewResults" class="tab-content">
-        <div class="results-card">
-            <div>
-                <h2>נתוני המדריכים שהוגשו</h2>
-                <p class="section-small-note" style="margin-top: 8px;">
-                    כאן ניתן להוריד את נתוני המדריכים או לבדוק אותם ב-Google Sheets, לפי ההגדרות של המערכת.
-                </p>
-            </div>
-
-            <a href="/download/master" class="btn-download">הורד נתונים ל-Excel</a>
-        </div>
-
-        <div class="table-container">
-            <p class="table-empty-state">
-                רשימת המדריכים שהוגשו תופיע בקובץ ה-Excel שהורד למעלה או תסונכרן ל-Google Sheets.
-            </p>
-        </div>
-    </div>
-
-    <div class="admin-footer-actions">
-        <a href="{{ url_for('logout') }}" class="btn-logout-red">התנתקות מהמערכת</a>
-    </div>
-</div>
-
-<script>
-function switchTab(tabId, event) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-
-    const target = document.getElementById(tabId);
-    if (target) target.classList.add('active');
-
-    if (event && event.currentTarget) {
-        event.currentTarget.classList.add('active');
-    }
-
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  --grad-main: linear-gradient(90deg, #f05da8 0%, #a855f7 100%);
 }
 
-function setSaveStatus(message, type = 'info') {
-    const statusEl = document.getElementById('saveStatus');
-    if (!statusEl) return;
-
-    statusEl.textContent = message;
-    statusEl.className = 'save-status ' + type;
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
-function escapeHtml(value) {
-    return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;');
+html,
+body,
+button,
+input,
+select,
+textarea {
+  direction: rtl;
+  text-align: right;
+  margin: 0;
+  font-family: "David", "Assistant", "Noto Sans Hebrew", "Segoe UI", system-ui, sans-serif;
+  color: var(--ink);
 }
 
-function escapeAttr(value) {
-    return String(value)
-        .replaceAll('&', '&amp;')
-        .replaceAll('"', '&quot;')
-        .replaceAll('<', '&lt;')
-        .replaceAll('>', '&gt;');
+body {
+  font-size: 16px;
+  overflow-x: hidden;
+  background:
+    radial-gradient(1200px 600px at 15% 10%, var(--bg-2) 0%, transparent 70%),
+    radial-gradient(1000px 500px at 85% 15%, var(--bg-4) 0%, transparent 65%),
+    radial-gradient(900px 600px at 25% 90%, var(--bg-5) 0%, transparent 55%),
+    var(--bg-1);
 }
 
-function addItem(containerId, placeholder) {
-    const container = document.getElementById(containerId);
-    if (!container) return;
-
-    const div = document.createElement('div');
-    div.className = 'edit-item';
-    div.innerHTML = `
-        <div class="edit-item-row">
-            <input type="text" value="${escapeAttr(placeholder)}" class="edit-input val-item">
-            <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
-        </div>`;
-    container.prepend(div);
+.admin-link-bar {
+  display: none !important;
 }
 
-function collectList(containerId) {
-    return Array.from(document.querySelectorAll(`#${containerId} .val-item`))
-        .map(input => input.value.trim())
-        .filter(value => value !== "");
+.container:has(.admin-wrapper),
+.container:has(.login-ultra-wrapper) {
+  max-width: none !important;
+  padding: 0 !important;
+  margin: 0 auto !important;
 }
 
-function prepareData() {
-    const saveButtons = document.querySelectorAll('#saveTopBtn, #saveBottomBtn');
-    saveButtons.forEach(btn => {
-        btn.disabled = true;
-        btn.textContent = 'שומר...';
-    });
+/* ================================
+   Login page
+   ================================ */
 
-    setSaveStatus('שומר שינויים...', 'info');
-
-    document.getElementById('hidden-specs').value = collectList('list-specs').join(',');
-    document.getElementById('hidden-statuses').value = collectList('list-statuses').join(',');
-    document.getElementById('hidden-feedback').value = collectList('list-feedback').join(',');
-
-    return true;
+.login-ultra-wrapper {
+  width: 100vw;
+  min-height: 100vh;
+  margin-inline: calc(50% - 50vw);
+  padding: 26px 16px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  box-sizing: border-box;
 }
 
-function parseCSVData(text) {
-    const cleanText = String(text || '').replace(/^\uFEFF/, '').trim();
-    if (!cleanText) return [];
-
-    const lines = cleanText.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
-
-    if (lines.length === 1 && lines[0].includes(',')) {
-        return lines[0]
-            .split(',')
-            .map(item => item.trim().replace(/^"|"$/g, ''))
-            .filter(Boolean);
-    }
-
-    return lines
-        .map(line => {
-            if (line.includes(',')) {
-                return line.split(',')[0].trim().replace(/^"|"$/g, '');
-            }
-            return line.replace(/^"|"$/g, '').trim();
-        })
-        .filter(Boolean);
+.login-page-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 22px;
+  align-items: center;
+  justify-items: center;
+  width: min(760px, calc(100vw - 32px));
+  max-width: 760px;
+  margin: 0 auto;
+  padding-bottom: 40px;
 }
 
-function parseFileData(file) {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-
-        reader.onload = (e) => {
-            try {
-                const content = e.target.result;
-                let data = [];
-
-                if (file.name.endsWith('.json')) {
-                    const json = JSON.parse(content);
-                    data = Array.isArray(json) ? json : Object.values(json);
-                    data = data.map(item => {
-                        if (typeof item === 'string') return item;
-                        if (item && typeof item === 'object') {
-                            return item.name || item.label || item.value || item.שם || '';
-                        }
-                        return '';
-                    });
-                } else {
-                    data = parseCSVData(content);
-                }
-
-                resolve(data.filter(item => item && String(item).trim().length > 0));
-            } catch (err) {
-                reject(err);
-            }
-        };
-
-        reader.onerror = reject;
-        reader.readAsText(file, 'utf-8');
-    });
+.top-nav-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
-function uploadListFile(event, containerId, statusId) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const statusEl = document.getElementById(statusId);
-    if (statusEl) statusEl.textContent = 'בעיבוד...';
-
-    parseFileData(file)
-        .then(items => {
-            const container = document.getElementById(containerId);
-            container.innerHTML = '';
-
-            items.forEach(item => {
-                const value = String(item).trim();
-                if (!value) return;
-
-                const div = document.createElement('div');
-                div.className = 'edit-item';
-                div.innerHTML = `
-                    <div class="edit-item-row">
-                        <input type="text" value="${escapeAttr(value)}" class="edit-input val-item">
-                        <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
-                    </div>`;
-                container.appendChild(div);
-            });
-
-            if (statusEl) {
-                statusEl.textContent = `✅ הועלו ${items.length} פריטים`;
-                setTimeout(() => { statusEl.textContent = ''; }, 3000);
-            }
-
-            event.target.value = '';
-        })
-        .catch(err => {
-            console.error(err);
-
-            if (statusEl) {
-                statusEl.textContent = '❌ שגיאה בקריאת הקובץ';
-                setTimeout(() => { statusEl.textContent = ''; }, 3000);
-            }
-        });
+.login-top-nav-row {
+  margin-top: 16px;
+  margin-bottom: 0;
 }
 
-function setupAccordionBehavior() {
-    const accordions = document.querySelectorAll('.admin-accordion');
-
-    accordions.forEach(details => {
-        const indicator = details.querySelector('.accordion-open-indicator');
-        if (indicator) {
-            indicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
-        }
-
-        details.addEventListener('toggle', () => {
-            const currentIndicator = details.querySelector('.accordion-open-indicator');
-
-            if (currentIndicator) {
-                currentIndicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
-            }
-
-            if (details.open) {
-                accordions.forEach(other => {
-                    if (other !== details) {
-                        other.open = false;
-                        const otherIndicator = other.querySelector('.accordion-open-indicator');
-                        if (otherIndicator) otherIndicator.textContent = 'פתח עריכה';
-                    }
-                });
-
-                setTimeout(() => {
-                    details.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 120);
-            }
-        });
-    });
+.top-nav-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 16px;
+  padding: 12px 24px;
+  text-decoration: none;
+  color: #111827;
+  font-weight: 900;
+  font-size: 1rem;
+  box-shadow: 0 10px 26px rgba(2, 6, 23, 0.10);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: 0.2s;
 }
 
-document.addEventListener('DOMContentLoaded', setupAccordionBehavior);
-</script>
-{% endblock %}
+.top-nav-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(2, 6, 23, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.login-ultra-wrapper .top-nav-btn {
+  position: fixed;
+  right: 20px;
+  top: 20px;
+  z-index: 9999;
+}
+
+.login-hero {
+  text-align: center;
+  max-width: 680px;
+  width: 100%;
+  margin-top: 42px;
+}
+
+.hero-eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--admin-primary);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.login-hero h1 {
+  font-size: clamp(2rem, 3vw, 2.8rem);
+  color: #111827;
+  margin: 0 0 14px;
+  line-height: 1.05;
+  font-weight: 900;
+}
+
+.login-hero p,
+.card-description {
+  color: #4b5563;
+  font-size: 1rem;
+  line-height: 1.8;
+  margin: 0 auto;
+  max-width: 38rem;
+}
+
+.login-card-modern {
+  background: #ffffff;
+  border-radius: 30px;
+  padding: 32px;
+  width: min(480px, 100%);
+  max-width: 480px;
+  box-shadow: var(--admin-shadow);
+  border: 1px solid #eef2f7;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.login-card-modern h2 {
+  text-align: center;
+  margin: 0 0 12px;
+  font-size: clamp(1.7rem, 2.5vw, 2rem);
+  color: #111827;
+  font-weight: 900;
+}
+
+.card-head {
+  text-align: center;
+  margin-bottom: 22px;
+}
+
+.form-field {
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.form-field label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 900;
+  color: #334155;
+  font-size: 0.96rem;
+}
+
+.password-field {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.form-input-modern {
+  width: 100%;
+  padding: 14px 16px;
+  background-color: #f8fafe;
+  border: 1px solid var(--admin-border);
+  border-radius: 16px;
+  font-size: 1rem;
+  color: #111827;
+  transition: 0.2s;
+  box-sizing: border-box;
+  font-weight: 700;
+  direction: rtl;
+  text-align: right;
+}
+
+.password-input {
+  flex: 1;
+  direction: ltr;
+  text-align: left;
+}
+
+.form-input-modern:focus {
+  background-color: #ffffff;
+  border-color: rgba(168, 85, 247, 0.35);
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.12);
+}
+
+.password-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 82px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: #eef2ff;
+  border: 1px solid #dbeafe;
+  color: var(--admin-primary);
+  font-weight: 900;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.password-toggle:hover {
+  background: #e0e7ff;
+}
+
+.btn-gradient-modern {
+  width: 100%;
+  min-width: auto;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, var(--admin-secondary) 0%, var(--admin-primary) 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 18px;
+  font-size: 1.05rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 14px 30px rgba(168, 85, 247, 0.22);
+  transition: 0.2s;
+  display: block;
+  text-align: center;
+  font-family: "David", "Assistant", sans-serif;
+}
+
+.btn-gradient-modern:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 32px rgba(168, 85, 247, 0.28);
+}
+
+.btn-gradient-modern:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.flash-messages {
+  margin-bottom: 18px;
+}
+
+.flash {
+  margin: 18px auto 0 auto;
+  padding: 16px 20px;
+  border-radius: 18px;
+  text-align: center;
+  font-weight: 800;
+  font-size: 1rem;
+  max-width: 760px;
+  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+}
+
+.flash.error,
+.modern-flash-error {
+  background-color: #fee2e2;
+  color: #991b1c;
+  border: 1px solid #fecaca;
+}
+
+.flash.success {
+  background-color: #ecfdf5;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+
+/* ================================
+   Admin dashboard
+   ================================ */
+
+.admin-wrapper {
+  width: min(1420px, calc(100vw - 140px));
+  max-width: none;
+  margin: 0 auto;
+  padding: 34px 0 110px;
+  direction: rtl;
+}
+
+.admin-header {
+  position: relative;
+  display: block;
+  text-align: center;
+  padding: 22px 0 26px;
+  margin: 0 0 26px;
+  border-bottom: 1px solid #edf2f7;
+}
+
+.admin-title-center {
+  max-width: 900px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.admin-header h1 {
+  margin: 6px 0 12px;
+  font-size: clamp(2.2rem, 3vw, 3.2rem);
+  line-height: 1.1;
+  color: #000;
+  font-weight: 900;
+}
+
+.admin-header p {
+  max-width: 780px;
+  margin: 0 auto;
+  color: #4b5563;
+  line-height: 1.8;
+  font-size: 1rem;
+  text-align: center;
+}
+
+.admin-header-actions {
+  position: absolute;
+  left: 0;
+  top: 22px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.btn-save-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px 28px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--admin-green) 0%, var(--admin-green-dark) 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 900;
+  font-size: 0.96rem;
+  box-shadow: 0 12px 28px rgba(16, 185, 129, 0.24);
+  cursor: pointer;
+  transition: 0.2s;
+  font-family: "David", "Assistant", sans-serif;
+}
+
+.btn-save-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 32px rgba(16, 185, 129, 0.30);
+}
+
+.btn-save-primary:disabled {
+  opacity: 0.72;
+  cursor: wait;
+}
+
+.admin-overview-card {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
+  border-radius: 28px;
+  padding: 26px;
+  display: grid;
+  grid-template-columns: 1.45fr 0.8fr;
+  gap: 20px;
+  margin-bottom: 28px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.overview-main h3 {
+  margin: 0 0 10px;
+  font-size: 1.45rem;
+  color: #111827;
+  font-weight: 900;
+}
+
+.overview-main p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.85;
+  font-size: 0.98rem;
+}
+
+.overview-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.overview-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 13px;
+  border-radius: 999px;
+  background: #f8f9ff;
+  border: 1px solid #e6e8fb;
+  color: #5b5f7a;
+  font-weight: 800;
+  font-size: 0.88rem;
+}
+
+.mini-guide {
+  height: 100%;
+  border-radius: 22px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f3f7ff 100%);
+  border: 1px solid #e6eef8;
+}
+
+.mini-guide strong {
+  display: block;
+  margin-bottom: 8px;
+  color: #111827;
+  font-size: 1rem;
+  font-weight: 900;
+}
+
+.mini-guide p {
+  margin: 0;
+  color: #4b5563;
+  line-height: 1.75;
+  font-size: 0.94rem;
+}
+
+.admin-tabs {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 14px 28px;
+  border-radius: 999px;
+  font-size: 1rem;
+  font-weight: 900;
+  cursor: pointer;
+  border: none;
+  transition: 0.2s;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  background: #f3f4f6;
+  color: #4b5563;
+  font-family: "David", "Assistant", sans-serif;
+}
+
+.tab-btn.active {
+  background: linear-gradient(135deg, var(--admin-primary) 0%, var(--admin-secondary) 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(168, 85, 247, 0.25);
+}
+
+.tab-btn:not(.active):hover {
+  background: #e5e7eb;
+  transform: translateY(-2px);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.save-status-row {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.save-status {
+  min-height: 1.4rem;
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.save-status.success {
+  color: #15803d;
+}
+
+.save-status.error {
+  color: #b91c1c;
+}
+
+.save-status.info {
+  color: #4b5563;
+}
+
+.admin-accordion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+.admin-accordion {
+  background: #ffffff;
+  border-radius: 26px;
+  border: 1px solid var(--admin-card-border);
+  box-shadow: var(--admin-soft-shadow);
+  overflow: hidden;
+  transition: 0.25s;
+}
+
+.admin-accordion:hover {
+  box-shadow: 0 14px 32px rgba(15, 23, 42, 0.08);
+  border-color: #dbe7f3;
+}
+
+.admin-accordion[open] {
+  grid-column: 1 / -1;
+  box-shadow: 0 18px 42px rgba(15, 23, 42, 0.10);
+}
+
+.accordion-summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 22px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  user-select: none;
+}
+
+.accordion-summary::-webkit-details-marker {
+  display: none;
+}
+
+.accordion-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 0;
+}
+
+.accordion-title-wrap h3 {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #111827;
+  font-weight: 900;
+}
+
+.accordion-title-wrap p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.7;
+  font-size: 0.94rem;
+}
+
+.accordion-open-indicator {
+  flex-shrink: 0;
+  border-radius: 999px;
+  padding: 9px 15px;
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 900;
+  font-size: 0.9rem;
+}
+
+.admin-accordion[open] .accordion-open-indicator {
+  background: linear-gradient(135deg, var(--admin-secondary) 0%, var(--admin-primary) 100%);
+  color: #ffffff;
+}
+
+.accordion-content {
+  border-top: 1px solid #eef2f7;
+  padding: 22px 24px 24px;
+}
+
+.settings-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.settings-field label {
+  display: block;
+  margin: 0 0 10px;
+  color: #111827;
+  font-weight: 900;
+  font-size: 0.98rem;
+}
+
+.clean-input,
+.edit-input,
+textarea.clean-input {
+  width: 100%;
+  border: 1px solid #dfe7f0;
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #111827;
+  background: #f8fafe;
+  outline: none;
+  transition: 0.2s;
+  font-family: "David", "Assistant", sans-serif;
+}
+
+.clean-input:focus,
+.edit-input:focus {
+  border-color: rgba(168, 85, 247, 0.35);
+  background: #ffffff;
+  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.10);
+}
+
+.section-actions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.section-small-note {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  margin: 0;
+}
+
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--admin-green) 0%, var(--admin-green-dark) 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 18px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.20);
+  transition: 0.2s;
+  white-space: nowrap;
+  cursor: pointer;
+  font-family: "David", "Assistant", sans-serif;
+}
+
+.btn-add:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(16, 185, 129, 0.28);
+}
+
+.compact-upload {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 12px;
+  align-items: center;
+  margin-bottom: 18px;
+  padding: 14px 16px;
+  background: linear-gradient(135deg, #f6fbff 0%, #eef7ff 100%);
+  border: 1px dashed #60a5fa;
+  border-radius: 18px;
+}
+
+.upload-input {
+  display: none;
+}
+
+.upload-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  cursor: pointer;
+  font-weight: 800;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.20);
+  transition: 0.2s;
+  white-space: nowrap;
+}
+
+.upload-label:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(2, 132, 199, 0.28);
+}
+
+.upload-status {
+  font-size: 0.86rem;
+  color: #0369a1;
+  font-weight: 700;
+  text-align: right;
+  flex: 1;
+}
+
+.upload-hint {
+  width: 100%;
+  color: var(--muted);
+  font-size: 0.82rem;
+  margin-top: 2px;
+}
+
+.edit-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.list-scrollable {
+  max-height: 610px;
+  overflow-y: auto;
+  padding-left: 5px;
+}
+
+.list-scrollable::-webkit-scrollbar {
+  width: 8px;
+}
+
+.list-scrollable::-webkit-scrollbar-thumb {
+  background: #dbe5ef;
+  border-radius: 999px;
+}
+
+.compact-grid-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.edit-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: linear-gradient(135deg, #fbfdff 0%, #f5f9ff 100%);
+  padding: 15px;
+  border-radius: 18px;
+  border: 1px solid #deebf7;
+  width: 100%;
+  transition: 0.2s;
+}
+
+.edit-item:hover {
+  border-color: #b8d7f5;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.06);
+}
+
+.edit-item-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.btn-del {
+  background: linear-gradient(135deg, #fb7185 0%, #ef4444 100%);
+  color: #ffffff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 0.88rem;
+  font-weight: 800;
+  box-shadow: 0 4px 8px rgba(239, 68, 68, 0.16);
+  transition: 0.2s;
+  flex-shrink: 0;
+  font-family: "David", "Assistant", sans-serif;
+  min-width: 82px;
+}
+
+.btn-del:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 14px rgba(239, 68, 68, 0.22);
+}
+
+.sticky-save-bar {
+  position: sticky;
+  bottom: 16px;
+  z-index: 20;
+  max-width: 680px;
+  margin: 24px auto 0;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  border-radius: 22px;
+  padding: 15px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.sticky-save-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sticky-save-copy strong {
+  color: #111827;
+  font-size: 1rem;
+}
+
+.sticky-save-copy span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.results-card {
+  background: #ffffff;
+  border: 1px solid #e8eef6;
+  border-radius: 24px;
+  padding: 22px;
+  margin-bottom: 20px;
+  box-shadow: var(--admin-soft-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+
+.results-card h2 {
+  margin: 0;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #111827;
+}
+
+.btn-download {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--admin-secondary) 0%, var(--admin-primary) 100%);
+  color: #ffffff;
+  border-radius: 12px;
+  padding: 11px 18px;
+  font-size: 0.92rem;
+  font-weight: 900;
+  box-shadow: 0 10px 24px rgba(236, 72, 153, 0.22);
+  text-decoration: none;
+}
+
+.table-container {
+  overflow-x: auto;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 24px;
+  box-shadow: var(--admin-soft-shadow);
+  border: 1px solid #edf2f7;
+}
+
+.table-empty-state {
+  text-align: center;
+  color: #6b7280;
+  padding: 34px 0;
+  font-weight: 700;
+  margin: 0;
+}
+
+.admin-footer-actions {
+  text-align: center;
+  margin-top: 34px;
+}
+
+.btn-logout-red {
+  display: inline-block;
+  background-color: #ef4444;
+  color: #ffffff !important;
+  text-decoration: none;
+  padding: 12px 30px;
+  border-radius: 14px;
+  font-weight: 900;
+  font-family: "David", "Assistant", sans-serif;
+  font-size: 1rem;
+  transition: 0.2s;
+  border: none;
+}
+
+.btn-logout-red:hover {
+  background-color: #dc2626;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 1200px) {
+  .admin-wrapper {
+    width: min(1180px, calc(100vw - 70px));
+  }
+
+  .admin-header-actions {
+    position: static;
+    justify-content: center;
+    margin-bottom: 18px;
+  }
+
+  .admin-header {
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+  }
+}
+
+@media (max-width: 980px) {
+  .admin-wrapper {
+    width: min(920px, calc(100vw - 36px));
+  }
+
+  .admin-overview-card {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-accordion-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-accordion[open] {
+    grid-column: auto;
+  }
+
+  .settings-form-grid,
+  .compact-grid-list {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-wrapper {
+    width: calc(100vw - 24px);
+    padding-bottom: 120px;
+  }
+
+  .admin-header-actions {
+    width: 100%;
+  }
+
+  .admin-header-actions .top-nav-btn,
+  .admin-header-actions .btn-save-primary {
+    width: 100%;
+  }
+
+  .login-ultra-wrapper .top-nav-btn {
+    position: static;
+    width: auto;
+    margin-top: 10px;
+  }
+
+  .login-hero {
+    margin-top: 10px;
+  }
+
+  .accordion-summary {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+
+  .accordion-title-wrap {
+    text-align: center;
+  }
+
+  .accordion-open-indicator {
+    width: 100%;
+    text-align: center;
+  }
+
+  .section-actions-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-add,
+  .btn-download {
+    width: 100%;
+  }
+
+  .edit-item-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn-del {
+    width: 100%;
+  }
+
+  .sticky-save-bar {
+    flex-direction: column;
+    align-items: stretch;
+    bottom: 10px;
+  }
+
+  .sticky-save-copy {
+    text-align: center;
+  }
+
+  .results-card {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+  }
+}

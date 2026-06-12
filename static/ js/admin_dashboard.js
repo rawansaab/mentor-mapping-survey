@@ -12,18 +12,25 @@ function initTabs() {
 
     tabButtons.forEach(button => {
         button.addEventListener('click', function () {
-            const targetId = button.dataset.tabTarget;
-            const target = document.getElementById(targetId);
+            const targetId = button.getAttribute('data-tab-target');
+            const targetContent = document.getElementById(targetId);
 
-            if (!target) return;
+            if (!targetContent) {
+                console.error('Tab target not found:', targetId);
+                return;
+            }
 
             tabButtons.forEach(btn => btn.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
 
             button.classList.add('active');
-            target.classList.add('active');
+            targetContent.classList.add('active');
 
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            const saveStatus = document.getElementById('saveStatus');
+            if (saveStatus) {
+                saveStatus.textContent = '';
+                saveStatus.className = 'save-status';
+            }
         });
     });
 }
@@ -33,6 +40,7 @@ function initAccordionBehavior() {
 
     accordions.forEach(details => {
         const indicator = details.querySelector('.accordion-open-indicator');
+
         if (indicator) {
             indicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
         }
@@ -55,10 +63,6 @@ function initAccordionBehavior() {
                         }
                     }
                 });
-
-                setTimeout(() => {
-                    details.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 120);
             }
         });
     });
@@ -70,15 +74,17 @@ function initDynamicListButtons() {
         const deleteButton = event.target.closest('[data-delete-item]');
 
         if (addButton) {
-            const containerId = addButton.dataset.addItem;
-            const placeholder = addButton.dataset.placeholder || 'פריט חדש';
+            const containerId = addButton.getAttribute('data-add-item');
+            const placeholder = addButton.getAttribute('data-placeholder') || 'פריט חדש';
             addItem(containerId, placeholder);
             return;
         }
 
         if (deleteButton) {
             const item = deleteButton.closest('.edit-item');
-            if (item) item.remove();
+            if (item) {
+                item.remove();
+            }
         }
     });
 }
@@ -86,8 +92,8 @@ function initDynamicListButtons() {
 function initFileUploads() {
     document.querySelectorAll('[data-upload-list]').forEach(input => {
         input.addEventListener('change', function (event) {
-            const containerId = input.dataset.uploadList;
-            const statusId = input.dataset.uploadStatus;
+            const containerId = input.getAttribute('data-upload-list');
+            const statusId = input.getAttribute('data-upload-status');
 
             uploadListFile(event, containerId, statusId);
         });

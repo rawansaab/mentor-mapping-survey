@@ -1,427 +1,443 @@
-:root {
-  --bg-1: #f4fbfb;
-  --bg-2: #f7f3fb;
-  --bg-4: #fdf1f4;
-  --bg-5: #f5faf5;
-  --ink: #0f172a;
-  --field-border: #d0d7e3;
-  --grad-main: linear-gradient(90deg, #f05da8 0%, #a855f7 100%);
+{% extends "layout.html" %}
+{% block title %}ניהול מערכת מדריכים{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+
+<div class="admin-wrapper">
+    <header class="admin-header">
+        <div class="admin-header-actions">
+            <a href="/" class="top-nav-btn">חזרה לשאלון</a>
+            <button id="saveTopBtn" type="submit" form="adminForm" class="btn-save-primary">שמור שינויים</button>
+        </div>
+
+        <div class="admin-title-center">
+            <span class="hero-eyebrow">לוח ניהול שאלון מדריכים</span>
+            <h1>פאנל ניהול מתקדם</h1>
+            <p>ניהול מבנה שאלון המדריכים, אפשרויות הבחירה ותשובות המדריכים — בממשק ברור, נקי ונוח לשימוש.</p>
+        </div>
+    </header>
+
+    <div class="admin-overview-card">
+        <div class="overview-main">
+            <h3>איך משתמשים בפאנל?</h3>
+            <p>
+                בחרי את החלק שברצונך לערוך, פתחי אותו, עדכני את הנתונים, ואז לחצי על שמירת שינויים.
+                כך אפשר לנהל את שאלון המדריכים בלי להיכנס לקוד.
+            </p>
+
+            <div class="overview-chips">
+                <span class="overview-chip">1. בוחרים מה לערוך</span>
+                <span class="overview-chip">2. פותחים רק את החלק הרלוונטי</span>
+                <span class="overview-chip">3. עורכים / מעלים קובץ</span>
+                <span class="overview-chip">4. שומרים שינויים</span>
+            </div>
+        </div>
+
+        <div class="mini-guide">
+            <strong>טיפ חשוב</strong>
+            <p>
+                אפשר להעלות CSV / JSON לרשימות כמו תחומי התמחות, סטטוס מדריך ונקודות חוות דעת.
+                העלאת קובץ מחליפה את הרשימה הקיימת באותו חלק.
+            </p>
+        </div>
+    </div>
+
+    <div class="admin-tabs">
+        <button class="tab-btn active" type="button" onclick="switchTab('editForm', event)">עריכת השאלון</button>
+        <button class="tab-btn" type="button" onclick="switchTab('viewResults', event)">תשובות מדריכים</button>
+    </div>
+
+    <div class="save-status-row">
+        <div id="saveStatus" class="save-status" aria-live="polite"></div>
+    </div>
+
+    <div id="editForm" class="tab-content active">
+        <form method="post" id="adminForm" onsubmit="return prepareData()">
+            <input type="hidden" name="specializations" id="hidden-specs">
+            <input type="hidden" name="mentor_statuses" id="hidden-statuses">
+            <input type="hidden" name="feedback_points" id="hidden-feedback">
+
+            <div class="admin-accordion-grid">
+
+                <details class="admin-accordion" open>
+                    <summary class="accordion-summary">
+                        <div class="accordion-title-wrap">
+                            <h3>הגדרות טקסט של הטופס</h3>
+                            <p>עדכון הכותרת הראשית וטקסט המשנה שמופיעים בראש שאלון המדריכים.</p>
+                        </div>
+                        <span class="accordion-open-indicator">סגור</span>
+                    </summary>
+
+                    <div class="accordion-content">
+                        <div class="settings-form-grid">
+                            <div class="settings-field">
+                                <label>כותרת ראשית</label>
+                                <input type="text" name="form_title" value="{{ settings.form_title }}" class="clean-input">
+                            </div>
+
+                            <div class="settings-field">
+                                <label>טקסט משנה</label>
+                                <textarea name="form_subtitle" rows="3" class="clean-input">{{ settings.form_subtitle }}</textarea>
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <details class="admin-accordion">
+                    <summary class="accordion-summary">
+                        <div class="accordion-title-wrap">
+                            <h3>תחומי התמחות</h3>
+                            <p>הרשימה שמופיעה בשדה “תחום התמחות” בשאלון המדריכים.</p>
+                        </div>
+                        <span class="accordion-open-indicator">פתח עריכה</span>
+                    </summary>
+
+                    <div class="accordion-content">
+                        <div class="section-actions-row">
+                            <p class="section-small-note">
+                                הוסיפי, מחקי או ערכי תחומי התמחות. הרשימה הזו תופיע למדריכים בטופס.
+                            </p>
+                            <button type="button" class="btn-add" onclick="addItem('list-specs', 'תחום חדש')">+ הוסף תחום</button>
+                        </div>
+
+                        <div class="compact-upload">
+                            <label class="upload-label" for="specsUpload">📤 העלאת CSV / JSON</label>
+                            <input type="file" id="specsUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-specs', 'specsStatus')">
+                            <span class="upload-status" id="specsStatus"></span>
+                            <small class="upload-hint">אפשר להעלות רשימה בשורות נפרדות, או CSV עם פריט בכל שורה.</small>
+                        </div>
+
+                        <div id="list-specs" class="edit-list compact-grid-list list-scrollable">
+                            {% for item in settings.specializations.split(',') if item.strip() %}
+                            <div class="edit-item">
+                                <div class="edit-item-row">
+                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </details>
+
+                <details class="admin-accordion">
+                    <summary class="accordion-summary">
+                        <div class="accordion-title-wrap">
+                            <h3>סטטוס מדריך</h3>
+                            <p>הרשימה שמופיעה בשדה “סטטוס מדריך” בשאלון המדריכים.</p>
+                        </div>
+                        <span class="accordion-open-indicator">פתח עריכה</span>
+                    </summary>
+
+                    <div class="accordion-content">
+                        <div class="section-actions-row">
+                            <p class="section-small-note">
+                                כאן עורכים את סוגי/סטטוס המדריכים שהמדריך יכול לבחור בטופס.
+                            </p>
+                            <button type="button" class="btn-add" onclick="addItem('list-statuses', 'סטטוס חדש')">+ הוסף סטטוס</button>
+                        </div>
+
+                        <div class="compact-upload">
+                            <label class="upload-label" for="statusesUpload">📤 העלאת CSV / JSON</label>
+                            <input type="file" id="statusesUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-statuses', 'statusesStatus')">
+                            <span class="upload-status" id="statusesStatus"></span>
+                            <small class="upload-hint">לדוגמה: מדריך חדש, מדריך ממשיך, מדריך מחליף.</small>
+                        </div>
+
+                        <div id="list-statuses" class="edit-list compact-grid-list list-scrollable">
+                            {% for item in settings.mentor_statuses.split(',') if item.strip() %}
+                            <div class="edit-item">
+                                <div class="edit-item-row">
+                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </details>
+
+                <details class="admin-accordion">
+                    <summary class="accordion-summary">
+                        <div class="accordion-title-wrap">
+                            <h3>נקודות לחוות דעת</h3>
+                            <p>האפשרויות שמופיעות בשדה “חוות דעת על המדריך” בטופס.</p>
+                        </div>
+                        <span class="accordion-open-indicator">פתח עריכה</span>
+                    </summary>
+
+                    <div class="accordion-content">
+                        <div class="section-actions-row">
+                            <p class="section-small-note">
+                                כאן מגדירים את הנקודות שהמדריך יוכל לבחור בחוות הדעת.
+                            </p>
+                            <button type="button" class="btn-add" onclick="addItem('list-feedback', 'נקודה חדשה')">+ הוסף נקודה</button>
+                        </div>
+
+                        <div class="compact-upload">
+                            <label class="upload-label" for="feedbackUpload">📤 העלאת CSV / JSON</label>
+                            <input type="file" id="feedbackUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-feedback', 'feedbackStatus')">
+                            <span class="upload-status" id="feedbackStatus"></span>
+                            <small class="upload-hint">כל שורה בקובץ תהפוך לנקודת חוות דעת נפרדת.</small>
+                        </div>
+
+                        <div id="list-feedback" class="edit-list compact-grid-list list-scrollable">
+                            {% for item in settings.feedback_points.split(',') if item.strip() %}
+                            <div class="edit-item">
+                                <div class="edit-item-row">
+                                    <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
+                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </details>
+
+            </div>
+
+            <div class="sticky-save-bar">
+                <div class="sticky-save-copy">
+                    <strong>סיימת לערוך?</strong>
+                    <span>לחצי על שמירה כדי לעדכן את שאלון המדריכים.</span>
+                </div>
+                <button id="saveBottomBtn" type="submit" class="btn-save-primary">שמור שינויים</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="viewResults" class="tab-content">
+        <div class="results-card">
+            <div>
+                <h2>נתוני המדריכים שהוגשו</h2>
+                <p class="section-small-note" style="margin-top: 8px;">
+                    כאן ניתן להוריד את נתוני המדריכים או לבדוק אותם ב-Google Sheets, לפי ההגדרות של המערכת.
+                </p>
+            </div>
+
+            <a href="/download/master" class="btn-download">הורד נתונים ל-Excel</a>
+        </div>
+
+        <div class="table-container">
+            <p class="table-empty-state">
+                רשימת המדריכים שהוגשו תופיע בקובץ ה-Excel שהורד למעלה או תסונכרן ל-Google Sheets.
+            </p>
+        </div>
+    </div>
+
+    <div class="admin-footer-actions">
+        <a href="{{ url_for('logout') }}" class="btn-logout-red">התנתקות מהמערכת</a>
+    </div>
+</div>
+
+<script>
+function switchTab(tabId, event) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+
+    const target = document.getElementById(tabId);
+    if (target) target.classList.add('active');
+
+    if (event && event.currentTarget) {
+        event.currentTarget.classList.add('active');
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-.admin-wrapper {
-  max-width: 1100px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: "David", "Assistant", sans-serif;
-  direction: rtl;
+function setSaveStatus(message, type = 'info') {
+    const statusEl = document.getElementById('saveStatus');
+    if (!statusEl) return;
+
+    statusEl.textContent = message;
+    statusEl.className = 'save-status ' + type;
 }
 
-.admin-header {
-  text-align: center;
-  margin-bottom: 30px;
-  margin-top: 40px;
+function escapeHtml(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
 }
 
-.admin-header h1 {
-  font-size: 40px;
-  color: #111827;
-  font-weight: 900;
-  margin: 0;
-  font-family: "David", sans-serif;
+function escapeAttr(value) {
+    return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('"', '&quot;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;');
 }
 
-.admin-header p {
-  color: #6b7280;
-  font-size: 16px;
-  margin-top: 6px;
+function addItem(containerId, placeholder) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    const div = document.createElement('div');
+    div.className = 'edit-item';
+    div.innerHTML = `
+        <div class="edit-item-row">
+            <input type="text" value="${escapeAttr(placeholder)}" class="edit-input val-item">
+            <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+        </div>`;
+    container.prepend(div);
 }
 
-.login-card {
-  max-width: 450px;
-  margin: 50px auto;
-  padding: 35px 30px;
-  background: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.06);
-  text-align: center;
-  border: 1px solid #f1f5f9;
+function collectList(containerId) {
+    return Array.from(document.querySelectorAll(`#${containerId} .val-item`))
+        .map(input => input.value.trim())
+        .filter(value => value !== "");
 }
 
-.login-card h2 {
-  font-size: 26px;
-  font-weight: 800;
-  color: #1e293b;
-  margin-top: 0;
-  margin-bottom: 25px;
-  font-family: "David", sans-serif;
+function prepareData() {
+    const saveButtons = document.querySelectorAll('#saveTopBtn, #saveBottomBtn');
+    saveButtons.forEach(btn => {
+        btn.disabled = true;
+        btn.textContent = 'שומר...';
+    });
+
+    setSaveStatus('שומר שינויים...', 'info');
+
+    document.getElementById('hidden-specs').value = collectList('list-specs').join(',');
+    document.getElementById('hidden-statuses').value = collectList('list-statuses').join(',');
+    document.getElementById('hidden-feedback').value = collectList('list-feedback').join(',');
+
+    return true;
 }
 
-.login-card label {
-  display: block;
-  text-align: right;
-  margin-bottom: 15px;
-  font-weight: bold;
-  color: #475569;
+function parseCSVData(text) {
+    const cleanText = String(text || '').replace(/^\uFEFF/, '').trim();
+    if (!cleanText) return [];
+
+    const lines = cleanText.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+
+    if (lines.length === 1 && lines[0].includes(',')) {
+        return lines[0]
+            .split(',')
+            .map(item => item.trim().replace(/^"|"$/g, ''))
+            .filter(Boolean);
+    }
+
+    return lines
+        .map(line => {
+            if (line.includes(',')) {
+                return line.split(',')[0].trim().replace(/^"|"$/g, '');
+            }
+            return line.replace(/^"|"$/g, '').trim();
+        })
+        .filter(Boolean);
 }
 
-.login-card input {
-  width: 100%;
-  padding: 14px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  margin-top: 6px;
-  font-family: "David", sans-serif;
-  font-size: 18px;
-  transition: 0.2s;
-  background: #f8fafc;
+function parseFileData(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+
+        reader.onload = (e) => {
+            try {
+                const content = e.target.result;
+                let data = [];
+
+                if (file.name.endsWith('.json')) {
+                    const json = JSON.parse(content);
+                    data = Array.isArray(json) ? json : Object.values(json);
+                    data = data.map(item => {
+                        if (typeof item === 'string') return item;
+                        if (item && typeof item === 'object') {
+                            return item.name || item.label || item.value || item.שם || '';
+                        }
+                        return '';
+                    });
+                } else {
+                    data = parseCSVData(content);
+                }
+
+                resolve(data.filter(item => item && String(item).trim().length > 0));
+            } catch (err) {
+                reject(err);
+            }
+        };
+
+        reader.onerror = reject;
+        reader.readAsText(file, 'utf-8');
+    });
 }
 
-.login-card input:focus {
-  border-color: #a855f7;
-  background: #fff;
-  outline: none;
-  box-shadow: 0 0 0 3px rgba(168,85,247,0.15);
+function uploadListFile(event, containerId, statusId) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const statusEl = document.getElementById(statusId);
+    if (statusEl) statusEl.textContent = 'בעיבוד...';
+
+    parseFileData(file)
+        .then(items => {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            items.forEach(item => {
+                const value = String(item).trim();
+                if (!value) return;
+
+                const div = document.createElement('div');
+                div.className = 'edit-item';
+                div.innerHTML = `
+                    <div class="edit-item-row">
+                        <input type="text" value="${escapeAttr(value)}" class="edit-input val-item">
+                        <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                    </div>`;
+                container.appendChild(div);
+            });
+
+            if (statusEl) {
+                statusEl.textContent = `✅ הועלו ${items.length} פריטים`;
+                setTimeout(() => { statusEl.textContent = ''; }, 3000);
+            }
+
+            event.target.value = '';
+        })
+        .catch(err => {
+            console.error(err);
+
+            if (statusEl) {
+                statusEl.textContent = '❌ שגיאה בקריאת הקובץ';
+                setTimeout(() => { statusEl.textContent = ''; }, 3000);
+            }
+        });
 }
 
-.login-btn {
-  width: 75%;
-  margin: 25px auto 0 auto;
-  display: block;
-  text-align: center;
-  background: var(--grad-main);
-  color: white;
-  border: none;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 19px;
-  font-weight: 800;
-  font-family: "David", sans-serif;
-  cursor: pointer;
-  transition: 0.3s;
-  box-shadow: 0 6px 15px rgba(168,85,247,0.25);
+function setupAccordionBehavior() {
+    const accordions = document.querySelectorAll('.admin-accordion');
+
+    accordions.forEach(details => {
+        const indicator = details.querySelector('.accordion-open-indicator');
+        if (indicator) {
+            indicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
+        }
+
+        details.addEventListener('toggle', () => {
+            const currentIndicator = details.querySelector('.accordion-open-indicator');
+
+            if (currentIndicator) {
+                currentIndicator.textContent = details.open ? 'סגור' : 'פתח עריכה';
+            }
+
+            if (details.open) {
+                accordions.forEach(other => {
+                    if (other !== details) {
+                        other.open = false;
+                        const otherIndicator = other.querySelector('.accordion-open-indicator');
+                        if (otherIndicator) otherIndicator.textContent = 'פתח עריכה';
+                    }
+                });
+
+                setTimeout(() => {
+                    details.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 120);
+            }
+        });
+    });
 }
 
-.login-btn:hover {
-  filter: brightness(1.1);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(168,85,247,0.35);
-}
-
-.forgot-link {
-  display: block;
-  text-align: center;
-  font-size: 16px;
-  color: #8b5cf6;
-  text-decoration: none;
-  margin-top: 20px;
-  cursor: pointer;
-  background: none;
-  border: none;
-  font-family: "David", sans-serif;
-  width: 100%;
-  font-weight: bold;
-}
-
-.forgot-link:hover { text-decoration: underline; }
-
-.flash-box {
-  margin-top: 25px;
-  padding: 15px;
-  border-radius: 12px;
-  font-weight: bold;
-  font-size: 16px;
-  text-align: center;
-}
-
-.flash-error { background: #fff1f2; color: #991b1b; border: 1px solid #fecaca; }
-.flash-success { background: #ecfdf5; color: #065f46; border: 1px solid #bbf7d0; }
-
-.admin-tabs {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 30px;
-}
-
-.tab-btn {
-  background: #f3f4f6;
-  border: none;
-  padding: 12px 30px;
-  font-size: 18px;
-  border-radius: 30px;
-  cursor: pointer;
-  font-weight: bold;
-  font-family: "David", sans-serif;
-  transition: 0.3s;
-  color: #4b5563;
-}
-
-.tab-btn.active {
-  background: var(--grad-main);
-  color: white;
-  box-shadow: 0 8px 20px rgba(168,85,247,0.3);
-}
-
-.tab-content { display: none; }
-.tab-content.active { display: block; }
-
-.admin-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-  .admin-grid { grid-template-columns: 1fr; }
-}
-
-.admin-section {
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-  border: 1px solid #e9edf3;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 15px;
-  border-bottom: 2px solid #f3f4f6;
-  padding-bottom: 10px;
-}
-
-.section-header h2, .section-header h3 {
-  font-size: 24px;
-  margin: 0;
-  color: #1f2937;
-}
-
-.edit-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  max-height: 400px;
-  overflow-y: auto;
-  padding-left: 5px;
-}
-
-.edit-item {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  background: #f8fafc;
-  padding: 12px;
-  border-radius: 10px;
-  border: 1px solid #e2e8f0;
-  width: 100%;
-}
-
-.edit-item-row {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-}
-
-.edit-input {
-  border: 1px solid transparent !important;
-  background: transparent !important;
-  padding: 5px !important;
-  font-weight: bold;
-  width: 100%;
-  border-radius: 6px;
-  font-family: "David", sans-serif;
-  font-size: 18px;
-}
-
-.edit-input:focus {
-  background: white !important;
-  border: 1px solid #a855f7 !important;
-  outline: none;
-}
-
-.btn-add {
-  background: #10b981;
-  color: white;
-  border: none;
-  padding: 6px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  font-family: "David", sans-serif;
-  font-weight: bold;
-}
-
-.btn-del {
-  background: #fee2e2;
-  color: #ef4444;
-  border: none;
-  padding: 8px 14px;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: 0.2s;
-  font-family: "David", sans-serif;
-  font-weight: bold;
-  flex-shrink: 0;
-}
-
-.btn-del:hover { background: #f87171; color: white; }
-
-.btn-save-floating {
-  position: fixed;
-  bottom: 30px;
-  left: 30px;
-  z-index: 1000;
-  background: linear-gradient(90deg,#10b981 0%,#059669 100%);
-  color: white;
-  border: none;
-  padding: 15px 30px;
-  border-radius: 50px;
-  font-weight: 900;
-  font-family: "David", sans-serif;
-  font-size: 20px;
-  box-shadow: 0 10px 25px rgba(16,185,129,0.4);
-  cursor: pointer;
-  transition: 0.3s;
-}
-
-.btn-save-floating:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 15px 30px rgba(16,185,129,0.6);
-}
-
-.table-container {
-  overflow-x: auto;
-  background: white;
-  padding: 20px;
-  border-radius: 16px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.05);
-}
-
-.results-table {
-  width: 100%;
-  border-collapse: collapse;
-  white-space: nowrap;
-  font-size: 16px;
-}
-
-.results-table th, .results-table td {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 12px;
-  text-align: right;
-}
-
-.results-table th {
-  background: #f9fafb;
-  color: #374151;
-  font-weight: bold;
-}
-
-.results-table tr:hover { background: #f3f4f6; }
-
-.btn-logout-red {
-  display: inline-block;
-  background-color: #ef4444;
-  color: #ffffff !important;
-  text-decoration: underline;
-  padding: 12px 30px;
-  border-radius: 10px;
-  font-weight: bold;
-  font-family: "David", sans-serif;
-  font-size: 18px;
-  transition: background-color 0.3s ease;
-  border: none;
-}
-
-.btn-logout-red:hover {
-  background-color: #dc2626;
-  text-decoration: underline;
-}
-
-.back-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: #f0ecf4;
-  color: #4b3e99;
-  padding: 8px 16px;
-  border-radius: 20px;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.back-to-form-btn {
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    padding: 8px 24px;
-    background-color: #ffffff;
-    border: 2.5px solid #b08496; /* צבע מסגרת התואם לתמונה */
-    border-radius: 50px; /* צורה אליפטית */
-    color: #b08496; /* צבע הטקסט */
-    font-size: 16px;
-    box-shadow: 0 4px 6px rgba(176, 132, 150, 0.1);
-    transition: all 0.3s ease;
-    letter-spacing: 0.5px;
-}
-
-.back-to-form-btn:hover {
-    background-color: #faf5f7;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(176, 132, 150, 0.15);
-}
-/* --- עיצוב כפתור חזרה לשאלון --- */
-.back-to-form-btn {
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: bold;
-    padding: 8px 24px;
-    background-color: #ffffff;
-    border: 2.5px solid #b08496;
-    border-radius: 50px;
-    color: #b08496;
-    font-size: 16px;
-    box-shadow: 0 4px 6px rgba(176, 132, 150, 0.1);
-    transition: all 0.3s ease;
-    letter-spacing: 0.5px;
-}
-
-.back-to-form-btn:hover {
-    background-color: #faf5f7;
-    transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(176, 132, 150, 0.15);
-}
-
-/* --- עיצוב הודעת שגיאה בהתחברות --- */
-.modern-flash-error {
-    background-color: #fff1f2;
-    border: 1px solid #fda4af;
-    color: #e11d48;
-    padding: 10px 15px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 14px;
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(225, 29, 72, 0.1);
-    margin-top: 15px;
-    animation: slideDown 0.3s ease-out;
-}
-
-@keyframes slideDown {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+document.addEventListener('DOMContentLoaded', setupAccordionBehavior);
+</script>
+{% endblock %}

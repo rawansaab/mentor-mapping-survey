@@ -231,8 +231,13 @@ body {
 
 .password-input {
   flex: 1;
-  direction: ltr;
-  text-align: left;
+  direction: rtl;
+  text-align: right;
+}
+
+.password-input::placeholder {
+  direction: rtl;
+  text-align: right;
 }
 
 .form-input-modern:focus {

@@ -1,49 +1,84 @@
 {% extends "layout.html" %}
-{% block title %}התחברות להנהלה{% endblock %}
+{% block title %}כניסה למרצים - שאלון מדריכים{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=10">
 
-<div class="admin-wrapper" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 70vh;">
-    
-    <div style="width: 100%; max-width: 400px; margin-bottom: 20px; text-align: right;">
-        <a href="/" class="back-to-form-btn">
+<div class="login-ultra-wrapper">
+    <div class="top-nav-row login-top-nav-row">
+        <a href="/" class="top-nav-btn">
             <span>חזרה לשאלון</span>
-            <span aria-hidden="true">⚙️</span>
         </a>
     </div>
 
-    <div class="login-card" style="width: 100%; max-width: 400px; padding: 30px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
-        <h2 style="text-align: center; margin-bottom: 25px; color: #333;">כניסה למרצים</h2>
-        
-        <form method="post" action="/admin_login">
-            <div style="margin-bottom: 15px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">סיסמת מנהל:</label>
-                <input type="password" name="password" required class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
-            </div>
-            
-            <div style="margin-bottom: 25px;">
-                <label style="display: block; margin-bottom: 8px; font-weight: bold; color: #555;">קוד סודי:</label>
-                <input type="password" name="secret_code" required class="edit-input" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px;">
-            </div>
-            
-            <button type="submit" class="btn primary" style="width: 100%; padding: 12px; font-size: 16px; border-radius: 50px; background-color: #b08496; color: white; border: none; cursor: pointer;">
-                כניסה למערכת
-            </button>
-        </form>
+    <div class="login-page-grid">
+        <section class="login-hero">
+            <span class="hero-eyebrow">מערכת ניהול מאובטחת</span>
+            <h1>פאנל ניהול מתקדם</h1>
+            <p>כאן ניתן לערוך את מבנה שאלון המדריכים ולצפות בתשובות.</p>
+        </section>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="messages-wrapper" style="margin-top: 15px;">
-                    {% for cat, msg in messages %}
-                        <div class="modern-flash-error">
-                            <span aria-hidden="true">⚠️</span>
-                            <span>{{ msg }}</span>
-                        </div>
-                    {% endfor %}
+        <aside class="login-card-modern">
+            <div class="card-head">
+                <span class="hero-eyebrow">כניסה למערכת</span>
+                <h2>כניסה למרצים</h2>
+                <p class="card-description">הכנס/י את סיסמת המנהל ואת הקוד הסודי כדי להיכנס ללוח הבקרה.</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for cat, msg in messages %}
+                            <div class="flash {{ cat }}">{{ msg }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form method="post" action="{{ url_for('admin_login') }}" class="login-form" onsubmit="return handleAdminLoginSubmit(this)">
+                <div class="form-field">
+                    <label for="password">סיסמת מנהל</label>
+                    <div class="password-field">
+                        <input id="password" type="password" name="password" required class="form-input-modern password-input" placeholder="הכנס סיסמה">
+                        <button type="button" class="password-toggle" onclick="togglePassword('password', this)">הצג</button>
+                    </div>
                 </div>
-            {% endif %}
-        {% endwith %}
+
+                <div class="form-field">
+                    <label for="secret_code">קוד סודי</label>
+                    <div class="password-field">
+                        <input id="secret_code" type="password" name="secret_code" required class="form-input-modern password-input" placeholder="הכנס קוד סודי">
+                        <button type="button" class="password-toggle" onclick="togglePassword('secret_code', this)">הצג</button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-gradient-modern" id="loginSubmitBtn">כניסה למערכת</button>
+            </form>
+        </aside>
     </div>
 </div>
+
+<script>
+function togglePassword(inputId, button) {
+    const input = document.getElementById(inputId);
+    if (!input) return;
+
+    if (input.type === 'password') {
+        input.type = 'text';
+        button.textContent = 'הסתר';
+    } else {
+        input.type = 'password';
+        button.textContent = 'הצג';
+    }
+}
+
+function handleAdminLoginSubmit(form) {
+    const button = form.querySelector('#loginSubmitBtn');
+    if (button) {
+        button.disabled = true;
+        button.textContent = 'טוען...';
+    }
+    return true;
+}
+</script>
 {% endblock %}

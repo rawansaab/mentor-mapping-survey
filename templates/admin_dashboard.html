@@ -2,7 +2,7 @@
 {% block title %}ניהול מערכת מדריכים{% endblock %}
 
 {% block styles %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=11">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=20">
 {% endblock %}
 
 {% block content %}
@@ -20,7 +20,7 @@
         </div>
     </header>
 
-    <div class="admin-overview-card">
+    <section class="admin-overview-card">
         <div class="overview-main">
             <h3>איך משתמשים בפאנל?</h3>
             <p>
@@ -43,11 +43,11 @@
                 העלאת קובץ מחליפה את הרשימה הקיימת באותו חלק.
             </p>
         </div>
-    </div>
+    </section>
 
     <div class="admin-tabs">
-        <button class="tab-btn active" type="button" onclick="switchTab('editForm', event)">עריכת השאלון</button>
-        <button class="tab-btn" type="button" onclick="switchTab('viewResults', event)">תשובות מדריכים</button>
+        <button class="tab-btn active" type="button" data-tab-target="editForm">עריכת השאלון</button>
+        <button class="tab-btn" type="button" data-tab-target="viewResults">תשובות מדריכים</button>
     </div>
 
     <div class="save-status-row">
@@ -55,31 +55,32 @@
     </div>
 
     <div id="editForm" class="tab-content active">
-        <form method="post" action="{{ url_for('admin_dashboard') }}" id="adminForm" onsubmit="return prepareData()">
+        <form method="post" action="{{ url_for('admin_dashboard') }}" id="adminForm">
             <input type="hidden" name="specializations" id="hidden-specs">
             <input type="hidden" name="mentor_statuses" id="hidden-statuses">
             <input type="hidden" name="feedback_points" id="hidden-feedback">
 
             <div class="admin-accordion-grid">
-                <details class="admin-accordion" open>
+
+                <details class="admin-accordion">
                     <summary class="accordion-summary">
                         <div class="accordion-title-wrap">
                             <h3>הגדרות טקסט של הטופס</h3>
                             <p>עדכון הכותרת הראשית וטקסט המשנה שמופיעים בראש שאלון המדריכים.</p>
                         </div>
-                        <span class="accordion-open-indicator">סגור</span>
+                        <span class="accordion-open-indicator">פתח עריכה</span>
                     </summary>
 
                     <div class="accordion-content">
                         <div class="settings-form-grid">
                             <div class="settings-field">
-                                <label>כותרת ראשית</label>
-                                <input type="text" name="form_title" value="{{ settings.form_title }}" class="clean-input">
+                                <label for="form_title">כותרת ראשית</label>
+                                <input id="form_title" type="text" name="form_title" value="{{ settings.form_title }}" class="clean-input">
                             </div>
 
                             <div class="settings-field">
-                                <label>טקסט משנה</label>
-                                <textarea name="form_subtitle" rows="3" class="clean-input">{{ settings.form_subtitle }}</textarea>
+                                <label for="form_subtitle">טקסט משנה</label>
+                                <textarea id="form_subtitle" name="form_subtitle" rows="3" class="clean-input">{{ settings.form_subtitle }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -97,12 +98,12 @@
                     <div class="accordion-content">
                         <div class="section-actions-row">
                             <p class="section-small-note">הוסיפי, מחקי או ערכי תחומי התמחות. הרשימה הזו תופיע למדריכים בטופס.</p>
-                            <button type="button" class="btn-add" onclick="addItem('list-specs', 'תחום חדש')">+ הוסף תחום</button>
+                            <button type="button" class="btn-add" data-add-item="list-specs" data-placeholder="תחום חדש">+ הוסף תחום</button>
                         </div>
 
                         <div class="compact-upload">
                             <label class="upload-label" for="specsUpload">📤 העלאת CSV / JSON</label>
-                            <input type="file" id="specsUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-specs', 'specsStatus')">
+                            <input type="file" id="specsUpload" class="upload-input" accept=".csv,.json,.txt" data-upload-list="list-specs" data-upload-status="specsStatus">
                             <span class="upload-status" id="specsStatus"></span>
                             <small class="upload-hint">אפשר להעלות רשימה בשורות נפרדות, או CSV עם פריט בכל שורה.</small>
                         </div>
@@ -112,7 +113,7 @@
                             <div class="edit-item">
                                 <div class="edit-item-row">
                                     <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                                    <button type="button" class="btn-del" data-delete-item>מחק</button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -132,12 +133,12 @@
                     <div class="accordion-content">
                         <div class="section-actions-row">
                             <p class="section-small-note">כאן עורכים את סוגי/סטטוס המדריכים שהמדריך יכול לבחור בטופס.</p>
-                            <button type="button" class="btn-add" onclick="addItem('list-statuses', 'סטטוס חדש')">+ הוסף סטטוס</button>
+                            <button type="button" class="btn-add" data-add-item="list-statuses" data-placeholder="סטטוס חדש">+ הוסף סטטוס</button>
                         </div>
 
                         <div class="compact-upload">
                             <label class="upload-label" for="statusesUpload">📤 העלאת CSV / JSON</label>
-                            <input type="file" id="statusesUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-statuses', 'statusesStatus')">
+                            <input type="file" id="statusesUpload" class="upload-input" accept=".csv,.json,.txt" data-upload-list="list-statuses" data-upload-status="statusesStatus">
                             <span class="upload-status" id="statusesStatus"></span>
                             <small class="upload-hint">לדוגמה: מדריך חדש, מדריך ממשיך, מדריך מחליף.</small>
                         </div>
@@ -147,7 +148,7 @@
                             <div class="edit-item">
                                 <div class="edit-item-row">
                                     <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                                    <button type="button" class="btn-del" data-delete-item>מחק</button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -167,12 +168,12 @@
                     <div class="accordion-content">
                         <div class="section-actions-row">
                             <p class="section-small-note">כאן מגדירים את הנקודות שהמדריך יוכל לבחור בחוות הדעת.</p>
-                            <button type="button" class="btn-add" onclick="addItem('list-feedback', 'נקודה חדשה')">+ הוסף נקודה</button>
+                            <button type="button" class="btn-add" data-add-item="list-feedback" data-placeholder="נקודה חדשה">+ הוסף נקודה</button>
                         </div>
 
                         <div class="compact-upload">
                             <label class="upload-label" for="feedbackUpload">📤 העלאת CSV / JSON</label>
-                            <input type="file" id="feedbackUpload" class="upload-input" accept=".csv,.json,.txt" onchange="uploadListFile(event, 'list-feedback', 'feedbackStatus')">
+                            <input type="file" id="feedbackUpload" class="upload-input" accept=".csv,.json,.txt" data-upload-list="list-feedback" data-upload-status="feedbackStatus">
                             <span class="upload-status" id="feedbackStatus"></span>
                             <small class="upload-hint">כל שורה בקובץ תהפוך לנקודת חוות דעת נפרדת.</small>
                         </div>
@@ -182,7 +183,7 @@
                             <div class="edit-item">
                                 <div class="edit-item-row">
                                     <input type="text" value="{{ item.strip() }}" class="edit-input val-item">
-                                    <button type="button" class="btn-del" onclick="this.closest('.edit-item').remove()">מחק</button>
+                                    <button type="button" class="btn-del" data-delete-item>מחק</button>
                                 </div>
                             </div>
                             {% endfor %}
@@ -205,7 +206,7 @@
         <div class="results-card">
             <div>
                 <h2>נתוני המדריכים שהוגשו</h2>
-                <p class="section-small-note" style="margin-top: 8px;">
+                <p class="section-small-note">
                     כאן ניתן להוריד את נתוני המדריכים או לבדוק אותם ב-Google Sheets, לפי ההגדרות של המערכת.
                 </p>
             </div>
@@ -221,11 +222,11 @@
     </div>
 
     <div class="admin-footer-actions">
-        <a href="{{ url_for('logout') }}" class="btn-logout-red">התנתקות מהמערכת</a>
+        <a href="{{ url_for('logout') }}" class="logout-link">התנתקות מהמערכת</a>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}?v=11"></script>
+<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}?v=20"></script>
 {% endblock %}

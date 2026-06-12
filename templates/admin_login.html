@@ -1,9 +1,11 @@
 {% extends "layout.html" %}
 {% block title %}כניסה למרצים - שאלון מדריכים{% endblock %}
 
-{% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=10">
+{% block styles %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}?v=11">
+{% endblock %}
 
+{% block content %}
 <div class="login-ultra-wrapper">
     <div class="top-nav-row login-top-nav-row">
         <a href="/" class="top-nav-btn">
@@ -57,28 +59,8 @@
         </aside>
     </div>
 </div>
+{% endblock %}
 
-<script>
-function togglePassword(inputId, button) {
-    const input = document.getElementById(inputId);
-    if (!input) return;
-
-    if (input.type === 'password') {
-        input.type = 'text';
-        button.textContent = 'הסתר';
-    } else {
-        input.type = 'password';
-        button.textContent = 'הצג';
-    }
-}
-
-function handleAdminLoginSubmit(form) {
-    const button = form.querySelector('#loginSubmitBtn');
-    if (button) {
-        button.disabled = true;
-        button.textContent = 'טוען...';
-    }
-    return true;
-}
-</script>
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/admin_login.js') }}?v=11"></script>
 {% endblock %}

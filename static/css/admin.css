@@ -1078,3 +1078,66 @@ button.btn-del:hover {
     text-align: center;
   }
 }
+/* =========================
+   CSS-only tabs fix
+   ========================= */
+
+.admin-tab-radio {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.admin-tab-panels .tab-content {
+  display: none !important;
+}
+
+#admin-tab-edit:checked ~ .admin-tab-panels #editForm {
+  display: block !important;
+}
+
+#admin-tab-results:checked ~ .admin-tab-panels #viewResults {
+  display: block !important;
+}
+
+#admin-tab-edit:checked ~ .admin-tabs label[for="admin-tab-edit"],
+#admin-tab-results:checked ~ .admin-tabs label[for="admin-tab-results"] {
+  background: linear-gradient(135deg, #ec4899 0%, #a855f7 100%) !important;
+  color: #ffffff !important;
+  box-shadow: 0 12px 28px rgba(168, 85, 247, 0.25) !important;
+}
+
+.admin-tabs label.tab-btn {
+  cursor: pointer;
+  user-select: none;
+}
+
+/* שהשמירה לא תכסה את הקוביות באמצע הדף */
+.sticky-save-bar {
+  position: static !important;
+  max-width: 680px;
+  margin: 28px auto 0 !important;
+}
+
+/* כפתור התנתקות כמו כפתור מסודר */
+.logout-link {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  background: #ef4444 !important;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  padding: 12px 30px !important;
+  border-radius: 14px !important;
+  font-weight: 900 !important;
+  font-family: "David", "Assistant", sans-serif !important;
+  font-size: 1rem !important;
+  transition: 0.2s !important;
+  border: none !important;
+  box-shadow: 0 10px 24px rgba(239, 68, 68, 0.20) !important;
+}
+
+.logout-link:hover {
+  background: #dc2626 !important;
+  transform: translateY(-1px);
+}

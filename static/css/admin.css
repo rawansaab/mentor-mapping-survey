@@ -21,7 +21,6 @@
 
   --grad-main: linear-gradient(90deg, #f05da8 0%, #a855f7 100%);
   --grad-green: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  --grad-pink-purple: linear-gradient(135deg, #ec4899 0%, #a855f7 100%);
   --grad-red: linear-gradient(135deg, #fb7185 0%, #ef4444 100%);
 }
 
@@ -46,7 +45,6 @@ body {
   overflow-x: hidden;
 }
 
-/* מסתיר כפתור ניהול כללי מתוך layout בדפי הניהול */
 .admin-link-bar {
   display: none !important;
 }
@@ -61,18 +59,10 @@ body {
 }
 
 /* =========================================================
-   General Admin Wrapper
+   Wrapper
    ========================================================= */
 
-.admin-ultra-wrapper {
-  width: min(100% - 48px, 1500px);
-  margin: 0 auto;
-  padding: 48px 0 70px;
-  direction: rtl;
-  font-family: "David", "Assistant", sans-serif;
-}
-
-/* תאימות לשם ישן אם יש עדיין admin-wrapper */
+.admin-ultra-wrapper,
 .admin-wrapper {
   width: min(100% - 48px, 1500px);
   max-width: none;
@@ -132,34 +122,8 @@ body {
   text-align: center;
 }
 
-/* תאימות לכותרת ישנה */
-.admin-header {
-  text-align: center;
-  padding: 22px 0 28px;
-  margin: 0 0 28px;
-  border-bottom: 1px solid #edf2f7;
-}
-
-.admin-header h1 {
-  margin: 6px 0 12px;
-  font-size: clamp(2.2rem, 3vw, 3.2rem);
-  line-height: 1.1;
-  color: #000;
-  font-weight: 900;
-  text-align: center;
-}
-
-.admin-header p {
-  max-width: 780px;
-  margin: 0 auto;
-  color: #4b5563;
-  line-height: 1.8;
-  font-size: 1rem;
-  text-align: center;
-}
-
 /* =========================================================
-   Top Buttons
+   Buttons
    ========================================================= */
 
 .top-nav-btn,
@@ -190,7 +154,6 @@ body {
   box-shadow: 0 14px 30px rgba(15, 23, 42, 0.12) !important;
 }
 
-/* שמור שינויים */
 .btn-save-primary,
 button.btn-save-primary,
 button.btn-save-primary[type="submit"],
@@ -227,8 +190,67 @@ button.btn-save-primary:disabled {
   transform: none !important;
 }
 
+.btn-add-green,
+.btn-download,
+.btn-add,
+button.btn-add,
+button.btn-add[type="button"] {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 145px !important;
+  min-height: 48px !important;
+  padding: 0 22px !important;
+  border: none !important;
+  border-radius: 14px !important;
+  background: var(--grad-green) !important;
+  color: #ffffff !important;
+  font-family: "David", "Assistant", sans-serif !important;
+  font-size: 0.95rem !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.22) !important;
+  transition: 0.2s !important;
+}
+
+.btn-add-green:hover,
+.btn-download:hover,
+.btn-add:hover,
+button.btn-add:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 14px 28px rgba(16, 185, 129, 0.28) !important;
+}
+
+.btn-delete-pink,
+.btn-del,
+button.btn-del,
+button.btn-del[type="button"] {
+  flex: 0 0 auto !important;
+  min-width: 82px !important;
+  min-height: 44px !important;
+  border: none !important;
+  border-radius: 14px !important;
+  background: var(--grad-red) !important;
+  color: #ffffff !important;
+  font-family: "David", "Assistant", sans-serif !important;
+  font-size: 0.92rem !important;
+  font-weight: 900 !important;
+  cursor: pointer !important;
+  box-shadow: 0 10px 22px rgba(251, 85, 99, 0.20) !important;
+  transition: 0.2s !important;
+  padding: 10px 16px !important;
+}
+
+.btn-delete-pink:hover,
+.btn-del:hover,
+button.btn-del:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.28) !important;
+}
+
 /* =========================================================
-   Overview Card
+   Overview
    ========================================================= */
 
 .admin-overview-card {
@@ -329,40 +351,6 @@ button.btn-save-primary:disabled {
 .modern-tab.inactive:hover {
   transform: translateY(-2px);
   background: #f8fafc;
-}
-
-/* תאימות לטאבים ישנים */
-.admin-tabs {
-  display: flex !important;
-  justify-content: center !important;
-  align-items: center !important;
-  gap: 14px !important;
-  flex-wrap: wrap !important;
-  margin: 26px auto 28px !important;
-}
-
-.admin-tabs .tab-btn,
-.tab-btn {
-  width: auto !important;
-  min-width: 170px !important;
-  padding: 14px 30px !important;
-  border-radius: 999px !important;
-  border: none !important;
-  cursor: pointer !important;
-  background: rgba(255, 255, 255, 0.88) !important;
-  color: #334155 !important;
-  box-shadow: 0 10px 26px rgba(15, 23, 42, 0.07) !important;
-  font-family: "David", "Assistant", sans-serif !important;
-  font-size: 1rem !important;
-  font-weight: 900 !important;
-  text-align: center !important;
-}
-
-.admin-tabs .tab-btn.active,
-.tab-btn.active {
-  background: var(--grad-main) !important;
-  color: #ffffff !important;
-  box-shadow: 0 12px 28px rgba(168, 85, 247, 0.25) !important;
 }
 
 .tab-content {
@@ -543,7 +531,7 @@ textarea.clean-input {
 }
 
 /* =========================================================
-   Section Actions
+   Section
    ========================================================= */
 
 .section-actions-row {
@@ -562,39 +550,6 @@ textarea.clean-input {
   line-height: 1.8;
 }
 
-/* כפתור הוספה */
-.btn-add-green,
-.btn-download,
-.btn-add,
-button.btn-add,
-button.btn-add[type="button"] {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  min-width: 145px !important;
-  min-height: 48px !important;
-  padding: 0 22px !important;
-  border: none !important;
-  border-radius: 14px !important;
-  background: var(--grad-green) !important;
-  color: #ffffff !important;
-  font-family: "David", "Assistant", sans-serif !important;
-  font-size: 0.95rem !important;
-  font-weight: 900 !important;
-  text-decoration: none !important;
-  cursor: pointer !important;
-  box-shadow: 0 12px 24px rgba(16, 185, 129, 0.22) !important;
-  transition: 0.2s !important;
-}
-
-.btn-add-green:hover,
-.btn-download:hover,
-.btn-add:hover,
-button.btn-add:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 14px 28px rgba(16, 185, 129, 0.28) !important;
-}
-
 /* =========================================================
    Lists
    ========================================================= */
@@ -606,21 +561,6 @@ button.btn-add:hover {
 
 .compact-grid-list {
   grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.list-scrollable {
-  max-height: 610px;
-  overflow-y: auto;
-  padding-left: 5px;
-}
-
-.list-scrollable::-webkit-scrollbar {
-  width: 8px;
-}
-
-.list-scrollable::-webkit-scrollbar-thumb {
-  background: #dbe5ef;
-  border-radius: 999px;
 }
 
 .edit-item {
@@ -647,36 +587,8 @@ button.btn-add:hover {
   width: 100%;
 }
 
-/* כפתור מחיקה */
-.btn-delete-pink,
-.btn-del,
-button.btn-del,
-button.btn-del[type="button"] {
-  flex: 0 0 auto !important;
-  min-width: 82px !important;
-  min-height: 44px !important;
-  border: none !important;
-  border-radius: 14px !important;
-  background: var(--grad-red) !important;
-  color: #ffffff !important;
-  font-family: "David", "Assistant", sans-serif !important;
-  font-size: 0.92rem !important;
-  font-weight: 900 !important;
-  cursor: pointer !important;
-  box-shadow: 0 10px 22px rgba(251, 85, 99, 0.20) !important;
-  transition: 0.2s !important;
-  padding: 10px 16px !important;
-}
-
-.btn-delete-pink:hover,
-.btn-del:hover,
-button.btn-del:hover {
-  transform: translateY(-1px) !important;
-  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.28) !important;
-}
-
 /* =========================================================
-   Drag & Drop Upload
+   Drag & Drop
    ========================================================= */
 
 .compact-upload.drop-zone,
@@ -760,25 +672,6 @@ button.btn-del:hover {
   display: none !important;
 }
 
-.upload-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: auto;
-  gap: 8px;
-  padding: 10px 16px;
-  margin: 0;
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  color: #ffffff;
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 800;
-  font-size: 0.9rem;
-  box-shadow: 0 4px 12px rgba(2, 132, 199, 0.20);
-  transition: 0.2s;
-  white-space: nowrap;
-}
-
 .upload-status {
   display: block !important;
   min-height: 22px !important;
@@ -800,15 +693,8 @@ button.btn-del:hover {
   color: #b91c1c !important;
 }
 
-.upload-hint {
-  width: 100%;
-  color: var(--muted);
-  font-size: 0.82rem;
-  margin-top: 2px;
-}
-
 /* =========================================================
-   Sticky Save Bar
+   Sticky Save
    ========================================================= */
 
 .sticky-save-bar {
@@ -875,30 +761,6 @@ button.btn-del:hover {
   padding: 38px 16px;
 }
 
-.results-table {
-  width: 100%;
-  border-collapse: collapse;
-  white-space: nowrap;
-  font-size: 0.95rem;
-}
-
-.results-table th,
-.results-table td {
-  border-bottom: 1px solid #e5e7eb;
-  padding: 12px;
-  text-align: right;
-}
-
-.results-table th {
-  background: #f8fafc;
-  color: #374151;
-  font-weight: 900;
-}
-
-.results-table tr:hover {
-  background: #f9fafb;
-}
-
 /* =========================================================
    Logout
    ========================================================= */
@@ -935,7 +797,7 @@ button.btn-del:hover {
 }
 
 /* =========================================================
-   Login Page
+   Login Compatibility
    ========================================================= */
 
 .login-ultra-wrapper {
@@ -950,66 +812,6 @@ button.btn-del:hover {
   box-sizing: border-box;
 }
 
-.login-page-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 22px;
-  align-items: center;
-  justify-items: center;
-  width: min(760px, calc(100vw - 32px));
-  max-width: 760px;
-  margin: 0 auto;
-  padding-bottom: 40px;
-}
-
-.top-nav-row {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  margin-bottom: 20px;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.login-top-nav-row {
-  margin-top: 16px;
-  margin-bottom: 0;
-}
-
-.login-ultra-wrapper .top-nav-btn {
-  position: fixed;
-  right: 20px;
-  top: 20px;
-  z-index: 9999;
-}
-
-.login-hero {
-  text-align: center;
-  max-width: 680px;
-  width: 100%;
-  margin-top: 42px;
-}
-
-.login-hero h1 {
-  font-size: clamp(2rem, 3vw, 2.8rem);
-  color: #111827;
-  margin: 0 0 14px;
-  line-height: 1.05;
-  font-weight: 900;
-  text-align: center;
-}
-
-.login-hero p,
-.card-description {
-  color: #4b5563;
-  font-size: 1rem;
-  line-height: 1.8;
-  margin: 0 auto;
-  max-width: 38rem;
-  text-align: center;
-}
-
 .login-card-modern,
 .login-card {
   background: #ffffff;
@@ -1021,32 +823,6 @@ button.btn-del:hover {
   border: 1px solid #eef2f7;
   margin: 0 auto;
   text-align: center;
-}
-
-.login-card-modern h2,
-.login-card h2,
-.login-card h3 {
-  text-align: center;
-  margin: 0 0 12px;
-  font-size: clamp(1.7rem, 2.5vw, 2rem);
-  color: #111827;
-  font-weight: 900;
-}
-
-.card-head {
-  text-align: center;
-  margin-bottom: 22px;
-}
-
-.form-field {
-  margin-bottom: 20px;
-  text-align: right;
-}
-
-.password-field {
-  display: flex;
-  align-items: center;
-  gap: 12px;
 }
 
 .form-input-modern,
@@ -1065,51 +841,16 @@ button.btn-del:hover {
   text-align: right;
 }
 
-.password-input {
-  flex: 1;
-  direction: rtl;
-  text-align: right;
-}
-
-.password-input::placeholder,
 .form-input-modern::placeholder,
 .login-card input::placeholder {
   direction: rtl;
   text-align: right;
 }
 
-.form-input-modern:focus,
-.login-card input:focus {
-  background-color: #ffffff;
-  border-color: rgba(168, 85, 247, 0.35);
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.12);
-}
-
-.password-toggle {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 82px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: #eef2ff;
-  border: 1px solid #dbeafe;
-  color: var(--admin-primary);
-  font-weight: 900;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.password-toggle:hover {
-  background: #e0e7ff;
-}
-
 .btn-gradient-modern,
 .login-btn,
 .btn-login {
   width: 100%;
-  min-width: auto;
   padding: 16px 20px;
   background: var(--grad-main);
   color: #ffffff;
@@ -1123,162 +864,6 @@ button.btn-del:hover {
   display: block;
   text-align: center;
   font-family: "David", "Assistant", sans-serif;
-}
-
-.btn-gradient-modern:hover,
-.login-btn:hover,
-.btn-login:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 16px 32px rgba(168, 85, 247, 0.28);
-}
-
-.btn-gradient-modern:disabled,
-.login-btn:disabled,
-.btn-login:disabled {
-  opacity: 0.72;
-  cursor: wait;
-}
-
-.link-button,
-.forgot-link {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 18px;
-  width: 100%;
-  border: none;
-  background: transparent;
-  color: var(--admin-primary);
-  font-weight: 900;
-  font-family: "David", "Assistant", sans-serif;
-  font-size: 0.95rem;
-  text-decoration: underline;
-  cursor: pointer;
-}
-
-/* =========================================================
-   Flash Messages
-   ========================================================= */
-
-.flash-messages {
-  margin-bottom: 18px;
-}
-
-.flash,
-.flash-box,
-.modern-flash,
-.modern-flash-error {
-  margin: 18px auto 0 auto;
-  padding: 16px 20px;
-  border-radius: 18px;
-  text-align: center;
-  font-weight: 800;
-  font-size: 1rem;
-  max-width: 760px;
-  box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
-}
-
-.flash.error,
-.flash-error,
-.modern-flash.error,
-.modern-flash-error {
-  background-color: #fee2e2;
-  color: #991b1c;
-  border: 1px solid #fecaca;
-}
-
-.flash.success,
-.flash-success,
-.modern-flash.success {
-  background-color: #ecfdf5;
-  color: #166534;
-  border: 1px solid #bbf7d0;
-}
-
-/* =========================================================
-   Extra Student/General Boxes Compatibility
-   ========================================================= */
-
-.info-box {
-  display: none;
-  background: #e0f2fe;
-  border: 1px solid #bae6fd;
-  color: #0284c7;
-  padding: 12px;
-  border-radius: 10px;
-  margin-top: 10px;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.disclaimer-box {
-  background: #fff7ed;
-  border: 1px solid #ffedd5;
-  color: #c2410c;
-  padding: 14px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-  font-size: 16px;
-  font-weight: bold;
-  line-height: 1.5;
-}
-
-.error-box {
-  background: #fee2e2;
-  border: 2px solid #ef4444;
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.error-box h3 {
-  color: #b91c1c;
-  margin-top: 0;
-  font-size: 20px;
-  margin-bottom: 15px;
-}
-
-.error-item {
-  margin-bottom: 15px;
-  border-bottom: 1px dashed #fca5a5;
-  padding-bottom: 15px;
-}
-
-.error-item:last-child {
-  border-bottom: none;
-  margin-bottom: 0;
-  padding-bottom: 0;
-}
-
-.error-title {
-  font-weight: 800;
-  color: #991b1b;
-  display: block;
-  margin-bottom: 4px;
-}
-
-.error-desc {
-  font-size: 16px;
-  color: #7f1d1d;
-  display: block;
-  margin-bottom: 10px;
-}
-
-.btn-fix {
-  padding: 6px 14px;
-  font-size: 15px;
-  font-weight: bold;
-  border: 1px solid #ef4444;
-  background: #fff;
-  color: #ef4444;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.btn-fix:hover {
-  background: #ef4444;
-  color: white;
 }
 
 /* =========================================================
@@ -1353,29 +938,5 @@ button.btn-del:hover {
   .btn-delete-pink,
   .btn-del {
     width: 100% !important;
-  }
-
-  .login-ultra-wrapper .top-nav-btn {
-    position: static;
-    width: auto !important;
-    margin-top: 10px;
-  }
-
-  .login-hero {
-    margin-top: 10px;
-  }
-
-  .login-card-modern,
-  .login-card {
-    padding: 24px;
-  }
-
-  .password-field {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .password-toggle {
-    width: 100%;
   }
 }

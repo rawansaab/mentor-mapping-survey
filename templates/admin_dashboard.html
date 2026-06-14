@@ -2,11 +2,11 @@
 {% block title %}ניהול מערכת מדריכים{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=60">
+<link rel="stylesheet" href="{{ url_for('static', filename='admin.css') }}?v=100">
 
 <div class="admin-ultra-wrapper">
 
-    <div class="admin-panel-header">
+    <header class="admin-panel-header">
         <div class="admin-header-actions">
             <a href="/" class="top-nav-btn">חזרה לשאלון</a>
 
@@ -24,12 +24,12 @@
             <span class="hero-eyebrow">לוח ניהול שאלון מדריכים</span>
             <h1>פאנל ניהול מתקדם</h1>
             <p class="admin-subtitle">
-                ניהול מבנה שאלון המדריכים, תחומי ההתמחות, סטטוס מדריך ונקודות לחוות דעת — בממשק נקי ונוח לשימוש.
+                ניהול מבנה שאלון המדריכים, תחומי ההתמחות, סטטוס מדריך ונקודות לחוות דעת — בממשק ברור, נקי ונוח לשימוש.
             </p>
         </div>
-    </div>
+    </header>
 
-    <div class="admin-overview-card">
+    <section class="admin-overview-card">
         <div class="overview-main">
             <h3>איך משתמשים בפאנל?</h3>
             <p>
@@ -52,7 +52,7 @@
                 או ללחוץ עליה ולבחור קובץ מהמחשב.
             </p>
         </div>
-    </div>
+    </section>
 
     <div class="modern-tabs-container">
         <button class="modern-tab active" type="button" data-tab-target="editForm">
@@ -69,7 +69,6 @@
     </div>
 
     <div id="editForm" class="tab-content active">
-
         <form method="post" id="adminForm" onsubmit="prepareData(event)">
 
             <div class="admin-accordion-grid">
@@ -78,9 +77,7 @@
                     <summary class="accordion-summary">
                         <div class="accordion-title-wrap">
                             <h3>הגדרות טקסט של הטופס</h3>
-                            <p>
-                                עדכון הכותרת הראשית וטקסט המשנה שמופיעים בראש שאלון המדריכים.
-                            </p>
+                            <p>עדכון הכותרת הראשית וטקסט המשנה שמופיעים בראש שאלון המדריכים.</p>
                         </div>
 
                         <span class="accordion-open-indicator">פתח עריכה</span>
@@ -94,7 +91,7 @@
                                     type="text"
                                     id="formTitle"
                                     name="form_title"
-                                    value="{{ settings.form_title }}"
+                                    value="{{ settings.get('form_title', '') }}"
                                     class="clean-input"
                                 >
                             </div>
@@ -106,7 +103,7 @@
                                     name="form_subtitle"
                                     rows="3"
                                     class="clean-input clean-textarea"
-                                >{{ settings.form_subtitle }}</textarea>
+                                >{{ settings.get('form_subtitle', '') }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -116,9 +113,7 @@
                     <summary class="accordion-summary">
                         <div class="accordion-title-wrap">
                             <h3>תחומי התמחות</h3>
-                            <p>
-                                רשימת התחומים שיופיעו בשדה “תחום התמחות” בשאלון המדריכים.
-                            </p>
+                            <p>רשימת התחומים שיופיעו בשדה “תחום התמחות” בשאלון המדריכים.</p>
                         </div>
 
                         <span class="accordion-open-indicator">פתח עריכה</span>
@@ -154,8 +149,6 @@
                                 id="specsUpload"
                                 class="upload-input"
                                 accept=".csv,.json,.txt"
-                                data-upload-list="list-specs"
-                                data-upload-status="specsStatus"
                             >
 
                             <div class="drop-zone-content">
@@ -169,7 +162,7 @@
                         </div>
 
                         <div id="list-specs" class="edit-list compact-grid-list">
-                            {% for item in settings.specializations.split(',') if item.strip() %}
+                            {% for item in settings.get('specializations', '').split(',') if item.strip() %}
                             <div class="edit-item compact-edit-item">
                                 <div class="edit-item-row compact-edit-row">
                                     <input
@@ -198,9 +191,7 @@
                     <summary class="accordion-summary">
                         <div class="accordion-title-wrap">
                             <h3>סטטוס מדריך</h3>
-                            <p>
-                                האפשרויות שיופיעו בשדה “סטטוס מדריך” בשאלון המדריכים.
-                            </p>
+                            <p>האפשרויות שיופיעו בשדה “סטטוס מדריך” בשאלון המדריכים.</p>
                         </div>
 
                         <span class="accordion-open-indicator">פתח עריכה</span>
@@ -236,8 +227,6 @@
                                 id="statusesUpload"
                                 class="upload-input"
                                 accept=".csv,.json,.txt"
-                                data-upload-list="list-statuses"
-                                data-upload-status="statusesStatus"
                             >
 
                             <div class="drop-zone-content">
@@ -251,7 +240,7 @@
                         </div>
 
                         <div id="list-statuses" class="edit-list compact-grid-list">
-                            {% for item in settings.mentor_statuses.split(',') if item.strip() %}
+                            {% for item in settings.get('mentor_statuses', '').split(',') if item.strip() %}
                             <div class="edit-item compact-edit-item">
                                 <div class="edit-item-row compact-edit-row">
                                     <input
@@ -280,9 +269,7 @@
                     <summary class="accordion-summary">
                         <div class="accordion-title-wrap">
                             <h3>נקודות לחוות דעת</h3>
-                            <p>
-                                רשימת נקודות שהמדריך יוכל לבחור כאשר הוא מוסר חוות דעת.
-                            </p>
+                            <p>רשימת נקודות שהמדריך יוכל לבחור כאשר הוא מוסר חוות דעת.</p>
                         </div>
 
                         <span class="accordion-open-indicator">פתח עריכה</span>
@@ -318,8 +305,6 @@
                                 id="feedbackUpload"
                                 class="upload-input"
                                 accept=".csv,.json,.txt"
-                                data-upload-list="list-feedback"
-                                data-upload-status="feedbackStatus"
                             >
 
                             <div class="drop-zone-content">
@@ -333,7 +318,7 @@
                         </div>
 
                         <div id="list-feedback" class="edit-list compact-grid-list">
-                            {% for item in settings.feedback_points.split(',') if item.strip() %}
+                            {% for item in settings.get('feedback_points', '').split(',') if item.strip() %}
                             <div class="edit-item compact-edit-item">
                                 <div class="edit-item-row compact-edit-row">
                                     <input
@@ -388,10 +373,7 @@
                     </p>
                 </div>
 
-                <a
-                    href="/download/master"
-                    class="btn-add-green btn-download"
-                >
+                <a href="/download/master" class="btn-add-green btn-download">
                     הורד נתונים ל-Excel
                 </a>
             </div>
@@ -412,5 +394,5 @@
 
 </div>
 
-<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}?v=60"></script>
+<script src="{{ url_for('static', filename='js/admin_dashboard.js') }}?v=100"></script>
 {% endblock %}
